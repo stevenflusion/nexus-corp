@@ -9,6 +9,7 @@ import { Pagination } from "@/components/magic-links/Pagination"
 import { EmptyState } from "@/components/magic-links/EmptyState"
 import { LoadingSkeleton } from "@/components/magic-links/LoadingSkeleton"
 import { MagicLinkDetailDrawer } from "@/components/magic-links/MagicLinkDetailDrawer"
+import { MagicLinkCreateDialog } from "@/components/magic-links/MagicLinkCreateDialog"
 import { ConfirmDialog } from "@/components/magic-links/ConfirmDialog"
 import {
   getMagicLinks,
@@ -157,6 +158,24 @@ export default function MagicLinksPage() {
     toast.info("Configuración cargada para duplicar")
   }
 
+  const handleCreateOpenChange = (open: boolean) => {
+    setIsCreateOpen(open)
+    if (!open) {
+      setDuplicateSource(null)
+    }
+  }
+
+  const handleCreated = async (link: MagicLink) => {
+    try {
+      const data = await getMagicLinks(filters)
+      setLinks(data)
+      toast.success(`MagicLink creado para ${link.recipientName}`)
+      setDuplicateSource(null)
+    } catch {
+      toast.error("No se pudo actualizar la lista")
+    }
+  }
+
   const handleAction = (
     action: string,
     link: MagicLink,
@@ -279,9 +298,12 @@ export default function MagicLinksPage() {
         destructive
       />
 
-      {/* Slice 4 will render the create dialog here using isCreateOpen and duplicateSource. */}
-      {isCreateOpen && null}
-      {duplicateSource && null}
+      <MagicLinkCreateDialog
+        open={isCreateOpen}
+        onOpenChange={handleCreateOpenChange}
+        duplicateSource={duplicateSource}
+        onCreated={handleCreated}
+      />
     </div>
   )
 }
