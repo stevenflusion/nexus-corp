@@ -33,7 +33,8 @@ const defaultFilters: MagicLinkFiltersType = {
 }
 
 export default function MagicLinksPage() {
-  const [filters, setFilters] = React.useState<MagicLinkFiltersType>(defaultFilters)
+  const [filters, setFilters] =
+    React.useState<MagicLinkFiltersType>(defaultFilters)
   const [links, setLinks] = React.useState<MagicLink[]>([])
   const [loading, setLoading] = React.useState(true)
   const [currentPage, setCurrentPage] = React.useState(1)
@@ -41,7 +42,8 @@ export default function MagicLinksPage() {
   const [selectedLink, setSelectedLink] = React.useState<MagicLink | null>(null)
   const [isDetailOpen, setIsDetailOpen] = React.useState(false)
   const [isCreateOpen, setIsCreateOpen] = React.useState(false)
-  const [duplicateSource, setDuplicateSource] = React.useState<MagicLink | null>(null)
+  const [duplicateSource, setDuplicateSource] =
+    React.useState<MagicLink | null>(null)
   const [activity, setActivity] = React.useState<ActivityLogEntry[]>([])
   const [isConfirmOpen, setIsConfirmOpen] = React.useState(false)
   const confirmActionRef = React.useRef<() => void>(() => {})
@@ -82,7 +84,9 @@ export default function MagicLinksPage() {
   }, [isDetailOpen, selectedLink?.id])
 
   const refreshLink = (updated: MagicLink) => {
-    setLinks((prev) => prev.map((link) => (link.id === updated.id ? updated : link)))
+    setLinks((prev) =>
+      prev.map((link) => (link.id === updated.id ? updated : link))
+    )
     setSelectedLink((prev) => (prev?.id === updated.id ? updated : prev))
   }
 
@@ -176,11 +180,7 @@ export default function MagicLinksPage() {
     }
   }
 
-  const handleAction = (
-    action: string,
-    link: MagicLink,
-    payload?: string
-  ) => {
+  const handleAction = (action: string, link: MagicLink, payload?: string) => {
     switch (action) {
       case "view":
         handleRowClick(link)

@@ -1,17 +1,17 @@
-import type { Metadata } from "next";
-import "./globals.css";
-import { Montserrat } from "next/font/google";
-import { cn } from "@/lib/utils";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { Toaster } from "@/components/ui/sonner";
-import { ThemeProvider } from "@/hooks/use-theme";
+import type { Metadata } from "next"
+import "./globals.css"
+import { Montserrat } from "next/font/google"
+import { cn } from "@/lib/utils"
+import { TooltipProvider } from "@/components/ui/tooltip"
+import { Toaster } from "@/components/ui/sonner"
+import { ThemeProvider } from "@/hooks/use-theme"
 
-const montserrat = Montserrat({subsets:['latin'],variable:'--font-sans'});
+const montserrat = Montserrat({ subsets: ["latin"], variable: "--font-sans" })
 
 export const metadata: Metadata = {
   title: "Nexus Corp | Admin",
   description: "Panel de administración de Nexus Corp",
-};
+}
 
 const themeScript = `
   (function() {
@@ -19,11 +19,19 @@ const themeScript = `
     var isDark = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
     if (isDark) document.documentElement.classList.add('dark');
   })();
-`;
+`
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode
+}) {
   return (
-    <html lang="es" className={cn("font-sans", montserrat.variable)} suppressHydrationWarning>
+    <html
+      lang="es"
+      className={cn("font-sans", montserrat.variable)}
+      suppressHydrationWarning
+    >
       <head>
         <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
@@ -34,5 +42,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </ThemeProvider>
       </body>
     </html>
-  );
+  )
 }

@@ -139,7 +139,9 @@ function computeExpirationDate(
 ): string | null {
   if (expiration.type === "relative") {
     if (!expiration.relativeHours || expiration.relativeHours <= 0) return null
-    return new Date(Date.now() + expiration.relativeHours * 3600000).toISOString()
+    return new Date(
+      Date.now() + expiration.relativeHours * 3600000
+    ).toISOString()
   }
 
   if (expiration.type === "absolute") {
@@ -169,10 +171,13 @@ function MagicLinkCreateDialog({
   onCreated,
 }: MagicLinkCreateDialogProps) {
   const [formState, setFormState] = React.useState<FormState>(initialFormState)
-  const [errors, setErrors] = React.useState<Partial<Record<FormErrorKey, string>>>({})
+  const [errors, setErrors] = React.useState<
+    Partial<Record<FormErrorKey, string>>
+  >({})
   const [loading, setLoading] = React.useState(false)
   const [createdLink, setCreatedLink] = React.useState<MagicLink | null>(null)
-  const [activationCalendarOpen, setActivationCalendarOpen] = React.useState(false)
+  const [activationCalendarOpen, setActivationCalendarOpen] =
+    React.useState(false)
 
   React.useEffect(() => {
     if (!open) return
@@ -234,7 +239,8 @@ function MagicLinkCreateDialog({
     const email = formState.recipientEmail.trim()
     if (formState.deliveryChannel !== "generate_only") {
       if (!email) {
-        nextErrors.recipientEmail = "El email es requerido para este canal de entrega"
+        nextErrors.recipientEmail =
+          "El email es requerido para este canal de entrega"
       } else if (!isValidEmail(email)) {
         nextErrors.recipientEmail = "El email no es válido"
       }
@@ -273,7 +279,8 @@ function MagicLinkCreateDialog({
         expirationDate &&
         new Date(expirationDate) <= new Date(formState.deferredActivationDate)
       ) {
-        nextErrors.expiration = "La expiración debe ser posterior a la activación"
+        nextErrors.expiration =
+          "La expiración debe ser posterior a la activación"
       }
     }
 
@@ -296,7 +303,6 @@ function MagicLinkCreateDialog({
     event.preventDefault()
 
     if (!validate()) {
-      toast.error("Revisa los campos del formulario")
       return
     }
 
@@ -583,7 +589,9 @@ function MagicLinkCreateDialog({
                 />
 
                 <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="destination-screen">Pantalla de destino</Label>
+                  <Label htmlFor="destination-screen">
+                    Pantalla de destino
+                  </Label>
                   <Select
                     value={formState.destinationScreen}
                     onValueChange={(value) => {
@@ -618,7 +626,9 @@ function MagicLinkCreateDialog({
 
               {/* Section 3: Vigencia */}
               <section className="flex flex-col gap-4">
-                <h3 className="text-sm font-medium text-foreground">Vigencia</h3>
+                <h3 className="text-sm font-medium text-foreground">
+                  Vigencia
+                </h3>
 
                 <div className="grid gap-6 sm:grid-cols-2">
                   <div className="flex flex-col gap-1.5">
@@ -652,10 +662,7 @@ function MagicLinkCreateDialog({
                       id="deferred-activation"
                       checked={formState.deferredActivationEnabled}
                       onCheckedChange={(checked) => {
-                        update(
-                          "deferredActivationEnabled",
-                          checked === true
-                        )
+                        update("deferredActivationEnabled", checked === true)
                         if (checked === true) {
                           const now = new Date()
                           now.setMinutes(now.getMinutes() + 5)
@@ -677,7 +684,9 @@ function MagicLinkCreateDialog({
                   {formState.deferredActivationEnabled && (
                     <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
                       <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="activation-date">Fecha de activación</Label>
+                        <Label htmlFor="activation-date">
+                          Fecha de activación
+                        </Label>
                         <Popover
                           open={activationCalendarOpen}
                           onOpenChange={setActivationCalendarOpen}
@@ -698,10 +707,7 @@ function MagicLinkCreateDialog({
                                 : "Seleccionar fecha"}
                             </Button>
                           </PopoverTrigger>
-                          <PopoverContent
-                            className="w-auto p-0"
-                            align="start"
-                          >
+                          <PopoverContent className="w-auto p-0" align="start">
                             <Calendar
                               mode="single"
                               selected={activationDate}

@@ -47,7 +47,9 @@ function Pagination({
 
       <div className="flex items-center gap-3">
         <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Filas por página</span>
+          <span className="text-sm text-muted-foreground">
+            Filas por página
+          </span>
           <Select
             value={String(itemsPerPage)}
             onValueChange={(value) =>

@@ -35,7 +35,10 @@ function UsageLimitInput({ value, onChange, error }: UsageLimitInputProps) {
       return
     }
     const parsed = Number.parseInt(raw, 10)
-    onChange({ ...value, count: Number.isNaN(parsed) ? null : Math.max(1, parsed) })
+    onChange({
+      ...value,
+      count: Number.isNaN(parsed) ? null : Math.max(1, parsed),
+    })
   }
 
   return (

@@ -44,12 +44,18 @@ function CopyableLinkField({ url, label }: CopyableLinkFieldProps) {
         <Button
           type="button"
           variant="outline"
-          size="icon-sm"
+          size={copied ? "sm" : "icon-sm"}
           onClick={handleCopy}
           aria-label={copied ? "Copiado" : "Copiar link"}
           className="shrink-0"
         >
-          {copied ? <CheckIcon /> : <CopyIcon />}
+          {copied ? (
+            <span className="flex items-center gap-1">
+              Copiado <CheckIcon className="size-3.5" />
+            </span>
+          ) : (
+            <CopyIcon />
+          )}
         </Button>
       </div>
     </div>

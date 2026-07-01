@@ -15,9 +15,9 @@ const statusBadgeVariants = cva("", {
       revoked: "",
     },
     size: {
-      sm: "text-[0.65rem] px-1.5 py-0",
+      sm: "px-1.5 py-0 text-[0.65rem]",
       default: "",
-      lg: "text-sm px-2.5 py-0.5",
+      lg: "px-2.5 py-0.5 text-sm",
     },
   },
   defaultVariants: {
@@ -37,7 +37,8 @@ const statusConfig: Record<
 }
 
 interface StatusBadgeProps
-  extends Omit<React.ComponentProps<typeof Badge>, "variant">,
+  extends
+    Omit<React.ComponentProps<typeof Badge>, "variant">,
     VariantProps<typeof statusBadgeVariants> {
   status: MagicLinkStatus
 }

@@ -12,7 +12,11 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-import type { MagicLinkFilters, MagicLinkRole, MagicLinkStatus } from "@/lib/types"
+import type {
+  MagicLinkFilters,
+  MagicLinkRole,
+  MagicLinkStatus,
+} from "@/lib/types"
 
 const statusLabels: Record<MagicLinkStatus | "all", string> = {
   all: "Todos",
@@ -60,7 +64,7 @@ function MagicLinkFilters({
       className="flex flex-col gap-3 rounded-xl border border-border bg-card p-4 shadow-sm"
     >
       <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div className="relative flex-1 min-w-[16rem] max-w-md">
+        <div className="relative max-w-md min-w-[16rem] flex-1">
           <SearchIcon className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
           <Input
             data-slot="magic-link-filters-search"
@@ -109,7 +113,9 @@ function MagicLinkFilters({
             <SelectContent>
               <SelectItem value="all">{roleLabels.all}</SelectItem>
               <SelectItem value="admin">{roleLabels.admin}</SelectItem>
-              <SelectItem value="brand_manager">{roleLabels.brand_manager}</SelectItem>
+              <SelectItem value="brand_manager">
+                {roleLabels.brand_manager}
+              </SelectItem>
               <SelectItem value="tendero">{roleLabels.tendero}</SelectItem>
               <SelectItem value="delivery">{roleLabels.delivery}</SelectItem>
             </SelectContent>
@@ -143,9 +149,7 @@ function MagicLinkFilters({
             data-slot="magic-link-filters-date-to"
             type="date"
             value={filters.dateTo ?? ""}
-            onChange={(event) =>
-              update({ dateTo: event.target.value || null })
-            }
+            onChange={(event) => update({ dateTo: event.target.value || null })}
             className="w-full sm:w-40"
           />
         </div>
@@ -155,10 +159,7 @@ function MagicLinkFilters({
           variant="ghost"
           onClick={onClearFilters}
           disabled={!hasActiveFilters}
-          className={cn(
-            "w-full sm:w-auto",
-            !hasActiveFilters && "invisible"
-          )}
+          className={cn("w-full sm:w-auto", !hasActiveFilters && "invisible")}
         >
           <XIcon />
           Limpiar filtros

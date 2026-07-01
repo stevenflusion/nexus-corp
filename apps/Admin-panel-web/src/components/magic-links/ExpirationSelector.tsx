@@ -38,7 +38,11 @@ const presets = [
   { label: "30 días", hours: 720 },
 ]
 
-function ExpirationSelector({ value, onChange, error }: ExpirationSelectorProps) {
+function ExpirationSelector({
+  value,
+  onChange,
+  error,
+}: ExpirationSelectorProps) {
   const [date, setDate] = React.useState<Date | undefined>(
     value.absoluteDate ? new Date(value.absoluteDate) : undefined
   )

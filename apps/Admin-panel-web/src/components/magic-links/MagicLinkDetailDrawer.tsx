@@ -2,8 +2,6 @@
 
 import * as React from "react"
 import {
-  CopyIcon,
-  CheckIcon,
   BanIcon,
   SendIcon,
   CalendarClockIcon,
@@ -13,7 +11,6 @@ import { toast } from "sonner"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
 import { Separator } from "@/components/ui/separator"
 import {
   Sheet,
@@ -24,7 +21,14 @@ import {
 } from "@/components/ui/sheet"
 import { StatusBadge } from "@/components/magic-links/StatusBadge"
 import { ActivityTimeline } from "@/components/magic-links/ActivityTimeline"
-import type { MagicLink, MagicLinkStatus, ActivityLogEntry } from "@/lib/types"
+import { CopyableLinkField } from "@/components/magic-links/CopyableLinkField"
+import { ExpirationSelector } from "@/components/magic-links/ExpirationSelector"
+import type {
+  MagicLink,
+  MagicLinkStatus,
+  ActivityLogEntry,
+  ExpirationType,
+} from "@/lib/types"
 
 interface MagicLinkDetailDrawerProps {
   link: MagicLink | null
@@ -81,46 +85,18 @@ function formatUsage(link: MagicLink): string {
   return `${link.usageCount} / ${link.usageLimit}`
 }
 
-function getInitialExtendDate(link: MagicLink): string {
-  const base = link.expirationDate ? new Date(link.expirationDate) : new Date()
-  base.setDate(base.getDate() + 7)
-  return base.toISOString().slice(0, 16)
+const initialExtendExpiration = {
+  type: "relative" as ExpirationType,
+  relativeHours: 168,
 }
 
-function CopyableUrlField({ url }: { url: string }) {
-  const [copied, setCopied] = React.useState(false)
-
-  const handleCopy = async () => {
-    try {
-      await navigator.clipboard.writeText(url)
-      setCopied(true)
-      toast.success("Link copiado al portapapeles")
-      setTimeout(() => setCopied(false), 2000)
-    } catch {
-      toast.error("No se pudo copiar el link")
-    }
-  }
-
-  return (
-    <div data-slot="copyable-url-field" className="flex items-center gap-2">
-      <Input
-        readOnly
-        value={url}
-        className="flex-1 bg-muted/30 font-mono text-xs"
-      />
-      <Button
-        variant="outline"
-        size="icon-sm"
-        onClick={handleCopy}
-        aria-label={copied ? "Copiado" : "Copiar link"}
-      >
-        {copied ? <CheckIcon /> : <CopyIcon />}
-      </Button>
-    </div>
-  )
-}
-
-function SummaryRow({ label, value }: { label: string; value: React.ReactNode }) {
+function SummaryRow({
+  label,
+  value,
+}: {
+  label: string
+  value: React.ReactNode
+}) {
   return (
     <div className="grid grid-cols-[6.5rem_1fr] items-start gap-2 text-sm">
       <span className="text-muted-foreground">{label}</span>
@@ -149,12 +125,16 @@ function MagicLinkDetailDrawer({
   activity = [],
 }: MagicLinkDetailDrawerProps) {
   const [isExtending, setIsExtending] = React.useState(false)
-  const [extendDate, setExtendDate] = React.useState<string>("")
+  const [extendExpiration, setExtendExpiration] = React.useState<{
+    type: ExpirationType
+    relativeHours?: number
+    absoluteDate?: string
+  }>(initialExtendExpiration)
 
   React.useEffect(() => {
     if (link) {
       setIsExtending(false)
-      setExtendDate(getInitialExtendDate(link))
+      setExtendExpiration(initialExtendExpiration)
     }
   }, [link?.id])
 
@@ -175,12 +155,33 @@ function MagicLinkDetailDrawer({
   }
 
   const handleExtendConfirm = () => {
-    if (!extendDate) return
-    const date = new Date(extendDate)
-    if (Number.isNaN(date.getTime())) {
-      toast.error("Fecha de expiración inválida")
+    let nextExpiration: string | null = null
+
+    if (
+      extendExpiration.type === "relative" &&
+      extendExpiration.relativeHours
+    ) {
+      nextExpiration = new Date(
+        Date.now() + extendExpiration.relativeHours * 3600000
+      ).toISOString()
+    } else if (
+      extendExpiration.type === "absolute" &&
+      extendExpiration.absoluteDate
+    ) {
+      nextExpiration = extendExpiration.absoluteDate
+    }
+
+    if (!nextExpiration) {
+      toast.error("Seleccioná una fecha de expiración")
       return
     }
+
+    const date = new Date(nextExpiration)
+    if (Number.isNaN(date.getTime()) || date <= new Date()) {
+      toast.error("La fecha de expiración debe ser en el futuro")
+      return
+    }
+
     handleAction("extend", link.status, date.toISOString())
     setIsExtending(false)
   }
@@ -200,7 +201,7 @@ function MagicLinkDetailDrawer({
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4 pt-0">
           <div className="flex flex-col gap-3">
             <StatusBadge status={link.status} size="lg" />
-            <CopyableUrlField url={link.url} />
+            <CopyableLinkField url={link.url} />
           </div>
 
           <Separator />
@@ -209,14 +210,8 @@ function MagicLinkDetailDrawer({
             <h4 className="text-sm font-medium">Destinatario</h4>
             <div className="flex flex-col gap-2">
               <SummaryRow label="Nombre" value={link.recipientName} />
-              <SummaryRow
-                label="Email"
-                value={link.recipientEmail ?? "—"}
-              />
-              <SummaryRow
-                label="Teléfono"
-                value={link.recipientPhone ?? "—"}
-              />
+              <SummaryRow label="Email" value={link.recipientEmail ?? "—"} />
+              <SummaryRow label="Teléfono" value={link.recipientPhone ?? "—"} />
               <SummaryRow
                 label="Nota interna"
                 value={link.internalNote ?? "—"}
@@ -231,10 +226,7 @@ function MagicLinkDetailDrawer({
             <div className="flex flex-col gap-2">
               <SummaryRow label="Rol" value={roleLabels[link.role]} />
               <SummaryRow label="Scope" value={link.scope} />
-              <SummaryRow
-                label="Pantalla"
-                value={link.destinationScreen}
-              />
+              <SummaryRow label="Pantalla" value={link.destinationScreen} />
             </div>
           </section>
 
@@ -302,18 +294,13 @@ function MagicLinkDetailDrawer({
 
           <div className="flex flex-col gap-3 pt-2">
             {isExtending ? (
-              <div className="flex flex-col gap-2 rounded-xl border border-border bg-muted/30 p-3">
-                <label
-                  htmlFor="extend-date"
-                  className="text-sm font-medium"
-                >
+              <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/30 p-3">
+                <span className="text-sm font-medium">
                   Nueva fecha de expiración
-                </label>
-                <Input
-                  id="extend-date"
-                  type="datetime-local"
-                  value={extendDate}
-                  onChange={(event) => setExtendDate(event.target.value)}
+                </span>
+                <ExpirationSelector
+                  value={extendExpiration}
+                  onChange={setExtendExpiration}
                 />
                 <div className="flex gap-2">
                   <Button
@@ -326,7 +313,11 @@ function MagicLinkDetailDrawer({
                   <Button
                     className="flex-1"
                     onClick={handleExtendConfirm}
-                    disabled={!extendDate}
+                    disabled={
+                      extendExpiration.type === "relative"
+                        ? !extendExpiration.relativeHours
+                        : !extendExpiration.absoluteDate
+                    }
                   >
                     Confirmar
                   </Button>
@@ -367,9 +358,7 @@ function MagicLinkDetailDrawer({
                   <div className="flex flex-col gap-2 sm:flex-row">
                     <ActionButton
                       data-slot="magic-link-detail-duplicate"
-                      onClick={() =>
-                        handleAction("duplicate", link.status)
-                      }
+                      onClick={() => handleAction("duplicate", link.status)}
                     >
                       <CopyPlusIcon />
                       Duplicar configuración
@@ -389,9 +378,7 @@ function MagicLinkDetailDrawer({
                     </ActionButton>
                     <ActionButton
                       data-slot="magic-link-detail-duplicate"
-                      onClick={() =>
-                        handleAction("duplicate", link.status)
-                      }
+                      onClick={() => handleAction("duplicate", link.status)}
                     >
                       <CopyPlusIcon />
                       Duplicar configuración
