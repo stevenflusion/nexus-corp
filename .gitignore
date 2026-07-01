@@ -28,6 +28,10 @@ dist
 # Astro
 .astro
 
+# Next.js
+.next
+next-env.d.ts
+
 # Debug
 npm-debug.log*
 
