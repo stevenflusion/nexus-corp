@@ -1,0 +1,402 @@
+[
+  {
+    "type": "fullpage",
+    "route": "/",
+    "viewport": "desktop",
+    "file": "informe\\capturas-web\\inicio-desktop-fullpage.png"
+  },
+  {
+    "type": "section",
+    "route": "/",
+    "viewport": "desktop",
+    "section": "hero",
+    "file": "informe\\capturas-web\\secciones\\inicio-desktop-hero.png"
+  },
+  {
+    "type": "section",
+    "route": "/",
+    "viewport": "desktop",
+    "section": "medio",
+    "file": "informe\\capturas-web\\secciones\\inicio-desktop-medio.png"
+  },
+  {
+    "type": "section",
+    "route": "/",
+    "viewport": "desktop",
+    "section": "footer",
+    "file": "informe\\capturas-web\\secciones\\inicio-desktop-footer.png"
+  },
+  {
+    "type": "fullpage",
+    "route": "/servicios/",
+    "viewport": "desktop",
+    "file": "informe\\capturas-web\\servicios-desktop-fullpage.png"
+  },
+  {
+    "type": "section",
+    "route": "/servicios/",
+    "viewport": "desktop",
+    "section": "hero",
+    "file": "informe\\capturas-web\\secciones\\servicios-desktop-hero.png"
+  },
+  {
+    "type": "section",
+    "route": "/servicios/",
+    "viewport": "desktop",
+    "section": "medio",
+    "file": "informe\\capturas-web\\secciones\\servicios-desktop-medio.png"
+  },
+  {
+    "type": "section",
+    "route": "/servicios/",
+    "viewport": "desktop",
+    "section": "footer",
+    "file": "informe\\capturas-web\\secciones\\servicios-desktop-footer.png"
+  },
+  {
+    "type": "fullpage",
+    "route": "/nosotros/",
+    "viewport": "desktop",
+    "file": "informe\\capturas-web\\nosotros-desktop-fullpage.png"
+  },
+  {
+    "type": "section",
+    "route": "/nosotros/",
+    "viewport": "desktop",
+    "section": "hero",
+    "file": "informe\\capturas-web\\secciones\\nosotros-desktop-hero.png"
+  },
+  {
+    "type": "section",
+    "route": "/nosotros/",
+    "viewport": "desktop",
+    "section": "medio",
+    "file": "informe\\capturas-web\\secciones\\nosotros-desktop-medio.png"
+  },
+  {
+    "type": "section",
+    "route": "/nosotros/",
+    "viewport": "desktop",
+    "section": "footer",
+    "file": "informe\\capturas-web\\secciones\\nosotros-desktop-footer.png"
+  },
+  {
+    "type": "fullpage",
+    "route": "/contacto/",
+    "viewport": "desktop",
+    "file": "informe\\capturas-web\\contacto-desktop-fullpage.png"
+  },
+  {
+    "type": "section",
+    "route": "/contacto/",
+    "viewport": "desktop",
+    "section": "hero",
+    "file": "informe\\capturas-web\\secciones\\contacto-desktop-hero.png"
+  },
+  {
+    "type": "section",
+    "route": "/contacto/",
+    "viewport": "desktop",
+    "section": "medio",
+    "file": "informe\\capturas-web\\secciones\\contacto-desktop-medio.png"
+  },
+  {
+    "type": "section",
+    "route": "/contacto/",
+    "viewport": "desktop",
+    "section": "footer",
+    "file": "informe\\capturas-web\\secciones\\contacto-desktop-footer.png"
+  },
+  {
+    "type": "component",
+    "component": "contact-form",
+    "route": "/contacto/",
+    "viewport": "desktop",
+    "file": "informe\\capturas-web\\componentes\\contacto-desktop-formulario-contacto.png"
+  },
+  {
+    "type": "fullpage",
+    "route": "/cotizador/",
+    "viewport": "desktop",
+    "file": "informe\\capturas-web\\cotizador-desktop-fullpage.png"
+  },
+  {
+    "type": "section",
+    "route": "/cotizador/",
+    "viewport": "desktop",
+    "section": "hero",
+    "file": "informe\\capturas-web\\secciones\\cotizador-desktop-hero.png"
+  },
+  {
+    "type": "section",
+    "route": "/cotizador/",
+    "viewport": "desktop",
+    "section": "medio",
+    "file": "informe\\capturas-web\\secciones\\cotizador-desktop-medio.png"
+  },
+  {
+    "type": "section",
+    "route": "/cotizador/",
+    "viewport": "desktop",
+    "section": "footer",
+    "file": "informe\\capturas-web\\secciones\\cotizador-desktop-footer.png"
+  },
+  {
+    "type": "component",
+    "component": "quote-wizard",
+    "route": "/cotizador/",
+    "viewport": "desktop",
+    "file": "informe\\capturas-web\\componentes\\cotizador-desktop-cotizador-paso-inicial.png"
+  },
+  {
+    "type": "fullpage",
+    "route": "/",
+    "viewport": "mobile",
+    "file": "informe\\capturas-web\\inicio-mobile-fullpage.png"
+  },
+  {
+    "type": "section",
+    "route": "/",
+    "viewport": "mobile",
+    "section": "hero",
+    "file": "informe\\capturas-web\\secciones\\inicio-mobile-hero.png"
+  },
+  {
+    "type": "section",
+    "route": "/",
+    "viewport": "mobile",
+    "section": "medio",
+    "file": "informe\\capturas-web\\secciones\\inicio-mobile-medio.png"
+  },
+  {
+    "type": "section",
+    "route": "/",
+    "viewport": "mobile",
+    "section": "footer",
+    "file": "informe\\capturas-web\\secciones\\inicio-mobile-footer.png"
+  },
+  {
+    "type": "fullpage",
+    "route": "/servicios/",
+    "viewport": "mobile",
+    "file": "informe\\capturas-web\\servicios-mobile-fullpage.png"
+  },
+  {
+    "type": "section",
+    "route": "/servicios/",
+    "viewport": "mobile",
+    "section": "hero",
+    "file": "informe\\capturas-web\\secciones\\servicios-mobile-hero.png"
+  },
+  {
+    "type": "section",
+    "route": "/servicios/",
+    "viewport": "mobile",
+    "section": "medio",
+    "file": "informe\\capturas-web\\secciones\\servicios-mobile-medio.png"
+  },
+  {
+    "type": "section",
+    "route": "/servicios/",
+    "viewport": "mobile",
+    "section": "footer",
+    "file": "informe\\capturas-web\\secciones\\servicios-mobile-footer.png"
+  },
+  {
+    "type": "fullpage",
+    "route": "/nosotros/",
+    "viewport": "mobile",
+    "file": "informe\\capturas-web\\nosotros-mobile-fullpage.png"
+  },
+  {
+    "type": "section",
+    "route": "/nosotros/",
+    "viewport": "mobile",
+    "section": "hero",
+    "file": "informe\\capturas-web\\secciones\\nosotros-mobile-hero.png"
+  },
+  {
+    "type": "section",
+    "route": "/nosotros/",
+    "viewport": "mobile",
+    "section": "medio",
+    "file": "informe\\capturas-web\\secciones\\nosotros-mobile-medio.png"
+  },
+  {
+    "type": "section",
+    "route": "/nosotros/",
+    "viewport": "mobile",
+    "section": "footer",
+    "file": "informe\\capturas-web\\secciones\\nosotros-mobile-footer.png"
+  },
+  {
+    "type": "fullpage",
+    "route": "/contacto/",
+    "viewport": "mobile",
+    "file": "informe\\capturas-web\\contacto-mobile-fullpage.png"
+  },
+  {
+    "type": "section",
+    "route": "/contacto/",
+    "viewport": "mobile",
+    "section": "hero",
+    "file": "informe\\capturas-web\\secciones\\contacto-mobile-hero.png"
+  },
+  {
+    "type": "section",
+    "route": "/contacto/",
+    "viewport": "mobile",
+    "section": "medio",
+    "file": "informe\\capturas-web\\secciones\\contacto-mobile-medio.png"
+  },
+  {
+    "type": "section",
+    "route": "/contacto/",
+    "viewport": "mobile",
+    "section": "footer",
+    "file": "informe\\capturas-web\\secciones\\contacto-mobile-footer.png"
+  },
+  {
+    "type": "component",
+    "component": "contact-form",
+    "route": "/contacto/",
+    "viewport": "mobile",
+    "file": "informe\\capturas-web\\componentes\\contacto-mobile-formulario-contacto.png"
+  },
+  {
+    "type": "fullpage",
+    "route": "/cotizador/",
+    "viewport": "mobile",
+    "file": "informe\\capturas-web\\cotizador-mobile-fullpage.png"
+  },
+  {
+    "type": "section",
+    "route": "/cotizador/",
+    "viewport": "mobile",
+    "section": "hero",
+    "file": "informe\\capturas-web\\secciones\\cotizador-mobile-hero.png"
+  },
+  {
+    "type": "section",
+    "route": "/cotizador/",
+    "viewport": "mobile",
+    "section": "medio",
+    "file": "informe\\capturas-web\\secciones\\cotizador-mobile-medio.png"
+  },
+  {
+    "type": "section",
+    "route": "/cotizador/",
+    "viewport": "mobile",
+    "section": "footer",
+    "file": "informe\\capturas-web\\secciones\\cotizador-mobile-footer.png"
+  },
+  {
+    "type": "component",
+    "component": "quote-wizard",
+    "route": "/cotizador/",
+    "viewport": "mobile",
+    "file": "informe\\capturas-web\\componentes\\cotizador-mobile-cotizador-paso-inicial.png"
+  },
+  {
+    "viewport": "desktop",
+    "step": "00",
+    "name": "launcher-cerrado",
+    "file": "informe\\capturas-chatbot\\desktop\\00-launcher-cerrado.png"
+  },
+  {
+    "viewport": "desktop",
+    "step": "01",
+    "name": "bienvenida-opciones",
+    "file": "informe\\capturas-chatbot\\desktop\\01-bienvenida-opciones.png"
+  },
+  {
+    "viewport": "desktop",
+    "step": "02",
+    "name": "estado-cargando",
+    "file": "informe\\capturas-chatbot\\desktop\\02-estado-cargando.png"
+  },
+  {
+    "viewport": "desktop",
+    "step": "03",
+    "name": "respuesta-servicios",
+    "file": "informe\\capturas-chatbot\\desktop\\03-respuesta-servicios.png"
+  },
+  {
+    "viewport": "desktop",
+    "step": "04",
+    "name": "respuesta-faq-documentos",
+    "file": "informe\\capturas-chatbot\\desktop\\04-respuesta-faq-documentos.png"
+  },
+  {
+    "viewport": "desktop",
+    "step": "05",
+    "name": "respuesta-contacto",
+    "file": "informe\\capturas-chatbot\\desktop\\05-respuesta-contacto.png"
+  },
+  {
+    "viewport": "desktop",
+    "step": "06",
+    "name": "respuesta-fallback",
+    "file": "informe\\capturas-chatbot\\desktop\\06-respuesta-fallback.png"
+  },
+  {
+    "viewport": "desktop",
+    "step": "07",
+    "name": "whatsapp-redireccion",
+    "file": "informe\\capturas-chatbot\\desktop\\07-whatsapp-redireccion.png"
+  },
+  {
+    "viewport": "mobile",
+    "step": "00",
+    "name": "launcher-cerrado",
+    "file": "informe\\capturas-chatbot\\mobile\\00-launcher-cerrado.png"
+  },
+  {
+    "viewport": "mobile",
+    "step": "01",
+    "name": "bienvenida-opciones",
+    "file": "informe\\capturas-chatbot\\mobile\\01-bienvenida-opciones.png"
+  },
+  {
+    "viewport": "mobile",
+    "step": "02",
+    "name": "estado-cargando",
+    "file": "informe\\capturas-chatbot\\mobile\\02-estado-cargando.png"
+  },
+  {
+    "viewport": "mobile",
+    "step": "03",
+    "name": "respuesta-servicios",
+    "file": "informe\\capturas-chatbot\\mobile\\03-respuesta-servicios.png"
+  },
+  {
+    "viewport": "mobile",
+    "step": "04",
+    "name": "respuesta-faq-documentos",
+    "file": "informe\\capturas-chatbot\\mobile\\04-respuesta-faq-documentos.png"
+  },
+  {
+    "viewport": "mobile",
+    "step": "05",
+    "name": "respuesta-contacto",
+    "file": "informe\\capturas-chatbot\\mobile\\05-respuesta-contacto.png"
+  },
+  {
+    "viewport": "mobile",
+    "step": "06",
+    "name": "respuesta-fallback",
+    "file": "informe\\capturas-chatbot\\mobile\\06-respuesta-fallback.png"
+  },
+  {
+    "viewport": "mobile",
+    "step": "07",
+    "name": "whatsapp-redireccion",
+    "file": "informe\\capturas-chatbot\\mobile\\07-whatsapp-redireccion.png"
+  },
+  {
+    "type": "static-smoke",
+    "route": "static-build",
+    "viewport": "desktop",
+    "file": "informe\\capturas-chatbot\\desktop\\09-static-build-smoke.png"
+  }
+]

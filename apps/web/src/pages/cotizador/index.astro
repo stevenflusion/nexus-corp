@@ -1,0 +1,118 @@
+---
+import QuoteCalculator from "../../components/QuoteCalculator.astro"
+import ThemeToggle from "../../components/ThemeToggle.astro"
+import MainLayout from "../../layouts/main.astro"
+---
+
+<MainLayout
+  title="Cotizador NEXUS | Simulador de asesoría financiera"
+  description="Simula monto, plazo, capacidad y cuota referencial para preparar una asesoría financiera con NEXUS."
+>
+  <main id="contenido">
+    <div class="quote-theme-toggle" aria-label="Control de tema del cotizador">
+      <ThemeToggle />
+    </div>
+    <QuoteCalculator />
+  </main>
+</MainLayout>
+
+<style is:global>
+  .quote-theme-toggle {
+    position: fixed;
+    top: 7.25rem;
+    right: 1rem;
+    z-index: 60;
+  }
+
+  @media (min-width: 1024px) {
+    .quote-theme-toggle {
+      top: 1.25rem;
+      right: 1.5rem;
+    }
+  }
+
+  :root[data-theme="dark"] .quote-wizard {
+    background:
+      radial-gradient(
+        circle at 12% 0%,
+        rgba(0, 153, 51, 0.16),
+        transparent 28rem
+      ),
+      radial-gradient(
+        circle at 86% 12%,
+        rgba(200, 155, 60, 0.1),
+        transparent 24rem
+      ),
+      #07111f !important;
+    color: #f4f8fd !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard [class*="bg-white"] {
+    background-color: #0f1d30 !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard [class*="bg-[#f8fdf9]"],
+  :root[data-theme="dark"] .quote-wizard [class*="bg-[#edf8f0]"],
+  :root[data-theme="dark"] .quote-wizard [class*="bg-[#effaf3]"] {
+    background-color: rgba(16, 47, 37, 0.92) !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard [class*="bg-[#fff7df]"] {
+    background-color: rgba(70, 52, 20, 0.92) !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard [class*="bg-[#fff1f0]"] {
+    background-color: rgba(76, 25, 28, 0.9) !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard [class*="border-[#d8eadf]"],
+  :root[data-theme="dark"] .quote-wizard [class*="border-[#cfe6d6]"],
+  :root[data-theme="dark"] .quote-wizard [class*="border-[#08272d]/10"] {
+    border-color: rgba(199, 211, 226, 0.18) !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard [class*="text-[#08272d]"] {
+    color: #f4f8fd !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard [class*="text-[#4e575e]"],
+  :root[data-theme="dark"]
+    .quote-wizard
+    [class*="placeholder:text-[#7a858d]"]::placeholder {
+    color: #b9c7d8 !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard [class*="text-[#006b25]"] {
+    color: #8df3a8 !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard [class*="text-[#007127]"] {
+    color: #4fe282 !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard [class*="text-[#b42318]"] {
+    color: #ff9a90 !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard input,
+  :root[data-theme="dark"] .quote-wizard select {
+    border-color: rgba(199, 211, 226, 0.2) !important;
+    background-color: #101f33 !important;
+    color: #f4f8fd !important;
+  }
+
+  :root[data-theme="dark"] .quote-wizard option {
+    background-color: #101f33;
+    color: #f4f8fd;
+  }
+
+  :root[data-theme="dark"] .quote-wizard input[type="range"] {
+    background-color: transparent !important;
+    accent-color: #38e86f;
+  }
+
+  :root[data-theme="dark"] .quote-wizard .shadow-sm,
+  :root[data-theme="dark"] .quote-wizard .shadow-xl {
+    box-shadow: 0 22px 60px rgba(0, 0, 0, 0.28) !important;
+  }
+</style>

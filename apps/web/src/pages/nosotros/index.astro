@@ -1,0 +1,114 @@
+---
+import { BadgeCheck, Handshake, LineChart, ShieldCheck } from "lucide-react"
+import CTA from "../../components/CTA.astro"
+import Footer from "../../components/Footer.astro"
+import Header from "../../components/Header.astro"
+import MotionViewport from "../../components/MotionViewport"
+import MainLayout from "../../layouts/main.astro"
+
+const values = [
+  {
+    title: "Criterio",
+    text: "Análisis claro antes de recomendar una ruta.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Transparencia",
+    text: "Explicamos límites, riesgos y supuestos.",
+    icon: BadgeCheck,
+  },
+  {
+    title: "Acompañamiento",
+    text: "Seguimiento humano durante la gestión.",
+    icon: Handshake,
+  },
+  {
+    title: "Proyección",
+    text: "Decisiones que cuidan el flujo mensual.",
+    icon: LineChart,
+  },
+]
+---
+
+<MainLayout
+  title="Nosotros NEXUS | Asesoría financiera con criterio"
+  description="NEXUS asesora a personas, familias y emprendedores para preparar decisiones financieras con claridad."
+>
+  <Header />
+  <main id="contenido">
+    <section class="bg-white py-14 sm:py-18">
+      <div
+        class="mx-auto grid max-w-7xl gap-8 px-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8"
+      >
+        <div data-motion="reveal">
+          <p class="section-eyebrow">Sobre Nexus</p>
+          <h1
+            class="mt-3 text-2xl font-black text-[var(--nexus-blue-dark)] sm:text-3xl"
+          >
+            Asesoría para llegar preparado, no para vender promesas.
+          </h1>
+          <p
+            class="mt-5 max-w-2xl text-base leading-7 text-[var(--nexus-gray)]"
+          >
+            Trabajamos con personas que necesitan ordenar capacidad, documentos
+            y alternativas antes de tomar una decisión financiera importante.
+          </p>
+        </div>
+
+        <div
+          class="overflow-hidden rounded-lg border border-[var(--nexus-line)] bg-white text-[var(--nexus-blue-dark)] shadow-xl shadow-[rgba(0,31,61,0.10)]"
+          data-motion="reveal"
+        >
+          <img
+            src="/branding/brand-philosophy-advisor.jpg"
+            alt="Filosofía de marca NEXUS con ciudad tecnológica."
+            class="h-56 w-full object-cover"
+            loading="lazy"
+          />
+          <div class="bg-white p-6">
+            <p class="text-xs font-black text-[var(--nexus-green)] uppercase">
+              Filosofía
+            </p>
+            <h2 class="mt-3 text-2xl font-black">
+              Claridad, preparación y seguimiento.
+            </h2>
+            <p class="mt-4 text-sm leading-6 text-[var(--nexus-gray)]">
+              La tecnología ayuda a simular. El criterio humano ayuda a decidir
+              qué camino conviene revisar.
+            </p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white py-16 sm:py-20">
+      <div class="mx-auto max-w-7xl px-5 lg:px-8">
+        <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-motion-group>
+          {
+            values.map(({ title, text, icon: Icon }) => (
+              <article
+                class="rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)] p-5"
+                data-motion-item
+              >
+                <Icon
+                  className="size-6 text-[var(--nexus-green)]"
+                  aria-hidden="true"
+                />
+                <h2 class="mt-5 text-xl font-black text-[var(--nexus-blue-dark)]">
+                  {title}
+                </h2>
+                <p class="mt-2 text-sm leading-6 text-[var(--nexus-gray)]">
+                  {text}
+                </p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <CTA />
+  </main>
+  <Footer />
+  <MotionViewport client:load />
+</MainLayout>

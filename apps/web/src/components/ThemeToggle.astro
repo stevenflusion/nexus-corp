@@ -1,0 +1,83 @@
+---
+import { Moon, Sun } from "lucide-react"
+---
+
+<button
+  type="button"
+  class="theme-toggle"
+  aria-label="Cambiar a modo oscuro"
+  aria-pressed="false"
+  data-theme-toggle
+>
+  <Sun className="theme-toggle__icon theme-toggle__icon--sun" aria-hidden="true" />
+  <Moon className="theme-toggle__icon theme-toggle__icon--moon" aria-hidden="true" />
+  <span class="sr-only" data-theme-toggle-label>Modo oscuro</span>
+</button>
+
+<script>
+  const themeStorageKey = "nexus-site-theme"
+  const isTheme = (value: string | null): value is "light" | "dark" =>
+    value === "light" || value === "dark"
+
+  const getTheme = () => {
+    let storedTheme: string | null = null
+
+    try {
+      storedTheme = window.localStorage.getItem(themeStorageKey)
+    } catch {
+      storedTheme = null
+    }
+
+    if (isTheme(storedTheme)) {
+      return storedTheme
+    }
+
+    return window.matchMedia("(prefers-color-scheme: dark)").matches
+      ? "dark"
+      : "light"
+  }
+
+  const applyTheme = (theme: "light" | "dark") => {
+    document.documentElement.dataset.theme = theme
+    document.documentElement.style.colorScheme = theme
+    document
+      .querySelectorAll<HTMLButtonElement>("[data-theme-toggle]")
+      .forEach((button) => {
+        const isDark = theme === "dark"
+        button.setAttribute("aria-pressed", String(isDark))
+        button.setAttribute(
+          "aria-label",
+          isDark ? "Cambiar a modo claro" : "Cambiar a modo oscuro"
+        )
+      })
+    document
+      .querySelectorAll<HTMLElement>("[data-theme-toggle-label]")
+      .forEach((label) => {
+        label.textContent =
+          theme === "dark" ? "Modo claro" : "Modo oscuro"
+      })
+  }
+
+  applyTheme(getTheme())
+
+  document
+    .querySelectorAll<HTMLButtonElement>("[data-theme-toggle]")
+    .forEach((button) => {
+      button.addEventListener("click", () => {
+        const nextTheme =
+          document.documentElement.dataset.theme === "dark" ? "light" : "dark"
+        try {
+          window.localStorage.setItem(themeStorageKey, nextTheme)
+        } catch {
+          // The visual theme can still change when local storage is unavailable.
+        }
+        applyTheme(nextTheme)
+      })
+    })
+
+  window.addEventListener("storage", (event) => {
+    if (event.key === themeStorageKey && isTheme(event.newValue)) {
+      applyTheme(event.newValue)
+    }
+  })
+</script>

@@ -1,0 +1,37 @@
+{
+  "name": "nexus-corp",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "build": "turbo build",
+    "build:web": "npm run build --workspace apps/web",
+    "build:static": "npm run build:static --workspace apps/web",
+    "build:cpanel": "npm run build:static --workspace apps/web",
+    "dev": "npm run dev --workspace apps/web",
+    "start": "node ./apps/web/dist/server/entry.mjs",
+    "lint": "turbo lint",
+    "test": "turbo test",
+    "format": "turbo format",
+    "typecheck": "turbo typecheck"
+  },
+  "devDependencies": {
+    "playwright": "^1.60.0",
+    "prettier": "^3.8.1",
+    "prettier-plugin-astro": "^0.14.1",
+    "prettier-plugin-tailwindcss": "^0.7.2",
+    "turbo": "^2.8.17",
+    "typescript": "5.9.3"
+  },
+  "packageManager": "npm@10.9.3",
+  "engines": {
+    "node": ">=20"
+  },
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "dependencies": {
+    "framer-motion": "^12.39.0",
+    "lucide-react": "^1.16.0"
+  }
+}

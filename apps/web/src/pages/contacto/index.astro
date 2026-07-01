@@ -1,0 +1,240 @@
+---
+import { ArrowRight, Mail, MapPin, MessageCircle, Phone } from "lucide-react"
+import Footer from "../../components/Footer.astro"
+import Header from "../../components/Header.astro"
+import MotionViewport from "../../components/MotionViewport"
+import MainLayout from "../../layouts/main.astro"
+
+const whatsappUrl =
+  "https://wa.me/593981371278?text=Hola%20NEXUS%2C%20quiero%20solicitar%20asesor%C3%ADa%20financiera."
+
+const contactCards = [
+  {
+    label: "WhatsApp",
+    value: "+593 98 137 1278",
+    href: whatsappUrl,
+    icon: MessageCircle,
+  },
+  {
+    label: "Correo",
+    value: "info@nexuscorpec.com",
+    href: "mailto:info@nexuscorpec.com",
+    icon: Mail,
+  },
+  {
+    label: "Ubicación",
+    value: "Quito, Ecuador",
+    href: "https://maps.app.goo.gl/tMuYfK8NgjZTrhvD9",
+    icon: MapPin,
+  },
+]
+---
+
+<MainLayout
+  title="Contacto NEXUS | Solicita asesoría financiera"
+  description="Contacta a NEXUS por WhatsApp, correo o formulario para recibir asesoría financiera."
+>
+  <Header />
+  <main id="contenido">
+    <section class="bg-white py-14 sm:py-18">
+      <div
+        class="mx-auto grid max-w-7xl gap-8 px-5 lg:grid-cols-[0.86fr_1.14fr] lg:items-start lg:px-8"
+      >
+        <div data-motion="reveal">
+          <p class="section-eyebrow">Contacto</p>
+          <h1
+            class="mt-3 text-2xl font-black text-[var(--nexus-blue-dark)] sm:text-3xl"
+          >
+            Conversemos sobre tu escenario.
+          </h1>
+          <p
+            class="mt-5 max-w-2xl text-base leading-7 text-[var(--nexus-gray)]"
+          >
+            Comparte tu necesidad y preparamos una ruta de asesoría financiera
+            con información clara desde el primer contacto.
+          </p>
+
+          <figure
+            class="mt-7 overflow-hidden rounded-lg border border-[var(--nexus-line)] bg-white shadow-sm"
+          >
+            <img
+              src="/branding/advisory-consultation.jpg"
+              alt="Asesora revisando documentos con una pareja."
+              class="h-56 w-full object-cover"
+              loading="lazy"
+            />
+            <figcaption
+              class="px-4 py-3 text-sm font-bold text-[var(--nexus-gray)]"
+            >
+              Tu información se convierte en un resumen claro para conversar con
+              un asesor.
+            </figcaption>
+          </figure>
+
+          <div class="mt-8 grid gap-3">
+            {
+              contactCards.map(({ label, value, href, icon: Icon }) => (
+                <a
+                  href={href}
+                  target={href.startsWith("http") ? "_blank" : undefined}
+                  rel={href.startsWith("http") ? "noreferrer" : undefined}
+                  class="group flex items-center gap-4 rounded-lg border border-[var(--nexus-line)] bg-white p-4 transition hover:border-[var(--nexus-green)]/40"
+                >
+                  <span class="grid size-11 shrink-0 place-items-center rounded-lg bg-[var(--nexus-green)] text-white transition group-hover:bg-[var(--nexus-green-business)]">
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span class="block text-xs font-black text-[var(--nexus-green)] uppercase">
+                      {label}
+                    </span>
+                    <span class="mt-1 block text-sm font-bold text-[var(--nexus-blue-dark)]">
+                      {value}
+                    </span>
+                  </span>
+                </a>
+              ))
+            }
+          </div>
+        </div>
+
+        <form
+          class="grid gap-4 rounded-lg border border-[var(--nexus-line)] bg-white p-5 shadow-sm sm:p-7"
+          data-contact-form
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="grid size-11 place-items-center rounded-lg bg-[var(--nexus-green)] text-white"
+            >
+              <Phone className="size-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p class="text-xs font-black text-[var(--nexus-green)] uppercase">
+                Mensaje rápido
+              </p>
+              <h2 class="text-2xl font-black text-[var(--nexus-blue-dark)]">
+                Enviar solicitud
+              </h2>
+            </div>
+          </div>
+
+          <label
+            class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
+          >
+            Nombre
+            <input
+              class="h-12 rounded-lg border border-[var(--nexus-line-soft)] bg-white px-4 font-semibold transition outline-none focus:border-[var(--nexus-green)] focus:ring-4 focus:ring-[var(--nexus-green)]/12"
+              autocomplete="name"
+              placeholder="Tu nombre"
+              required
+              data-contact-name
+            />
+          </label>
+
+          <label
+            class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
+          >
+            Teléfono
+            <input
+              class="h-12 rounded-lg border border-[var(--nexus-line-soft)] bg-white px-4 font-semibold transition outline-none focus:border-[var(--nexus-green)] focus:ring-4 focus:ring-[var(--nexus-green)]/12"
+              type="tel"
+              inputmode="tel"
+              autocomplete="tel"
+              placeholder="Tu WhatsApp"
+              pattern="[0-9+() -]{9,18}"
+              title="Ingresa un teléfono válido, mínimo 9 dígitos."
+              required
+              data-contact-phone
+            />
+          </label>
+
+          <label
+            class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
+          >
+            Servicio de interés
+            <select
+              class="h-12 rounded-lg border border-[var(--nexus-line-soft)] bg-white px-4 font-semibold transition outline-none focus:border-[var(--nexus-green)] focus:ring-4 focus:ring-[var(--nexus-green)]/12"
+              data-contact-service
+            >
+              <option value="vehicular">Asesoría vehicular</option>
+              <option value="vivienda">Asesoría para vivienda</option>
+              <option value="consumo">Asesoría de consumo</option>
+              <option value="general">Asesoría general</option>
+            </select>
+          </label>
+
+          <label
+            class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
+          >
+            Comentario
+            <textarea
+              class="min-h-28 rounded-lg border border-[var(--nexus-line-soft)] bg-white px-4 py-3 font-semibold transition outline-none focus:border-[var(--nexus-green)] focus:ring-4 focus:ring-[var(--nexus-green)]/12"
+              placeholder="Cuéntanos qué quieres preparar"
+              data-contact-message></textarea>
+          </label>
+
+          <button
+            type="submit"
+            class="inline-flex items-center justify-center gap-3 rounded-lg bg-[var(--nexus-green)] px-6 py-4 text-sm font-black text-white transition hover:bg-[var(--nexus-green-business)]"
+          >
+            Abrir WhatsApp
+            <ArrowRight className="size-5" aria-hidden="true" />
+          </button>
+
+          <p class="text-sm leading-6 text-[var(--nexus-gray)]">
+            Este formulario no guarda datos. Prepara un mensaje para enviarlo
+            desde tu WhatsApp.
+          </p>
+        </form>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <MotionViewport client:load />
+</MainLayout>
+
+<script>
+  const query = <T extends Element>(selector: string) =>
+    document.querySelector<T>(selector)
+
+  const contactForm = query<HTMLFormElement>("[data-contact-form]")
+  const contactFields = {
+    name: query<HTMLInputElement>("[data-contact-name]"),
+    phone: query<HTMLInputElement>("[data-contact-phone]"),
+    service: query<HTMLSelectElement>("[data-contact-service]"),
+    message: query<HTMLTextAreaElement>("[data-contact-message]"),
+  }
+
+  contactForm?.addEventListener("submit", (event) => {
+    event.preventDefault()
+
+    const phoneDigits = contactFields.phone?.value.replace(/\D/g, "") ?? ""
+    if (phoneDigits.length < 9 || phoneDigits.length > 13) {
+      contactFields.phone?.setCustomValidity(
+        "Ingresa un teléfono válido para coordinar por WhatsApp."
+      )
+    } else {
+      contactFields.phone?.setCustomValidity("")
+    }
+
+    if (!contactForm.reportValidity()) {
+      return
+    }
+
+    const message = [
+      "Hola NEXUS, quiero solicitar asesoría financiera.",
+      `Nombre: ${contactFields.name?.value.trim() || ""}`,
+      `Teléfono: ${contactFields.phone?.value.trim() || ""}`,
+      `Servicio: ${
+        contactFields.service?.selectedOptions[0]?.textContent ||
+        "Asesoría general"
+      }`,
+      `Comentario: ${contactFields.message?.value.trim() || "Sin comentario adicional."}`,
+    ].join("\n")
+
+    window.open(
+      `https://wa.me/593981371278?text=${encodeURIComponent(message)}`,
+      "_blank",
+      "noopener,noreferrer"
+    )
+  })
+</script>

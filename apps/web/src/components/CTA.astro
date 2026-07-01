@@ -1,0 +1,101 @@
+---
+import { ArrowRight, MessageCircle } from "lucide-react"
+
+const whatsappUrl =
+  "https://wa.me/593981371278?text=Hola%20NEXUS%2C%20quiero%20solicitar%20asesor%C3%ADa%20financiera."
+---
+
+<section id="contacto" class="cta-section scroll-mt-24 bg-white py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-5 lg:px-8">
+    <div
+      class="cta-panel grid gap-8 rounded-lg border border-[var(--nexus-line)] bg-white bg-cover bg-center p-6 text-[var(--nexus-blue-dark)] shadow-xl shadow-[rgba(0,31,61,0.10)] sm:p-8 lg:grid-cols-[1fr_auto] lg:items-center"
+    >
+      <div data-motion="reveal">
+        <p class="text-xs font-black text-[var(--nexus-green)] uppercase">
+          Próximo paso
+        </p>
+        <h2 class="mt-3 max-w-2xl text-2xl font-black sm:text-3xl">
+          Cuéntanos tu meta y te ayudamos a revisar tus opciones.
+        </h2>
+        <p class="mt-3 max-w-2xl text-base leading-7 text-[var(--nexus-gray)]">
+          Te acompañamos a entender alternativas para vivienda, vehículo o
+          consumo sin prometer aprobación ni financiamiento directo.
+        </p>
+      </div>
+
+      <div
+        class="flex flex-col gap-3 sm:flex-row lg:flex-col"
+        data-motion="reveal"
+      >
+        <a
+          href="/cotizador/"
+          class="inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-lg bg-[var(--nexus-green)] px-5 py-4 text-sm font-black whitespace-nowrap text-white transition hover:bg-[var(--nexus-green-business)] sm:w-auto"
+        >
+          Cotiza con nosotros
+          <ArrowRight className="size-5 shrink-0" aria-hidden="true" />
+        </a>
+        <a
+          href={whatsappUrl}
+          target="_blank"
+          rel="noreferrer"
+          class="cta-secondary-button inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-lg border border-[var(--nexus-line)] bg-white px-5 py-4 text-sm font-black whitespace-nowrap text-[var(--nexus-blue)] transition hover:bg-[var(--nexus-cream)] sm:w-auto"
+        >
+          Hablar con un asesor
+          <MessageCircle className="size-5 shrink-0" aria-hidden="true" />
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta-panel {
+    background-image:
+      linear-gradient(
+        115deg,
+        rgba(255, 255, 255, 0.96),
+        rgba(255, 255, 255, 0.92) 52%,
+        rgba(244, 246, 248, 0.88)
+      ),
+      url("/branding/brand-quote-banner.jpg");
+  }
+
+  :global(:root[data-theme="dark"]) .cta-section {
+    background: transparent;
+  }
+
+  :global(:root[data-theme="dark"]) .cta-panel {
+    border-color: rgba(199, 211, 226, 0.18);
+    background-color: #07111f;
+    background-image:
+      linear-gradient(
+        115deg,
+        rgba(7, 17, 31, 0.96),
+        rgba(7, 17, 31, 0.9) 48%,
+        rgba(0, 43, 85, 0.74)
+      ),
+      url("/branding/brand-quote-banner.jpg");
+    color: #f4f8fd;
+    box-shadow: 0 26px 80px rgba(0, 0, 0, 0.34);
+  }
+
+  :global(:root[data-theme="dark"]) .cta-panel p {
+    color: #c7d3e2;
+  }
+
+  :global(:root[data-theme="dark"]) .cta-panel p:first-child {
+    color: #38e86f;
+  }
+
+  :global(:root[data-theme="dark"]) .cta-secondary-button {
+    border-color: rgba(139, 213, 255, 0.22);
+    background: rgba(8, 22, 38, 0.88);
+    color: #8bd5ff;
+  }
+
+  :global(:root[data-theme="dark"]) .cta-secondary-button:hover {
+    border-color: rgba(139, 213, 255, 0.42);
+    background: rgba(13, 69, 117, 0.34);
+    color: #d9f2ff;
+  }
+</style>

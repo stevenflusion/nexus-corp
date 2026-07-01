@@ -1,0 +1,158 @@
+---
+import { BadgeCheck, Building2, Handshake, Users } from "lucide-react"
+
+const metrics = [
+  {
+    value: 5,
+    prefix: "+",
+    suffix: "K",
+    title: "clientes asesorados",
+    text: "Personas y familias que han buscado una lectura más clara antes de decidir.",
+    icon: Users,
+  },
+  {
+    value: 3,
+    prefix: "+",
+    suffix: "",
+    title: "años de experiencia",
+    text: "Acompañamiento comercial y financiero con criterio responsable.",
+    icon: BadgeCheck,
+  },
+  {
+    value: 16,
+    prefix: "+",
+    suffix: "",
+    title: "entidades aliadas",
+    text: "Relación con actores del sistema financiero para revisar alternativas.",
+    icon: Building2,
+  },
+  {
+    valueLabel: "1:1",
+    title: "acompañamiento personalizado",
+    text: "Cada caso se analiza desde la meta, capacidad y documentos del cliente.",
+    icon: Handshake,
+  },
+]
+---
+
+<section
+  class="border-b border-[var(--nexus-line)] bg-white py-14 text-[var(--nexus-blue-dark)]"
+  aria-labelledby="trust-title"
+>
+  <div class="mx-auto max-w-7xl px-5 lg:px-8">
+    <div class="mb-8 grid gap-4 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+      <div data-motion="reveal">
+        <p class="text-sm font-black text-[var(--nexus-green)] uppercase">
+          Confianza comercial
+        </p>
+        <h2 id="trust-title" class="mt-3 text-2xl font-black sm:text-3xl">
+          Respaldo visible para tomar decisiones con mayor seguridad.
+        </h2>
+      </div>
+      <p
+        class="max-w-3xl text-base leading-7 text-[var(--nexus-gray)]"
+        data-motion="reveal"
+      >
+        No vendemos promesas. Te damos orientación clara para que tomes
+        decisiones financieras con mayor seguridad.
+      </p>
+    </div>
+
+    <div class="grid gap-4 sm:grid-cols-2 lg:grid-cols-4" data-motion-group>
+      {
+        metrics.map(
+          ({
+            value,
+            valueLabel,
+            prefix = "",
+            suffix = "",
+            title,
+            text,
+            icon: Icon,
+          }) => {
+            const countAttributes =
+              typeof value === "number"
+                ? {
+                    "data-count-target": value,
+                    "data-count-prefix": prefix,
+                    "data-count-suffix": suffix,
+                  }
+                : {}
+
+            return (
+              <article
+                class="rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)] p-5 transition hover:border-[var(--nexus-gold)]/70 hover:bg-white hover:shadow-xl hover:shadow-[rgba(0,31,61,0.08)]"
+                data-motion-item
+              >
+                <span class="grid size-11 place-items-center rounded-lg bg-[var(--nexus-green)] text-white">
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+                <p
+                  class="mt-5 text-4xl font-black text-[var(--nexus-green)]"
+                  {...countAttributes}
+                >
+                  {valueLabel ?? `${prefix}0${suffix}`}
+                </p>
+                <h3 class="mt-2 text-lg font-black">{title}</h3>
+                <p class="mt-2 text-sm leading-6 text-[var(--nexus-gray)]">
+                  {text}
+                </p>
+              </article>
+            )
+          }
+        )
+      }
+    </div>
+  </div>
+</section>
+
+<script>
+  const animateCounter = (counter: HTMLElement) => {
+    const target = Number(counter.dataset.countTarget || "0")
+
+    if (!target || counter.dataset.countDone === "true") {
+      return
+    }
+
+    counter.dataset.countDone = "true"
+    const prefix = counter.dataset.countPrefix || ""
+    const suffix = counter.dataset.countSuffix || ""
+    const duration = 1100
+    const startedAt = performance.now()
+
+    const tick = (now: number) => {
+      const progress = Math.min((now - startedAt) / duration, 1)
+      const eased = 1 - Math.pow(1 - progress, 3)
+      const value = Math.round(target * eased)
+      counter.textContent = `${prefix}${value}${suffix}`
+
+      if (progress < 1) {
+        requestAnimationFrame(tick)
+      }
+    }
+
+    requestAnimationFrame(tick)
+  }
+
+  const counters = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-count-target]")
+  )
+
+  if ("IntersectionObserver" in window) {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            animateCounter(entry.target as HTMLElement)
+            observer.unobserve(entry.target)
+          }
+        })
+      },
+      { threshold: 0.35 }
+    )
+
+    counters.forEach((counter) => observer.observe(counter))
+  } else {
+    counters.forEach(animateCounter)
+  }
+</script>

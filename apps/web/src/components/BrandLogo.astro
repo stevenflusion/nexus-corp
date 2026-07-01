@@ -1,0 +1,46 @@
+---
+interface Props {
+  compact?: boolean
+  class?: string
+}
+
+const { compact = false, class: className = "" } = Astro.props
+
+const sizeClass = compact ? "h-10 w-[150px]" : "h-[59px] w-[220px]"
+---
+
+<span
+  class={`brand-logo relative inline-flex items-center overflow-hidden ${sizeClass} ${className}`}
+>
+  <img
+    src="/branding/nexus-logo-cropped.png"
+    alt="NEXUS - Donde tus proyectos se hacen realidad"
+    width={compact ? "150" : "220"}
+    height={compact ? "40" : "59"}
+    class="brand-logo__image brand-logo__image--light h-full w-full object-contain"
+    decoding="async"
+  />
+  <img
+    src="/branding/logo-oscuro.png"
+    alt=""
+    width={compact ? "150" : "220"}
+    height={compact ? "40" : "59"}
+    class="brand-logo__image brand-logo__image--dark absolute inset-0 h-full w-full object-cover"
+    aria-hidden="true"
+    decoding="async"
+  />
+</span>
+
+<style>
+  .brand-logo__image--dark {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"]) .brand-logo__image--light {
+    display: none;
+  }
+
+  :global(:root[data-theme="dark"]) .brand-logo__image--dark {
+    display: block;
+  }
+</style>

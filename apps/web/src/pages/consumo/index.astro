@@ -1,0 +1,13 @@
+---
+import QuoteWizard from "../../components/QuoteWizard"
+import MainLayout from "../../layouts/main.astro"
+---
+
+<MainLayout
+  title="Crédito de consumo desde el 16.77% anual | NEXUS"
+  description="Simula una asesoría para crédito de consumo con tasa referencial desde el 16.77% anual."
+>
+  <main id="contenido">
+    <QuoteWizard client:load initialProduct="consumo" />
+  </main>
+</MainLayout>

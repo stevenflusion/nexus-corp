@@ -1,0 +1,9 @@
+{
+  "project": "nexus-corp",
+  "url": "http://127.0.0.1:5053/",
+  "screenshot": "informe\\capturas-chatbot\\desktop\\09-static-build-smoke.png",
+  "apiRequests": [],
+  "consoleErrors": [],
+  "hasBotReply": true,
+  "status": "passed"
+}

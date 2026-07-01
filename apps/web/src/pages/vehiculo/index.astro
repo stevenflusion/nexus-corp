@@ -1,0 +1,13 @@
+---
+import QuoteWizard from "../../components/QuoteWizard"
+import MainLayout from "../../layouts/main.astro"
+---
+
+<MainLayout
+  title="Vehículo automotriz desde el 12% anual | NEXUS"
+  description="Simula una asesoría para vehículo automotriz con tasa referencial desde el 12% anual."
+>
+  <main id="contenido">
+    <QuoteWizard client:load initialProduct="vehiculo" />
+  </main>
+</MainLayout>

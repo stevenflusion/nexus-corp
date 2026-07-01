@@ -1,0 +1,145 @@
+---
+import {
+  ArrowRight,
+  Car,
+  CheckCircle2,
+  Home,
+  MessageCircle,
+  WalletCards,
+} from "lucide-react"
+import BrandLogo from "./BrandLogo.astro"
+
+const points = [
+  "Evaluación clara de tu perfil y capacidad",
+  "Comparación de escenarios antes de decidir",
+  "Acompañamiento humano para revisar alternativas",
+]
+
+const goals = [
+  { label: "Vivienda", icon: Home },
+  { label: "Vehículo", icon: Car },
+  { label: "Consumo", icon: WalletCards },
+]
+---
+
+<section
+  id="inicio"
+  class="overflow-hidden border-b border-[var(--nexus-line)] bg-white text-[var(--nexus-blue-dark)]"
+>
+  <div
+    class="mx-auto grid max-w-7xl gap-10 px-5 py-14 lg:grid-cols-[0.94fr_1.06fr] lg:items-center lg:px-8 lg:py-18"
+  >
+    <div class="flex flex-col justify-center" data-motion="reveal">
+      <div
+        class="mb-7 inline-flex w-fit rounded-lg border border-[var(--nexus-line)] bg-white px-4 py-3 shadow-sm"
+      >
+        <BrandLogo />
+      </div>
+      <p class="text-sm font-black text-[var(--nexus-green)] uppercase">
+        Asesoría financiera NEXUS
+      </p>
+      <h1
+        class="mt-4 max-w-3xl text-4xl leading-tight font-black sm:text-5xl lg:text-6xl"
+      >
+        Tus metas son importantes.
+      </h1>
+      <p class="mt-5 max-w-2xl text-lg leading-8 text-[var(--nexus-gray)]">
+        En NEXUS no otorgamos financiamiento directamente. Te acompañamos a
+        entender tus opciones, evaluar tus posibilidades y encontrar la mejor
+        alternativa para tus metas de vivienda, vehículo o consumo.
+      </p>
+
+      <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+        <a
+          href="/cotizador/"
+          class="group inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[var(--nexus-green)] px-6 py-4 text-sm font-black text-white transition hover:bg-[var(--nexus-green-business)]"
+        >
+          Cotiza con nosotros
+          <ArrowRight
+            className="size-5 transition group-hover:translate-x-1"
+            aria-hidden="true"
+          />
+        </a>
+        <a
+          href="/servicios/"
+          class="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg border border-[var(--nexus-line)] bg-white px-6 py-4 text-sm font-black text-[var(--nexus-blue)] transition hover:bg-[var(--nexus-cream)]"
+        >
+          Conocer mis alternativas
+          <MessageCircle className="size-5" aria-hidden="true" />
+        </a>
+      </div>
+
+      <div class="mt-8 hidden gap-3 sm:grid sm:grid-cols-3">
+        {
+          points.map((point) => (
+            <div class="flex items-start gap-3 text-sm font-bold text-[var(--nexus-blue-dark)]">
+              <CheckCircle2
+                className="mt-0.5 size-5 shrink-0 text-[var(--nexus-gold-dark)]"
+                aria-hidden="true"
+              />
+              <span>{point}</span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+
+    <div class="grid gap-4" data-motion="reveal">
+      <figure
+        class="relative overflow-hidden rounded-lg border border-[var(--nexus-line)] bg-white shadow-2xl shadow-[rgba(0,31,61,0.12)]"
+      >
+        <img
+          src="/branding/advisory-consultation.jpg"
+          alt="Asesora revisando opciones financieras con clientes."
+          class="h-[26rem] w-full object-cover sm:h-[31rem]"
+          fetchpriority="high"
+        />
+        <div
+          class="absolute inset-0 bg-gradient-to-t from-white/76 via-transparent to-transparent"
+        >
+        </div>
+        <figcaption class="absolute right-4 bottom-4 left-4">
+          <div
+            class="rounded-lg border border-[var(--nexus-line)] bg-white/92 p-4 text-[var(--nexus-blue-dark)] shadow-lg shadow-[rgba(0,31,61,0.12)] backdrop-blur-md"
+          >
+            <p class="text-xs font-black text-[var(--nexus-green)] uppercase">
+              Decisiones con información clara
+            </p>
+            <p class="mt-2 max-w-xl text-xl leading-tight font-black">
+              Te ayudamos a entender opciones antes de asumir un compromiso
+              financiero.
+            </p>
+          </div>
+        </figcaption>
+      </figure>
+
+      <div class="grid gap-3 sm:grid-cols-3">
+        {
+          goals.map(({ label, icon: Icon }) => (
+            <div class="flex items-center gap-3 rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)] p-4 text-sm font-black text-[var(--nexus-blue-dark)]">
+              <span class="grid size-10 shrink-0 place-items-center rounded-lg bg-[var(--nexus-gold)] text-[var(--nexus-blue-dark)]">
+                <Icon className="size-5" aria-hidden="true" />
+              </span>
+              <span>{label}</span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+
+  <div class="border-t border-[var(--nexus-line)] bg-white">
+    <div
+      class="mx-auto grid max-w-7xl gap-4 px-5 py-7 lg:grid-cols-[0.8fr_1.2fr] lg:items-center lg:px-8"
+    >
+      <p class="text-sm font-black text-[var(--nexus-green)] uppercase">
+        Una meta, no solo un crédito
+      </p>
+      <p class="max-w-4xl text-lg leading-8 font-bold text-[var(--nexus-gray)]">
+        Tu objetivo no es obtener un crédito. Tu objetivo es alcanzar una meta.
+        En NEXUS te ayudamos a encontrar el camino financiero más adecuado para
+        lograrlo.
+      </p>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,22 @@
+[
+  {
+    "viewport": "desktop",
+    "route": "/contacto/",
+    "found": true,
+    "initialValidity": false,
+    "finalValidity": true,
+    "openedUrls": [
+      "https://wa.me/593981371278?text=Hola%20NEXUS%2C%20quiero%20solicitar%20asesor%C3%ADa%20financiera.%0ANombre%3A%20QA%20Cliente%0ATel%C3%A9fono%3A%20%2B593981371278%0AServicio%3A%20Asesor%C3%ADa%20vehicular%0AComentario%3A%20Solicitud%20QA%20para%20validar%20el%20formulario."
+    ]
+  },
+  {
+    "viewport": "mobile",
+    "route": "/contacto/",
+    "found": true,
+    "initialValidity": false,
+    "finalValidity": true,
+    "openedUrls": [
+      "https://wa.me/593981371278?text=Hola%20NEXUS%2C%20quiero%20solicitar%20asesor%C3%ADa%20financiera.%0ANombre%3A%20QA%20Cliente%0ATel%C3%A9fono%3A%20%2B593981371278%0AServicio%3A%20Asesor%C3%ADa%20vehicular%0AComentario%3A%20Solicitud%20QA%20para%20validar%20el%20formulario."
+    ]
+  }
+]

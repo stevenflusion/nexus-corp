@@ -1,0 +1,83 @@
+---
+import { ArrowRight, Car, CreditCard, Home } from "lucide-react"
+
+const services = [
+  {
+    title: "Asesoría Vehicular",
+    description:
+      "Analizamos tu perfil financiero, simulamos diferentes escenarios y te guiamos para que tomes decisiones informadas antes de buscar opciones de financiamiento.",
+    icon: Car,
+    accent: "var(--nexus-green)",
+  },
+  {
+    title: "Asesoría para Vivienda",
+    description:
+      "Analizamos tu perfil financiero, simulamos diferentes escenarios y te ayudamos a identificar las mejores alternativas para compra, construcción o remodelación.",
+    icon: Home,
+    accent: "var(--nexus-blue-professional)",
+  },
+  {
+    title: "Asesoría para Crédito de Consumo",
+    description:
+      "Antes de asumir un compromiso financiero, te orientamos para que conozcas tus posibilidades y elijas una alternativa acorde a tu realidad.",
+    icon: CreditCard,
+    accent: "var(--nexus-gold)",
+  },
+]
+---
+
+<section id="servicios" class="scroll-mt-24 bg-white py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-5 lg:px-8">
+    <div class="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+      <div data-motion="reveal">
+        <p class="section-eyebrow">Servicios</p>
+        <h2
+          class="mt-3 text-2xl font-black text-[var(--nexus-blue-dark)] sm:text-3xl"
+        >
+          Asesoría financiera para metas de vivienda, vehículo y consumo.
+        </h2>
+      </div>
+      <p
+        class="max-w-2xl text-base leading-7 text-[var(--nexus-gray)]"
+        data-motion="reveal"
+      >
+        No vendemos promesas. Te damos orientación clara para que tomes
+        decisiones financieras con mayor seguridad.
+      </p>
+    </div>
+
+    <div class="mt-10 grid gap-4 md:grid-cols-3" data-motion-group>
+      {
+        services.map(({ title, description, icon: Icon, accent }) => (
+          <article
+            class="group rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)] p-5 transition hover:-translate-y-1 hover:border-[var(--nexus-gold)] hover:bg-white hover:shadow-xl hover:shadow-[rgba(0,31,61,0.08)]"
+            data-motion-item
+          >
+            <span
+              class="grid size-12 place-items-center rounded-lg text-white"
+              style={`background: ${accent}`}
+            >
+              <Icon className="size-6" aria-hidden="true" />
+            </span>
+            <h3 class="mt-5 text-2xl font-black text-[var(--nexus-blue-dark)]">
+              {title}
+            </h3>
+            <p class="mt-3 text-sm leading-6 text-[var(--nexus-gray)]">
+              {description}
+            </p>
+            <a
+              href="/cotizador/"
+              class="mt-5 -ml-3 inline-flex min-h-11 items-center gap-2 rounded-lg px-3 text-sm font-black text-[var(--nexus-green)] transition hover:bg-[var(--nexus-cream)] hover:text-[var(--nexus-blue)]"
+            >
+              Evaluar mis opciones
+              <ArrowRight
+                className="size-4 transition group-hover:translate-x-0.5"
+                aria-hidden="true"
+              />
+            </a>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

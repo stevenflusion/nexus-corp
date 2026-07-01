@@ -1,0 +1,92 @@
+---
+import { FileText } from "lucide-react"
+import BrandLogo from "./BrandLogo.astro"
+
+const navItems = [
+  { label: "Inicio", href: "/" },
+  { label: "Servicios", href: "/servicios/" },
+  { label: "Nosotros", href: "/nosotros/" },
+  { label: "Webinar", href: "/webinar/" },
+  { label: "Contacto", href: "/contacto/" },
+]
+
+const contactItems = [
+  { label: "+593 98 137 1278", href: "tel:+593981371278" },
+  { label: "info@nexuscorpec.com", href: "mailto:info@nexuscorpec.com" },
+  {
+    label: "Quito, Ecuador",
+    href: "https://maps.app.goo.gl/tMuYfK8NgjZTrhvD9",
+  },
+]
+---
+
+<footer class="border-t border-[var(--nexus-line)] bg-white">
+  <div class="mx-auto max-w-7xl px-5 py-10 lg:px-8">
+    <div class="grid gap-8 lg:grid-cols-[1.3fr_0.7fr_0.7fr]">
+      <div>
+        <a href="/" aria-label="Ir al inicio">
+          <BrandLogo />
+        </a>
+        <p class="mt-5 max-w-md text-sm leading-6 text-[var(--nexus-gray)]">
+          Asesoría financiera para que personas, familias y emprendedores
+          entiendan sus opciones antes de avanzar con decisiones de vivienda,
+          vehículo o consumo.
+        </p>
+        <a
+          href="/branding/brochure.pdf"
+          target="_blank"
+          rel="noreferrer"
+          class="mt-5 inline-flex items-center gap-2 rounded-lg border border-[var(--nexus-gold)] px-4 py-3 text-sm font-bold text-[var(--nexus-blue)] transition hover:bg-[var(--nexus-gold)] hover:text-[var(--nexus-blue-dark)]"
+        >
+          <FileText className="size-4" aria-hidden="true" />
+          Descargar brochure
+        </a>
+      </div>
+
+      <div>
+        <h2 class="text-xs font-black text-[var(--nexus-blue-dark)] uppercase">
+          Navegación
+        </h2>
+        <div class="mt-4 grid gap-2">
+          {
+            navItems.map((item) => (
+              <a
+                href={item.href}
+                class="text-sm font-semibold text-[var(--nexus-gray)] transition hover:text-[var(--nexus-green)]"
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-xs font-black text-[var(--nexus-blue-dark)] uppercase">
+          Contacto
+        </h2>
+        <div class="mt-4 grid gap-2">
+          {
+            contactItems.map((item) => (
+              <a
+                href={item.href}
+                class="text-sm font-semibold text-[var(--nexus-gray)] transition hover:text-[var(--nexus-green)]"
+                target={item.href.startsWith("http") ? "_blank" : undefined}
+                rel={item.href.startsWith("http") ? "noreferrer" : undefined}
+              >
+                {item.label}
+              </a>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+
+    <div
+      class="mt-10 flex flex-col gap-2 border-t border-[var(--nexus-line)] pt-5 text-xs font-bold text-[var(--nexus-gray)]/70 uppercase sm:flex-row sm:items-center sm:justify-between"
+    >
+      <p>© 2026 NEXUS. Todos los derechos reservados.</p>
+      <p>Quito, Ecuador</p>
+    </div>
+  </div>
+</footer>

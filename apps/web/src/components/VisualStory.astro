@@ -1,0 +1,130 @@
+---
+import { ArrowRight, BarChart3, FileSearch, ShieldCheck } from "lucide-react"
+
+const proofCards = [
+  {
+    title: "Revisión documental",
+    text: "Ordenamos ingresos, compromisos, entrada y soporte antes de gestionar.",
+    image: "/branding/financial-analysis-desk.jpg",
+    alt: "Mesa de análisis financiero con documentos, laptop y reportes.",
+    position: "center",
+  },
+  {
+    title: "Lectura de escenarios",
+    text: "Comparamos cuota, capacidad y plazo para entender la ruta más sana.",
+    image: "/branding/advisor-charts.jpg",
+    alt: "Asesoría financiera revisando gráficos y documentos.",
+    position: "center 76%",
+  },
+  {
+    title: "Marca y método",
+    text: "Una experiencia visual consistente con el manual corporativo NEXUS.",
+    image: "/branding/brand-applications.jpg",
+    alt: "Aplicaciones corporativas del manual de marca NEXUS.",
+    position: "center",
+  },
+]
+
+const bullets = [
+  { label: "Capacidad real", icon: BarChart3 },
+  { label: "Documentos claros", icon: FileSearch },
+  { label: "Criterio responsable", icon: ShieldCheck },
+]
+---
+
+<section class="overflow-hidden bg-white py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-5 lg:px-8">
+    <div class="grid gap-10 lg:grid-cols-[0.86fr_1.14fr] lg:items-center">
+      <div data-motion="reveal">
+        <p class="section-eyebrow">Asesoría con respaldo visual</p>
+        <h2
+          class="mt-3 max-w-xl text-2xl font-black text-[var(--nexus-blue-dark)] sm:text-3xl"
+        >
+          Primero ves el escenario. Después decides con criterio.
+        </h2>
+        <p class="mt-4 max-w-2xl text-base leading-7 text-[var(--nexus-gray)]">
+          La experiencia combina revisión humana, datos visibles y una lectura
+          referencial. NEXUS no financia directamente: te ayuda a llegar mejor
+          preparado a una conversación formal.
+        </p>
+
+        <div class="mt-7 grid gap-3 sm:grid-cols-3">
+          {
+            bullets.map(({ label, icon: Icon }) => (
+              <div class="flex items-center gap-3 rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)] p-3 text-sm font-black text-[var(--nexus-blue-dark)]">
+                <span class="grid size-10 place-items-center rounded-lg bg-[var(--nexus-green)] text-white">
+                  <Icon className="size-5" aria-hidden="true" />
+                </span>
+                <span>{label}</span>
+              </div>
+            ))
+          }
+        </div>
+
+        <a
+          href="/cotizador/"
+          class="mt-8 inline-flex items-center justify-center gap-3 rounded-lg bg-[var(--nexus-green)] px-6 py-4 text-sm font-black text-white transition hover:bg-[var(--nexus-green-business)]"
+        >
+          Cotiza con nosotros
+          <ArrowRight className="size-5" aria-hidden="true" />
+        </a>
+      </div>
+
+      <div class="relative" data-motion="reveal">
+        <figure
+          class="overflow-hidden rounded-lg border border-[var(--nexus-line)] bg-white shadow-xl shadow-[rgba(0,31,61,0.10)]"
+        >
+          <img
+            src="/branding/advisory-consultation.jpg"
+            alt="Pareja revisando una asesoría financiera con una asesora."
+            class="h-[22rem] w-full object-cover sm:h-[28rem]"
+            loading="lazy"
+          />
+          <figcaption
+            class="bg-white px-5 py-4 text-sm leading-6 font-bold text-[var(--nexus-gray)]"
+          >
+            Asesoría personalizada para entender capacidad, documentos y
+            siguientes pasos antes de comprometerte.
+          </figcaption>
+        </figure>
+
+        <div
+          class="absolute right-5 bottom-20 hidden w-72 overflow-hidden rounded-lg border border-[var(--nexus-line)] bg-white shadow-2xl shadow-[rgba(0,31,61,0.16)] lg:block"
+        >
+          <img
+            src="/branding/brand-digital-showcase.jpg"
+            alt="Aplicación digital de marca NEXUS."
+            class="h-auto w-full object-cover"
+            loading="lazy"
+          />
+        </div>
+      </div>
+    </div>
+
+    <div class="mt-10 grid gap-4 lg:grid-cols-3" data-motion-group>
+      {
+        proofCards.map(({ title, text, image, alt, position }) => (
+          <article
+            class="overflow-hidden rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)]"
+            data-motion-item
+          >
+            <img
+              src={image}
+              alt={alt}
+              class="h-44 w-full object-cover"
+              style={`object-position: ${position}`}
+            />
+            <div class="p-5">
+              <h3 class="text-xl font-black text-[var(--nexus-blue-dark)]">
+                {title}
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[var(--nexus-gray)]">
+                {text}
+              </p>
+            </div>
+          </article>
+        ))
+      }
+    </div>
+  </div>
+</section>

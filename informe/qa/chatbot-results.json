@@ -1,0 +1,76 @@
+{
+  "api": [
+    {
+      "id": "saludo",
+      "status": 200,
+      "ok": true,
+      "intent": "greeting",
+      "hasReply": true,
+      "suggestions": [
+        "Créditos de vivienda",
+        "Requisitos o documentos",
+        "Hablar con un asesor"
+      ]
+    },
+    {
+      "id": "servicios",
+      "status": 200,
+      "ok": true,
+      "intent": "housing_credit",
+      "hasReply": true,
+      "suggestions": [
+        "Hablar con un asesor",
+        "Requisitos o documentos"
+      ]
+    },
+    {
+      "id": "contacto",
+      "status": 200,
+      "ok": true,
+      "intent": "human_agent",
+      "hasReply": true,
+      "suggestions": [
+        "Qué documentos necesito",
+        "Horario de atención"
+      ]
+    },
+    {
+      "id": "fallback",
+      "status": 200,
+      "ok": true,
+      "intent": "fallback",
+      "hasReply": true,
+      "suggestions": [
+        "Créditos de vivienda",
+        "Requisitos o documentos",
+        "Hablar con un asesor"
+      ]
+    }
+  ],
+  "visual": [
+    {
+      "viewport": "desktop",
+      "route": "/",
+      "consoleErrors": [],
+      "whatsappHref": "https://wa.me/593981371278?text=Hola%20NEXUS%2C%20quiero%20continuar%20mi%20consulta%20con%20un%20asesor%20por%20WhatsApp.",
+      "messagesTested": [
+        "servicios",
+        "faq-documentos",
+        "contacto",
+        "fallback"
+      ]
+    },
+    {
+      "viewport": "mobile",
+      "route": "/",
+      "consoleErrors": [],
+      "whatsappHref": "https://wa.me/593981371278?text=Hola%20NEXUS%2C%20quiero%20continuar%20mi%20consulta%20con%20un%20asesor%20por%20WhatsApp.",
+      "messagesTested": [
+        "servicios",
+        "faq-documentos",
+        "contacto",
+        "fallback"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,885 @@
+---
+import {
+  AlertTriangle,
+  ArrowRight,
+  BookOpen,
+  Car,
+  CheckCircle2,
+  ClipboardCheck,
+  Home,
+  Lightbulb,
+  MessageCircle,
+  ShieldCheck,
+  Star,
+  Target,
+  Users,
+  Wallet,
+} from "lucide-react"
+import Footer from "../../components/Footer.astro"
+import Header from "../../components/Header.astro"
+import MotionViewport from "../../components/MotionViewport"
+import MainLayout from "../../layouts/main.astro"
+
+const primaryCtaLabel = "Reservar mi cupo"
+
+const benefits = [
+  {
+    title: "Conoce tu capacidad real",
+    text: "Aprende a leer ingresos, compromisos y margen mensual antes de asumir una decision importante.",
+    icon: Wallet,
+  },
+  {
+    title: "Evita costos ocultos",
+    text: "Identifica gastos, requisitos y condiciones que suelen aparecer tarde en el proceso.",
+    icon: ShieldCheck,
+  },
+  {
+    title: "Compara alternativas",
+    text: "Organiza opciones para vivienda, departamento o vehiculo sin avanzar a ciegas.",
+    icon: ClipboardCheck,
+  },
+  {
+    title: "Sal con una ruta clara",
+    text: "Termina con pasos concretos para preparar tu caso y conversar mejor con un asesor.",
+    icon: Target,
+  },
+]
+
+const painPoints = [
+  "No saber cuanto puedes pagar realmente.",
+  "No anticipar costos notariales, seguros o gastos adicionales.",
+  "Elegir una opcion sin comparar escenarios.",
+  "Postergar metas por falta de informacion clara.",
+]
+
+const learnItems = [
+  "Como ordenar tu situacion financiera actual.",
+  "Como prepararte para comprar vivienda o departamento.",
+  "Como evaluar una opcion vehicular con mayor criterio.",
+  "Errores que debes evitar antes de solicitar financiamiento.",
+  "Estrategias usadas por personas que planifican mejor sus decisiones.",
+]
+
+const audience = [
+  {
+    title: "Personas que buscan vivienda",
+    text: "Si quieres comprar casa o departamento y necesitas entender opciones, capacidad y pasos previos.",
+    icon: Home,
+  },
+  {
+    title: "Quienes evaluan comprar vehiculo",
+    text: "Si quieres revisar entrada, cuota, costos asociados y escenarios antes de comprometerte.",
+    icon: Car,
+  },
+  {
+    title: "Familias que quieren planificar",
+    text: "Si necesitas tomar una decision financiera importante con informacion clara y acompaniamiento.",
+    icon: Users,
+  },
+]
+
+const trustItems = [
+  "Analizamos tu perfil financiero.",
+  "Identificamos oportunidades y alertas.",
+  "Evaluamos alternativas disponibles.",
+  "Te orientamos estrategicamente.",
+]
+
+const testimonials = [
+  {
+    quote:
+      "Gracias a la orientacion pude organizar mis finanzas y entender que pasos debia seguir antes de buscar una vivienda.",
+    name: "Monica Vinuleza",
+  },
+  {
+    quote:
+      "Aprendi aspectos que desconocia completamente sobre planificacion financiera.",
+    name: "Freddy Sanchez",
+  },
+  {
+    quote:
+      "La asesoria me ayudo a analizar mis opciones con mayor claridad y subir mi buro.",
+    name: "Alisson Teran",
+  },
+]
+---
+
+<MainLayout
+  title="Webinar NEXUS | Guia financiera para vivienda y vehiculo"
+  description="Webinar gratuito NEXUS para aprender a preparar decisiones financieras de vivienda, departamento o vehiculo con mayor claridad."
+  ogImage="/webinar/webinar-guide.jpeg"
+>
+  <Header />
+  <main id="contenido">
+    <section
+      class="webinar-hero relative isolate overflow-hidden border-b border-[var(--nexus-line)]"
+    >
+      <div class="mx-auto max-w-7xl px-5 py-16 sm:py-20 lg:px-8 lg:py-24">
+        <div class="max-w-3xl" data-motion="reveal">
+          <p
+            class="inline-flex rounded-lg border border-[var(--nexus-line)] bg-white px-4 py-2 text-xs font-black text-[var(--nexus-green)] uppercase shadow-sm"
+          >
+            Webinar gratuito NEXUS
+          </p>
+          <h1
+            class="mt-6 text-4xl leading-[1.03] font-black text-[var(--nexus-blue-dark)] sm:text-5xl lg:text-6xl"
+          >
+            Aprende a tomar una decision financiera importante con informacion.
+          </h1>
+          <p class="mt-6 max-w-2xl text-lg leading-8 text-[var(--nexus-gray)]">
+            Una clase practica para personas que quieren comprar casa,
+            departamento o vehiculo, pero necesitan entender su capacidad,
+            opciones, costos y siguientes pasos antes de avanzar.
+          </p>
+
+          <div class="mt-8 flex flex-col gap-3 sm:flex-row">
+            <a
+              href="#webinar-registro"
+              class="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[var(--nexus-green)] px-6 py-4 text-sm font-black text-white transition hover:bg-[var(--nexus-green-business)]"
+            >
+              {primaryCtaLabel}
+              <ArrowRight className="size-5" aria-hidden="true" />
+            </a>
+            <a
+              href="#webinar-contenido"
+              class="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg border border-[var(--nexus-line)] bg-white px-6 py-4 text-sm font-black text-[var(--nexus-blue)] transition hover:bg-[var(--nexus-cream)]"
+            >
+              Ver contenido del webinar
+              <BookOpen className="size-5" aria-hidden="true" />
+            </a>
+          </div>
+
+          <div class="mt-10 grid gap-3 sm:grid-cols-3">
+            <div
+              class="rounded-lg border border-[var(--nexus-line)] bg-white p-4 shadow-sm"
+            >
+              <strong
+                class="block text-3xl font-black text-[var(--nexus-blue-dark)]"
+                >+500</strong
+              >
+              <span
+                class="mt-1 block text-sm font-bold text-[var(--nexus-gray)]"
+              >
+                personas ya descargaron la guia
+              </span>
+            </div>
+            <div
+              class="rounded-lg border border-[var(--nexus-line)] bg-white p-4 shadow-sm"
+            >
+              <strong
+                class="block text-3xl font-black text-[var(--nexus-blue-dark)]"
+                >3</strong
+              >
+              <span
+                class="mt-1 block text-sm font-bold text-[var(--nexus-gray)]"
+              >
+                objetivos: casa, departamento y vehiculo
+              </span>
+            </div>
+            <div
+              class="rounded-lg border border-[var(--nexus-line)] bg-white p-4 shadow-sm"
+            >
+              <strong
+                class="block text-3xl font-black text-[var(--nexus-blue-dark)]"
+                >0</strong
+              >
+              <span
+                class="mt-1 block text-sm font-bold text-[var(--nexus-gray)]"
+              >
+                promesas de credito o aprobacion automatica
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white py-16 sm:py-20">
+      <div
+        class="mx-auto grid max-w-7xl gap-8 px-5 lg:grid-cols-[0.92fr_1.08fr] lg:items-center lg:px-8"
+      >
+        <div data-motion="reveal">
+          <p class="section-eyebrow">Por que muchas personas se frenan</p>
+          <h2
+            class="mt-3 text-3xl leading-tight font-black text-[var(--nexus-blue-dark)] sm:text-4xl"
+          >
+            No siempre es falta de ingresos. Muchas veces es falta de
+            informacion.
+          </h2>
+          <p class="mt-5 text-base leading-7 text-[var(--nexus-gray)]">
+            Miles de personas quieren comprar vivienda o vehiculo, pero toman
+            decisiones sin conocer su capacidad financiera real, costos ocultos,
+            opciones disponibles o errores que pueden afectar sus posibilidades.
+          </p>
+
+          <div class="mt-7 grid gap-3">
+            {
+              painPoints.map((point) => (
+                <div class="flex items-center gap-3 rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)] p-4 text-sm font-black text-[var(--nexus-blue-dark)]">
+                  <AlertTriangle
+                    className="size-5 shrink-0 text-[var(--nexus-gold)]"
+                    aria-hidden="true"
+                  />
+                  <span>{point}</span>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <figure
+          class="overflow-hidden rounded-lg border border-[var(--nexus-line)] bg-white shadow-xl shadow-[rgba(0,31,61,0.10)]"
+          data-motion="reveal"
+        >
+          <img
+            src="/webinar/webinar-problem.jpeg"
+            alt="Pareja revisando documentos financieros antes de decidir."
+            width="1165"
+            height="1350"
+            class="block h-auto w-full object-contain"
+            loading="lazy"
+          />
+        </figure>
+      </div>
+    </section>
+
+    <section class="bg-[var(--nexus-cream)] py-16 sm:py-20">
+      <div class="mx-auto max-w-7xl px-5 lg:px-8">
+        <div class="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+          <div data-motion="reveal">
+            <p class="section-eyebrow">Dentro del webinar</p>
+            <h2
+              class="mt-3 text-3xl leading-tight font-black text-[var(--nexus-blue-dark)] sm:text-4xl"
+            >
+              Una sesion para salir con una ruta, no solo con teoria.
+            </h2>
+          </div>
+          <p
+            class="max-w-3xl text-base leading-7 text-[var(--nexus-gray)]"
+            data-motion="reveal"
+          >
+            El enfoque es practico: ordenar tu caso, entender alternativas y
+            preparar preguntas inteligentes antes de una decision financiera que
+            puede acompanarte durante anos.
+          </p>
+        </div>
+
+        <div
+          class="mt-10 grid gap-4 md:grid-cols-2 xl:grid-cols-4"
+          data-motion-group
+        >
+          {
+            benefits.map(({ title, text, icon: Icon }) => (
+              <article
+                class="rounded-lg border border-[var(--nexus-line)] bg-white p-5 shadow-sm"
+                data-motion-item
+              >
+                <span class="grid size-12 place-items-center rounded-lg bg-[var(--nexus-green)] text-white">
+                  <Icon className="size-6" aria-hidden="true" />
+                </span>
+                <h3 class="mt-5 text-xl font-black text-[var(--nexus-blue-dark)]">
+                  {title}
+                </h3>
+                <p class="mt-3 text-sm leading-6 text-[var(--nexus-gray)]">
+                  {text}
+                </p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section id="webinar-contenido" class="bg-white py-16 sm:py-20">
+      <div
+        class="mx-auto grid max-w-7xl gap-8 px-5 lg:grid-cols-[1.05fr_0.95fr] lg:items-center lg:px-8"
+      >
+        <form
+          id="webinar-registro"
+          class="grid scroll-mt-24 gap-4 rounded-lg border border-[var(--nexus-line)] bg-white p-5 shadow-xl shadow-[rgba(0,31,61,0.10)] sm:p-7"
+          data-motion="reveal"
+          data-webinar-form
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="grid size-11 shrink-0 place-items-center rounded-lg bg-[var(--nexus-green)] text-white"
+            >
+              <MessageCircle className="size-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p class="text-xs font-black text-[var(--nexus-green)] uppercase">
+                Registro al webinar
+              </p>
+              <h2 class="text-2xl font-black text-[var(--nexus-blue-dark)]">
+                Recibe el enlace y la guia
+              </h2>
+            </div>
+          </div>
+
+          <label
+            class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
+          >
+            Nombre completo
+            <input
+              class="h-12 rounded-lg border border-[var(--nexus-line-soft)] bg-white px-4 font-semibold transition outline-none focus:border-[var(--nexus-green)] focus:ring-4 focus:ring-[var(--nexus-green)]/12"
+              autocomplete="name"
+              placeholder="Ej. Ana Torres"
+              required
+              data-webinar-name
+            />
+          </label>
+
+          <div class="grid gap-4 sm:grid-cols-2">
+            <label
+              class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
+            >
+              Correo
+              <input
+                class="h-12 min-w-0 rounded-lg border border-[var(--nexus-line-soft)] bg-white px-4 font-semibold transition outline-none focus:border-[var(--nexus-green)] focus:ring-4 focus:ring-[var(--nexus-green)]/12"
+                type="email"
+                autocomplete="email"
+                placeholder="correo@dominio.com"
+                required
+                data-webinar-email
+              />
+            </label>
+
+            <label
+              class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
+            >
+              WhatsApp
+              <input
+                class="h-12 min-w-0 rounded-lg border border-[var(--nexus-line-soft)] bg-white px-4 font-semibold transition outline-none focus:border-[var(--nexus-green)] focus:ring-4 focus:ring-[var(--nexus-green)]/12"
+                type="tel"
+                inputmode="tel"
+                autocomplete="tel"
+                placeholder="098 137 1278"
+                pattern="[0-9+() -]{9,18}"
+                title="Ingresa un telefono valido, minimo 9 digitos."
+                required
+                data-webinar-phone
+              />
+            </label>
+          </div>
+
+          <label
+            class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
+          >
+            Objetivo principal
+            <select
+              class="h-12 rounded-lg border border-[var(--nexus-line-soft)] bg-white px-4 font-semibold transition outline-none focus:border-[var(--nexus-green)] focus:ring-4 focus:ring-[var(--nexus-green)]/12"
+              data-webinar-interest
+            >
+              <option value="vivienda">Comprar vivienda o departamento</option>
+              <option value="vehiculo">Comprar vehiculo</option>
+              <option value="planificacion"
+                >Ordenar mi planificacion financiera</option
+              >
+              <option value="general">Aprender antes de decidir</option>
+            </select>
+          </label>
+
+          <label
+            class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
+          >
+            Comentario opcional
+            <textarea
+              class="min-h-24 rounded-lg border border-[var(--nexus-line-soft)] bg-white px-4 py-3 font-semibold transition outline-none focus:border-[var(--nexus-green)] focus:ring-4 focus:ring-[var(--nexus-green)]/12"
+              placeholder="Cuéntanos qué quieres preparar"
+              data-webinar-message></textarea>
+          </label>
+
+          <label
+            class="flex gap-3 rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)] p-4 text-sm leading-6 font-bold text-[var(--nexus-gray)]"
+          >
+            <input
+              type="checkbox"
+              class="mt-1 size-4 shrink-0 accent-[var(--nexus-green)]"
+              required
+              data-webinar-consent
+            />
+            <span>
+              Acepto que NEXUS use mis datos para enviarme el enlace del
+              webinar, la guia gratuita y seguimiento de la asesoria.
+            </span>
+          </label>
+
+          <button
+            type="submit"
+            class="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[var(--nexus-green)] px-6 py-4 text-sm font-black text-white transition hover:bg-[var(--nexus-green-business)] disabled:cursor-wait disabled:opacity-70"
+            data-webinar-submit
+          >
+            <span data-webinar-submit-label>Enviar registro</span>
+            <ArrowRight className="size-5" aria-hidden="true" />
+          </button>
+
+          <p
+            class="webinar-status rounded-lg border px-4 py-3 text-sm font-bold"
+            data-webinar-status
+            role="status"
+            aria-live="polite"
+            hidden
+          >
+          </p>
+
+          <p class="text-xs leading-5 font-bold text-[var(--nexus-gray)]">
+            Tu registro se envia al correo del equipo NEXUS. Sin spam y sin
+            tarjeta.
+          </p>
+        </form>
+
+        <div data-motion="reveal">
+          <p class="section-eyebrow">Que aprenderas</p>
+          <h2
+            class="mt-3 text-3xl leading-tight font-black text-[var(--nexus-blue-dark)] sm:text-4xl"
+          >
+            Contenido para preparar mejor vivienda, departamento o vehiculo.
+          </h2>
+          <div class="mt-7 grid gap-3">
+            {
+              learnItems.map((item) => (
+                <div class="flex gap-3 rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)] p-4">
+                  <CheckCircle2
+                    className="mt-0.5 size-5 shrink-0 text-[var(--nexus-green)]"
+                    aria-hidden="true"
+                  />
+                  <p class="text-sm leading-6 font-bold text-[var(--nexus-blue-dark)]">
+                    {item}
+                  </p>
+                </div>
+              ))
+            }
+          </div>
+
+          <div
+            class="mt-8 rounded-lg border border-[var(--nexus-gold)]/45 bg-[var(--nexus-blue-dark)] p-5 text-white"
+          >
+            <div class="flex gap-4">
+              <Lightbulb
+                className="mt-1 size-8 shrink-0 text-[var(--nexus-gold)]"
+                aria-hidden="true"
+              />
+              <div>
+                <h3 class="text-xl font-black">Aclaracion importante</h3>
+                <p class="mt-2 text-sm leading-6 text-white/76">
+                  NEXUS no otorga creditos. Brindamos asesoria financiera y
+                  orientacion estrategica para ayudarte a evaluar opciones y
+                  prepararte adecuadamente.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <a
+            href="#webinar-registro"
+            class="mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[var(--nexus-green)] px-6 py-4 text-sm font-black text-white transition hover:bg-[var(--nexus-green-business)]"
+          >
+            Quiero entrar al webinar
+            <ArrowRight className="size-5" aria-hidden="true" />
+          </a>
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white py-16 sm:py-20">
+      <div class="mx-auto max-w-7xl px-5 lg:px-8">
+        <div class="mx-auto max-w-3xl text-center" data-motion="reveal">
+          <p class="section-eyebrow">Para quien es</p>
+          <h2
+            class="mt-3 text-3xl leading-tight font-black text-[var(--nexus-blue-dark)] sm:text-4xl"
+          >
+            Disenado para personas que quieren avanzar sin improvisar.
+          </h2>
+        </div>
+
+        <div class="mt-10 grid gap-4 lg:grid-cols-3" data-motion-group>
+          {
+            audience.map(({ title, text, icon: Icon }) => (
+              <article
+                class="rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)] p-5"
+                data-motion-item
+              >
+                <Icon
+                  className="size-7 text-[var(--nexus-green)]"
+                  aria-hidden="true"
+                />
+                <h3 class="mt-5 text-xl font-black text-[var(--nexus-blue-dark)]">
+                  {title}
+                </h3>
+                <p class="mt-3 text-sm leading-6 text-[var(--nexus-gray)]">
+                  {text}
+                </p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-[var(--nexus-blue-dark)] py-16 text-white sm:py-20">
+      <div
+        class="mx-auto grid max-w-7xl gap-8 px-5 lg:grid-cols-[0.9fr_1.1fr] lg:items-center lg:px-8"
+      >
+        <div data-motion="reveal">
+          <p
+            class="text-xs font-black text-[var(--nexus-green-premium)] uppercase"
+          >
+            Confianza y acompanamiento
+          </p>
+          <h2 class="mt-3 text-3xl leading-tight font-black sm:text-4xl">
+            Mas que una asesoria. Un acompanamiento estrategico.
+          </h2>
+          <p class="mt-5 text-base leading-7 text-white/72">
+            En NEXUS ayudamos a las personas a comprender mejor su situacion
+            financiera y tomar decisiones informadas.
+          </p>
+        </div>
+
+        <div class="grid gap-3 sm:grid-cols-2" data-motion-group>
+          {
+            trustItems.map((item) => (
+              <div
+                class="flex items-center gap-3 rounded-lg border border-white/12 bg-white/8 p-4 text-sm font-black text-white"
+                data-motion-item
+              >
+                <CheckCircle2
+                  className="size-5 shrink-0 text-[var(--nexus-green-premium)]"
+                  aria-hidden="true"
+                />
+                <span>{item}</span>
+              </div>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-white py-16 sm:py-20">
+      <div class="mx-auto max-w-7xl px-5 lg:px-8">
+        <div class="grid gap-6 lg:grid-cols-[0.85fr_1.15fr] lg:items-end">
+          <div data-motion="reveal">
+            <p class="section-eyebrow">Personas que confiaron en NEXUS</p>
+            <h2
+              class="mt-3 text-3xl leading-tight font-black text-[var(--nexus-blue-dark)] sm:text-4xl"
+            >
+              Historias de personas que decidieron informarse antes de avanzar.
+            </h2>
+          </div>
+          <p
+            class="max-w-3xl text-base leading-7 text-[var(--nexus-gray)]"
+            data-motion="reveal"
+          >
+            La meta no es prometer resultados automaticos. La meta es ayudarte a
+            llegar con mayor claridad, mejores preguntas y una estrategia mas
+            ordenada.
+          </p>
+        </div>
+
+        <div class="mt-10 grid gap-4 lg:grid-cols-3" data-motion-group>
+          {
+            testimonials.map(({ quote, name }) => (
+              <article
+                class="rounded-lg border border-[var(--nexus-line)] bg-white p-5 shadow-sm"
+                data-motion-item
+              >
+                <div class="flex gap-1 text-[var(--nexus-gold)]">
+                  {[1, 2, 3, 4, 5].map(() => (
+                    <Star className="size-4 fill-current" aria-hidden="true" />
+                  ))}
+                </div>
+                <p class="mt-5 text-sm leading-6 font-bold text-[var(--nexus-blue-dark)]">
+                  "{quote}"
+                </p>
+                <p class="mt-5 text-xs font-black text-[var(--nexus-green)] uppercase">
+                  {name}
+                </p>
+              </article>
+            ))
+          }
+        </div>
+      </div>
+    </section>
+
+    <section class="bg-[var(--nexus-cream)] py-16 sm:py-20">
+      <div
+        class="mx-auto grid max-w-7xl gap-8 px-5 lg:grid-cols-[1fr_0.82fr] lg:items-center lg:px-8"
+      >
+        <div data-motion="reveal">
+          <p class="section-eyebrow">Tu proximo objetivo</p>
+          <h2
+            class="mt-3 text-3xl leading-tight font-black text-[var(--nexus-blue-dark)] sm:text-4xl"
+          >
+            Comienza con una mejor estrategia.
+          </h2>
+          <p
+            class="mt-5 max-w-2xl text-base leading-7 text-[var(--nexus-gray)]"
+          >
+            Registrate y recibe gratuitamente la guia "10 planes de estrategia
+            financiera que pueden transformar tu futuro". Ademas tendras acceso
+            a contenido educativo, consejos financieros y posibilidad de agendar
+            una orientacion personalizada.
+          </p>
+        </div>
+
+        <div
+          class="rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-blue-dark)] p-6 text-white shadow-xl shadow-[rgba(0,31,61,0.18)]"
+          data-motion="reveal"
+        >
+          <div class="flex items-center gap-3">
+            <span
+              class="grid size-11 place-items-center rounded-lg bg-[var(--nexus-green)] text-white"
+            >
+              <MessageCircle className="size-5" aria-hidden="true" />
+            </span>
+            <div>
+              <p
+                class="text-xs font-black text-[var(--nexus-green-premium)] uppercase"
+              >
+                Registro por correo
+              </p>
+              <h3 class="text-2xl font-black">Reserva tu cupo</h3>
+            </div>
+          </div>
+
+          <div class="mt-6 grid gap-3">
+            <div
+              class="rounded-lg border border-white/12 bg-white/8 p-4 text-sm font-bold text-white/78"
+            >
+              Webinar gratuito para preparar decisiones de vivienda, vehiculo y
+              planificacion financiera.
+            </div>
+            <div
+              class="rounded-lg border border-white/12 bg-white/8 p-4 text-sm font-bold text-white/78"
+            >
+              Tus datos llegan al correo del equipo para confirmar el registro y
+              enviarte el enlace.
+            </div>
+          </div>
+
+          <a
+            href="#webinar-registro"
+            class="mt-6 inline-flex min-h-12 w-full items-center justify-center gap-3 rounded-lg bg-[var(--nexus-green)] px-6 py-4 text-sm font-black text-white transition hover:bg-[var(--nexus-green-business)]"
+          >
+            {primaryCtaLabel}
+            <ArrowRight className="size-5" aria-hidden="true" />
+          </a>
+
+          <p class="mt-4 text-center text-xs leading-5 font-bold text-white/58">
+            Sin spam y sin tarjeta. Solo informacion para coordinar el webinar.
+          </p>
+        </div>
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <MotionViewport client:load />
+</MainLayout>
+
+<script>
+  const webinarForm = document.querySelector<HTMLFormElement>(
+    "[data-webinar-form]"
+  )
+
+  const webinarFields = {
+    name: document.querySelector<HTMLInputElement>("[data-webinar-name]"),
+    email: document.querySelector<HTMLInputElement>("[data-webinar-email]"),
+    phone: document.querySelector<HTMLInputElement>("[data-webinar-phone]"),
+    interest: document.querySelector<HTMLSelectElement>(
+      "[data-webinar-interest]"
+    ),
+    message: document.querySelector<HTMLTextAreaElement>(
+      "[data-webinar-message]"
+    ),
+    consent: document.querySelector<HTMLInputElement>("[data-webinar-consent]"),
+    submit: document.querySelector<HTMLButtonElement>("[data-webinar-submit]"),
+    submitLabel: document.querySelector<HTMLElement>(
+      "[data-webinar-submit-label]"
+    ),
+    status: document.querySelector<HTMLElement>("[data-webinar-status]"),
+  }
+
+  const setWebinarStatus = (state: "success" | "error", message: string) => {
+    if (!webinarFields.status) {
+      return
+    }
+
+    webinarFields.status.hidden = false
+    webinarFields.status.dataset.state = state
+    webinarFields.status.textContent = message
+  }
+
+  webinarForm?.addEventListener("submit", async (event) => {
+    event.preventDefault()
+
+    const phoneDigits = webinarFields.phone?.value.replace(/\D/g, "") ?? ""
+    if (phoneDigits.length < 9 || phoneDigits.length > 13) {
+      webinarFields.phone?.setCustomValidity(
+        "Ingresa un telefono valido para confirmar tu registro."
+      )
+    } else {
+      webinarFields.phone?.setCustomValidity("")
+    }
+
+    if (!webinarForm.reportValidity()) {
+      return
+    }
+
+    const payload = {
+      name: webinarFields.name?.value.trim() || "",
+      email: webinarFields.email?.value.trim() || "",
+      phone: webinarFields.phone?.value.trim() || "",
+      interest:
+        webinarFields.interest?.selectedOptions[0]?.textContent?.trim() ||
+        webinarFields.interest?.value ||
+        "",
+      message: webinarFields.message?.value.trim() || "",
+      acceptedTerms: webinarFields.consent?.checked === true,
+    }
+
+    webinarFields.submit?.setAttribute("disabled", "true")
+    const originalButtonText = webinarFields.submitLabel?.textContent || ""
+
+    if (webinarFields.submitLabel) {
+      webinarFields.submitLabel.textContent = "Enviando registro..."
+    }
+
+    try {
+      const response = await fetch("/api/webinar-registration", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(payload),
+      })
+
+      if (!response.ok) {
+        throw new Error("registration_failed")
+      }
+
+      setWebinarStatus(
+        "success",
+        "Registro recibido. Te enviaremos el enlace del webinar y la guia gratuita al correo indicado."
+      )
+      webinarForm.reset()
+    } catch {
+      setWebinarStatus(
+        "error",
+        "No pudimos enviar el registro en este momento. Intenta nuevamente o escribe a info@nexuscorpec.com."
+      )
+    } finally {
+      webinarFields.submit?.removeAttribute("disabled")
+
+      if (webinarFields.submitLabel) {
+        webinarFields.submitLabel.textContent =
+          originalButtonText.trim() || "Enviar registro"
+      }
+    }
+  })
+</script>
+
+<style>
+  .webinar-hero {
+    background: linear-gradient(135deg, #f7fafc 0%, #eef4f7 52%, #f4f6f8 100%);
+  }
+
+  .webinar-hero > div {
+    position: relative;
+    z-index: 1;
+  }
+
+  .webinar-hero::before,
+  .webinar-hero::after {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    content: "";
+  }
+
+  .webinar-hero::before {
+    background:
+      linear-gradient(90deg, rgba(0, 43, 85, 0.055) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(0, 43, 85, 0.045) 1px, transparent 1px);
+    background-size: 80px 80px;
+    mask-image: linear-gradient(90deg, black, transparent 86%);
+  }
+
+  .webinar-hero::after {
+    background: linear-gradient(
+      112deg,
+      transparent 0%,
+      transparent 34%,
+      rgba(0, 153, 51, 0.1) 46%,
+      rgba(200, 155, 60, 0.08) 54%,
+      transparent 66%,
+      transparent 100%
+    );
+    background-size: 220% 100%;
+    opacity: 0.78;
+    animation: webinar-hero-sheen 14s ease-in-out infinite alternate;
+  }
+
+  @keyframes webinar-hero-sheen {
+    from {
+      background-position: 0% 50%;
+    }
+
+    to {
+      background-position: 100% 50%;
+    }
+  }
+
+  .webinar-status[data-state="success"] {
+    border-color: rgba(0, 153, 51, 0.28);
+    background: rgba(0, 153, 51, 0.1);
+    color: var(--nexus-green-dark);
+  }
+
+  .webinar-status[data-state="error"] {
+    border-color: rgba(180, 35, 24, 0.24);
+    background: rgba(180, 35, 24, 0.08);
+    color: #b42318;
+  }
+
+  :global(:root[data-theme="dark"]) .webinar-hero {
+    background: linear-gradient(135deg, #07111f 0%, #0b1727 52%, #061528 100%);
+  }
+
+  :global(:root[data-theme="dark"]) .webinar-hero::before {
+    background:
+      linear-gradient(90deg, rgba(199, 211, 226, 0.06) 1px, transparent 1px),
+      linear-gradient(180deg, rgba(199, 211, 226, 0.045) 1px, transparent 1px);
+    background-size: 80px 80px;
+  }
+
+  :global(:root[data-theme="dark"]) .webinar-hero::after {
+    background: linear-gradient(
+      112deg,
+      transparent 0%,
+      transparent 34%,
+      rgba(0, 153, 51, 0.2) 46%,
+      rgba(56, 232, 111, 0.1) 54%,
+      transparent 66%,
+      transparent 100%
+    );
+    opacity: 0.62;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .webinar-hero::after {
+      animation: none;
+    }
+  }
+
+  :global(:root[data-theme="dark"]) .webinar-status[data-state="success"] {
+    border-color: rgba(56, 232, 111, 0.28);
+    background: rgba(0, 153, 51, 0.14);
+    color: #8df3a8;
+  }
+
+  :global(:root[data-theme="dark"]) .webinar-status[data-state="error"] {
+    border-color: rgba(255, 154, 144, 0.3);
+    background: rgba(180, 35, 24, 0.14);
+    color: #ff9a90;
+  }
+</style>

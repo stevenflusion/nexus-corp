@@ -1,0 +1,44 @@
+[
+  {
+    "url": "http://127.0.0.1:4321/",
+    "text": "Volver al sitio",
+    "status": 200,
+    "ok": true,
+    "finalUrl": "http://127.0.0.1:4321/"
+  },
+  {
+    "url": "http://127.0.0.1:4321/branding/brochure.pdf",
+    "text": "Descargar brochure",
+    "status": 200,
+    "ok": true,
+    "finalUrl": "http://127.0.0.1:4321/branding/brochure.pdf"
+  },
+  {
+    "url": "http://127.0.0.1:4321/contacto/",
+    "text": "Contacto",
+    "status": 200,
+    "ok": true,
+    "finalUrl": "http://127.0.0.1:4321/contacto/"
+  },
+  {
+    "url": "http://127.0.0.1:4321/cotizador/",
+    "text": "Saltar al contenido",
+    "status": 200,
+    "ok": true,
+    "finalUrl": "http://127.0.0.1:4321/cotizador/"
+  },
+  {
+    "url": "http://127.0.0.1:4321/nosotros/",
+    "text": "Nosotros",
+    "status": 200,
+    "ok": true,
+    "finalUrl": "http://127.0.0.1:4321/nosotros/"
+  },
+  {
+    "url": "http://127.0.0.1:4321/servicios/",
+    "text": "Servicios",
+    "status": 200,
+    "ok": true,
+    "finalUrl": "http://127.0.0.1:4321/servicios/"
+  }
+]

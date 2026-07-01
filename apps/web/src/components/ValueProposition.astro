@@ -1,0 +1,72 @@
+---
+import {
+  BadgeCheck,
+  FileText,
+  Handshake,
+  SlidersHorizontal,
+} from "lucide-react"
+
+const items = [
+  {
+    title: "Análisis claro",
+    text: "Capacidad, cuota y riesgo explicados sin tecnicismos.",
+    icon: BadgeCheck,
+  },
+  {
+    title: "Escenarios",
+    text: "Comparación de monto, plazo y entrada antes de comprometerte.",
+    icon: SlidersHorizontal,
+  },
+  {
+    title: "Documentos",
+    text: "Preparación de información para una gestión más ordenada.",
+    icon: FileText,
+  },
+  {
+    title: "Seguimiento",
+    text: "Acompañamiento hasta entender la mejor ruta posible.",
+    icon: Handshake,
+  },
+]
+---
+
+<section id="beneficios" class="scroll-mt-24 bg-white py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-5 lg:px-8">
+    <div class="grid gap-8 lg:grid-cols-[0.8fr_1.2fr] lg:items-start">
+      <div data-motion="reveal">
+        <p class="section-eyebrow">Propuesta de valor</p>
+        <h2
+          class="mt-3 text-2xl font-black text-[var(--nexus-blue-dark)] sm:text-3xl"
+        >
+          Primero claridad. Después gestión.
+        </h2>
+        <p class="mt-4 text-base leading-7 text-[var(--nexus-gray)]">
+          Tu objetivo no es obtener un crédito. Tu objetivo es alcanzar una meta
+          con una decisión financiera bien entendida.
+        </p>
+      </div>
+
+      <div class="grid gap-4 sm:grid-cols-2" data-motion-group>
+        {
+          items.map(({ title, text, icon: Icon }) => (
+            <article
+              class="rounded-lg border border-[var(--nexus-line)] bg-white p-5"
+              data-motion-item
+            >
+              <Icon
+                className="size-6 text-[var(--nexus-green)]"
+                aria-hidden="true"
+              />
+              <h3 class="mt-5 text-xl font-black text-[var(--nexus-blue-dark)]">
+                {title}
+              </h3>
+              <p class="mt-2 text-sm leading-6 text-[var(--nexus-gray)]">
+                {text}
+              </p>
+            </article>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>

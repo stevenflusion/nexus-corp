@@ -1,0 +1,44 @@
+# Dependencies
+node_modules
+.pnp
+.pnp.js
+
+# Local env files
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Testing
+coverage
+
+# Runtime data
+storage/
+
+# Turbo
+.turbo
+
+# Vercel
+.vercel
+
+# Build Outputs
+dist
+
+# Astro
+.astro
+
+# Debug
+npm-debug.log*
+
+# Local assistant/tooling artifacts
+.codex*
+.claude*
+CLAUDE.local.md
+AGENT.local.md
+*.codex.log
+*.claude.log
+
+# Misc
+.DS_Store
+*.pem

@@ -1,0 +1,111 @@
+---
+import { Building2, Quote, ShieldCheck } from "lucide-react"
+
+const testimonials = [
+  {
+    quote: "Me ayudaron a entender mis opciones antes de tomar una decisión.",
+    role: "Cliente asesorado",
+  },
+  {
+    quote: "La asesoría fue clara, rápida y muy profesional.",
+    role: "Cliente asesorado",
+  },
+  {
+    quote: "Ahora tengo una visión más clara para alcanzar mi meta.",
+    role: "Cliente asesorado",
+  },
+]
+
+const alliedEntities = [
+  "Banco aliado",
+  "Cooperativa aliada",
+  "Financiera aliada",
+  "Entidad aliada",
+]
+---
+
+<section class="bg-white py-16 sm:py-20">
+  <div class="mx-auto max-w-7xl px-5 lg:px-8">
+    <div class="grid gap-6 lg:grid-cols-[0.8fr_1.2fr] lg:items-end">
+      <div data-motion="reveal">
+        <p class="section-eyebrow">Clientes y aliados</p>
+        <h2
+          class="mt-3 text-2xl font-black text-[var(--nexus-blue-dark)] sm:text-3xl"
+        >
+          Confianza que se construye con claridad y acompañamiento.
+        </h2>
+      </div>
+      <p
+        class="max-w-3xl text-base leading-7 text-[var(--nexus-gray)]"
+        data-motion="reveal"
+      >
+        Te acompañamos a comparar opciones, entender requisitos y conversar con
+        mayor seguridad sobre la ruta financiera que mejor se ajusta a tu meta.
+      </p>
+    </div>
+
+    <div class="mt-10 grid gap-4 lg:grid-cols-3" data-motion-group>
+      {
+        testimonials.map(({ quote, role }) => (
+          <article
+            class="rounded-lg border border-[var(--nexus-line)] bg-white p-5 shadow-sm transition hover:-translate-y-1 hover:shadow-xl hover:shadow-[rgba(0,31,61,0.08)]"
+            data-motion-item
+          >
+            <span class="grid size-11 place-items-center rounded-lg bg-[var(--nexus-blue)] text-white">
+              <Quote className="size-5" aria-hidden="true" />
+            </span>
+            <p class="mt-5 text-lg leading-7 font-black text-[var(--nexus-blue-dark)]">
+              "{quote}"
+            </p>
+            <p class="mt-4 text-sm font-bold text-[var(--nexus-green)]">
+              {role}
+            </p>
+          </article>
+        ))
+      }
+    </div>
+
+    <div
+      class="mt-10 grid gap-6 rounded-lg border border-[var(--nexus-line)] bg-white p-5 lg:grid-cols-[0.75fr_1.25fr] lg:items-center"
+      data-motion="reveal"
+    >
+      <div>
+        <div class="flex items-center gap-3">
+          <span
+            class="grid size-11 place-items-center rounded-lg bg-[var(--nexus-gold)] text-[var(--nexus-blue-dark)]"
+          >
+            <ShieldCheck className="size-5" aria-hidden="true" />
+          </span>
+          <div>
+            <p class="text-xs font-black text-[var(--nexus-green)] uppercase">
+              Entidades aliadas
+            </p>
+            <h3 class="text-2xl font-black text-[var(--nexus-blue-dark)]">
+              Trabajamos junto a entidades del sistema financiero.
+            </h3>
+          </div>
+        </div>
+        <p class="mt-4 text-sm leading-6 text-[var(--nexus-gray)]">
+          Revisamos tu caso con información clara para ayudarte a identificar
+          alternativas acordes a tu realidad.
+        </p>
+      </div>
+
+      <div class="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
+        {
+          alliedEntities.map((entity) => (
+            <div class="grid min-h-24 place-items-center rounded-lg border border-[var(--nexus-line)] bg-[var(--nexus-cream)] p-4 text-center">
+              <Building2
+                className="mb-2 size-6 text-[var(--nexus-blue)]"
+                aria-hidden="true"
+              />
+              <span class="text-sm font-black text-[var(--nexus-blue-dark)]">
+                {entity}
+              </span>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,13 @@
+---
+import QuoteWizard from "../../components/QuoteWizard"
+import MainLayout from "../../layouts/main.astro"
+---
+
+<MainLayout
+  title="Vivienda con tasa nominal desde el 4.99% anual | NEXUS"
+  description="Simula una asesoría para vivienda con tasa nominal referencial desde el 4.99% anual."
+>
+  <main id="contenido">
+    <QuoteWizard client:load initialProduct="vivienda" />
+  </main>
+</MainLayout>
