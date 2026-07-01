@@ -9,8 +9,6 @@ import {
   BanIcon,
   MoreHorizontalIcon,
 } from "lucide-react"
-import { toast } from "sonner"
-
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
 import {
@@ -28,16 +26,8 @@ interface MagicLinkRowActionsProps {
 }
 
 function MagicLinkRowActions({ link, onAction }: MagicLinkRowActionsProps) {
-  const handleCopy = async (event: React.MouseEvent) => {
+  const handleCopy = (event: React.MouseEvent) => {
     event.stopPropagation()
-
-    try {
-      await navigator.clipboard.writeText(link.url)
-      toast.success("Link copiado al portapapeles")
-    } catch {
-      toast.error("No se pudo copiar el link")
-    }
-
     onAction("copy", link)
   }
 

@@ -1,14 +1,27 @@
 "use client"
 
 import * as React from "react"
+import { toast } from "sonner"
 
 import { MagicLinkFilters } from "@/components/magic-links/MagicLinkFilters"
 import { MagicLinkTable } from "@/components/magic-links/MagicLinkTable"
 import { Pagination } from "@/components/magic-links/Pagination"
 import { EmptyState } from "@/components/magic-links/EmptyState"
 import { LoadingSkeleton } from "@/components/magic-links/LoadingSkeleton"
-import { getMagicLinks } from "@/lib/magic-links"
-import type { MagicLink, MagicLinkFilters as MagicLinkFiltersType } from "@/lib/types"
+import { MagicLinkDetailDrawer } from "@/components/magic-links/MagicLinkDetailDrawer"
+import { ConfirmDialog } from "@/components/magic-links/ConfirmDialog"
+import {
+  getMagicLinks,
+  getMagicLinkActivity,
+  revokeMagicLink,
+  resendMagicLink,
+  extendMagicLink,
+} from "@/lib/magic-links"
+import type {
+  MagicLink,
+  MagicLinkFilters as MagicLinkFiltersType,
+  ActivityLogEntry,
+} from "@/lib/types"
 
 const defaultFilters: MagicLinkFiltersType = {
   search: "",
@@ -25,7 +38,12 @@ export default function MagicLinksPage() {
   const [currentPage, setCurrentPage] = React.useState(1)
   const [itemsPerPage, setItemsPerPage] = React.useState(10)
   const [selectedLink, setSelectedLink] = React.useState<MagicLink | null>(null)
+  const [isDetailOpen, setIsDetailOpen] = React.useState(false)
   const [isCreateOpen, setIsCreateOpen] = React.useState(false)
+  const [duplicateSource, setDuplicateSource] = React.useState<MagicLink | null>(null)
+  const [activity, setActivity] = React.useState<ActivityLogEntry[]>([])
+  const [isConfirmOpen, setIsConfirmOpen] = React.useState(false)
+  const confirmActionRef = React.useRef<() => void>(() => {})
 
   React.useEffect(() => {
     let cancelled = false
@@ -44,6 +62,29 @@ export default function MagicLinksPage() {
     }
   }, [filters])
 
+  React.useEffect(() => {
+    if (!isDetailOpen || !selectedLink) {
+      setActivity([])
+      return
+    }
+
+    let cancelled = false
+    getMagicLinkActivity(selectedLink.id).then((entries) => {
+      if (!cancelled) {
+        setActivity(entries)
+      }
+    })
+
+    return () => {
+      cancelled = true
+    }
+  }, [isDetailOpen, selectedLink?.id])
+
+  const refreshLink = (updated: MagicLink) => {
+    setLinks((prev) => prev.map((link) => (link.id === updated.id ? updated : link)))
+    setSelectedLink((prev) => (prev?.id === updated.id ? updated : prev))
+  }
+
   const handleFiltersChange = (next: MagicLinkFiltersType) => {
     setFilters(next)
   }
@@ -54,12 +95,97 @@ export default function MagicLinksPage() {
 
   const handleRowClick = (link: MagicLink) => {
     setSelectedLink(link)
+    setIsDetailOpen(true)
   }
 
-  const handleAction = (_action: string, link: MagicLink) => {
-    // Slice 3 will wire detail drawer, revoke/extend/resend/duplicate flows.
-    // Slice 4 will wire the create dialog.
-    setSelectedLink(link)
+  const openConfirm = (onConfirm: () => void) => {
+    confirmActionRef.current = onConfirm
+    setIsConfirmOpen(true)
+  }
+
+  const handleConfirm = () => {
+    confirmActionRef.current()
+    confirmActionRef.current = () => {}
+  }
+
+  const handleCopy = async (link: MagicLink) => {
+    try {
+      await navigator.clipboard.writeText(link.url)
+      toast.success("Link copiado")
+    } catch {
+      toast.error("No se pudo copiar el link")
+    }
+  }
+
+  const handleResend = async (link: MagicLink) => {
+    try {
+      const updated = await resendMagicLink(link.id)
+      refreshLink(updated)
+      toast.success("Link reenviado")
+    } catch {
+      toast.error("No se pudo reenviar el link")
+    }
+  }
+
+  const handleExtend = async (link: MagicLink, newDate: string) => {
+    try {
+      const updated = await extendMagicLink(link.id, newDate)
+      refreshLink(updated)
+      toast.success("Expiración extendida")
+    } catch {
+      toast.error("No se pudo extender la expiración")
+    }
+  }
+
+  const handleRevoke = async (link: MagicLink) => {
+    openConfirm(async () => {
+      try {
+        const updated = await revokeMagicLink(link.id)
+        refreshLink(updated)
+        setIsDetailOpen(false)
+        toast.success("Link revocado")
+      } catch {
+        toast.error("No se pudo revocar el link")
+      }
+    })
+  }
+
+  const handleDuplicate = (link: MagicLink) => {
+    setDuplicateSource(link)
+    setIsDetailOpen(false)
+    setIsCreateOpen(true)
+    toast.info("Configuración cargada para duplicar")
+  }
+
+  const handleAction = (
+    action: string,
+    link: MagicLink,
+    payload?: string
+  ) => {
+    switch (action) {
+      case "view":
+        handleRowClick(link)
+        break
+      case "copy":
+        handleCopy(link)
+        break
+      case "resend":
+        handleResend(link)
+        break
+      case "extend":
+        if (payload) {
+          handleExtend(link, payload)
+        }
+        break
+      case "revoke":
+        handleRevoke(link)
+        break
+      case "duplicate":
+        handleDuplicate(link)
+        break
+      default:
+        break
+    }
   }
 
   const totalItems = links.length
@@ -134,10 +260,28 @@ export default function MagicLinksPage() {
         </>
       )}
 
-      {/* Slice 4 will render the create dialog here using isCreateOpen. */}
+      <MagicLinkDetailDrawer
+        link={selectedLink}
+        open={isDetailOpen}
+        onOpenChange={setIsDetailOpen}
+        onAction={handleAction}
+        activity={activity}
+      />
+
+      <ConfirmDialog
+        open={isConfirmOpen}
+        onOpenChange={setIsConfirmOpen}
+        title="Revocar MagicLink"
+        description="Esta acción es irreversible. El link dejará de funcionar inmediatamente. ¿Estás seguro?"
+        confirmLabel="Revocar"
+        cancelLabel="Cancelar"
+        onConfirm={handleConfirm}
+        destructive
+      />
+
+      {/* Slice 4 will render the create dialog here using isCreateOpen and duplicateSource. */}
       {isCreateOpen && null}
-      {/* Slice 3 will render the detail drawer here using selectedLink. */}
-      {selectedLink && null}
+      {duplicateSource && null}
     </div>
   )
 }
