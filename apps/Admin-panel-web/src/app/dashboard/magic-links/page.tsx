@@ -38,7 +38,7 @@ export default function MagicLinksPage() {
   const [links, setLinks] = React.useState<MagicLink[]>([])
   const [loading, setLoading] = React.useState(true)
   const [currentPage, setCurrentPage] = React.useState(1)
-  const [itemsPerPage, setItemsPerPage] = React.useState(10)
+  const [itemsPerPage, setItemsPerPage] = React.useState(6)
   const [selectedLink, setSelectedLink] = React.useState<MagicLink | null>(null)
   const [isDetailOpen, setIsDetailOpen] = React.useState(false)
   const [isCreateOpen, setIsCreateOpen] = React.useState(false)

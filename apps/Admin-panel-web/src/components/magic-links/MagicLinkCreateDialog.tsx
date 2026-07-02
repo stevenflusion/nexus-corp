@@ -7,6 +7,8 @@ import {
   CheckCircleIcon,
   CalendarIcon,
   ClockIcon,
+  ChevronRightIcon,
+  ChevronLeftIcon,
 } from "lucide-react"
 import { toast } from "sonner"
 
@@ -178,6 +180,7 @@ function MagicLinkCreateDialog({
   const [createdLink, setCreatedLink] = React.useState<MagicLink | null>(null)
   const [activationCalendarOpen, setActivationCalendarOpen] =
     React.useState(false)
+  const [step, setStep] = React.useState<1 | 2>(1)
 
   React.useEffect(() => {
     if (!open) return
@@ -211,6 +214,7 @@ function MagicLinkCreateDialog({
 
     setErrors({})
     setCreatedLink(null)
+    setStep(1)
   }, [open, duplicateSource])
 
   const clearError = (key: FormErrorKey) => {
@@ -226,7 +230,8 @@ function MagicLinkCreateDialog({
     setFormState((prev) => ({ ...prev, [key]: value }))
   }
 
-  const validate = (): boolean => {
+  // Validate only step 1 fields (essential/required)
+  const validateStep1 = (): boolean => {
     const nextErrors: Partial<Record<FormErrorKey, string>> = {}
 
     const name = formState.recipientName.trim()
@@ -248,11 +253,6 @@ function MagicLinkCreateDialog({
       nextErrors.recipientEmail = "El email no es válido"
     }
 
-    const phone = formState.recipientPhone.trim()
-    if (phone && !isValidPhone(phone)) {
-      nextErrors.recipientPhone = "El teléfono no es válido"
-    }
-
     if (!formState.role) {
       nextErrors.role = "El rol es requerido"
     }
@@ -271,6 +271,22 @@ function MagicLinkCreateDialog({
     } else if (new Date(expirationDate) <= new Date()) {
       nextErrors.expiration = "La expiración debe ser en el futuro"
     }
+
+    setErrors(nextErrors)
+    return Object.keys(nextErrors).length === 0
+  }
+
+  // Validate all fields (step 1 + step 2)
+  const validateAll = (): boolean => {
+    const step1Valid = validateStep1()
+    const nextErrors: Partial<Record<FormErrorKey, string>> = {}
+
+    const phone = formState.recipientPhone.trim()
+    if (phone && !isValidPhone(phone)) {
+      nextErrors.recipientPhone = "El teléfono no es válido"
+    }
+
+    const expirationDate = computeExpirationDate(formState.expiration)
 
     if (formState.deferredActivationEnabled) {
       if (!formState.deferredActivationDate) {
@@ -291,18 +307,44 @@ function MagicLinkCreateDialog({
       nextErrors.usageLimit = "La cantidad debe ser al menos 1"
     }
 
-    setErrors(nextErrors)
-    return Object.keys(nextErrors).length === 0
+    // Merge with step 1 errors if step 1 wasn't clean
+    if (!step1Valid) {
+      setErrors((prev) => ({ ...prev, ...nextErrors }))
+    } else {
+      setErrors(nextErrors)
+    }
+
+    return step1Valid && Object.keys(nextErrors).length === 0
   }
 
-  const handleBlur = (key: FormErrorKey) => {
-    validate()
+  const handleBlur = () => {
+    if (step === 1) {
+      validateStep1()
+    } else {
+      validateAll()
+    }
+  }
+
+  const handleNext = () => {
+    if (validateStep1()) {
+      setStep(2)
+    }
+  }
+
+  const handleBack = () => {
+    setStep(1)
   }
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault()
 
-    if (!validate()) {
+    // If on step 1, Enter key should go to step 2, not submit
+    if (step === 1) {
+      handleNext()
+      return
+    }
+
+    if (!validateAll()) {
       return
     }
 
@@ -350,6 +392,7 @@ function MagicLinkCreateDialog({
     setFormState(initialFormState)
     setErrors({})
     setCreatedLink(null)
+    setStep(1)
   }
 
   const handleActivationDateSelect = (selected: Date | undefined) => {
@@ -408,10 +451,10 @@ function MagicLinkCreateDialog({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent
         data-slot="magic-link-create-dialog"
-        className="sm:max-w-2xl"
+        className="flex max-h-[85dvh] flex-col overflow-hidden sm:max-w-2xl"
       >
         {createdLink ? (
-          <div className="flex flex-col items-center gap-6 p-6 text-center">
+          <div className="flex flex-col items-center gap-6 overflow-y-auto p-6 text-center">
             <div className="flex size-14 items-center justify-center rounded-full bg-primary/10 text-primary dark:bg-primary/20">
               <CheckCircleIcon className="size-7" />
             </div>
@@ -471,351 +514,464 @@ function MagicLinkCreateDialog({
             </DialogFooter>
           </div>
         ) : (
-          <form onSubmit={handleSubmit}>
-            <DialogHeader>
+          <form
+            onSubmit={handleSubmit}
+            className="flex flex-1 flex-col overflow-hidden"
+          >
+            <DialogHeader className="shrink-0">
               <DialogTitle>Crear MagicLink</DialogTitle>
               <DialogDescription>
-                Completá la configuración para generar un nuevo link de acceso.
+                {step === 1
+                  ? "Completá los datos básicos para generar un nuevo link de acceso."
+                  : "Configurá los ajustes avanzados o generá el link directamente."}
               </DialogDescription>
+
+              {/* Step indicator */}
+              <div className="flex items-center gap-2 pt-1 pb-4 text-sm">
+                <span
+                  className={cn(
+                    "flex h-5 w-5 items-center justify-center rounded-full text-[0.7rem] font-medium",
+                    step === 1
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  1
+                </span>
+                <span
+                  className={cn(
+                    "font-medium",
+                    step === 1 ? "text-foreground" : "text-muted-foreground"
+                  )}
+                >
+                  Datos básicos
+                </span>
+                <span className="text-muted-foreground">·</span>
+                <span
+                  className={cn(
+                    "flex h-5 w-5 items-center justify-center rounded-full text-[0.7rem] font-medium",
+                    step === 2
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-muted text-muted-foreground"
+                  )}
+                >
+                  2
+                </span>
+                <span
+                  className={cn(
+                    "font-medium",
+                    step === 2 ? "text-foreground" : "text-muted-foreground"
+                  )}
+                >
+                  Ajustes avanzados
+                </span>
+              </div>
             </DialogHeader>
 
-            <div className="flex flex-col gap-6 p-6">
-              {/* Section 1: Destinatario */}
-              <section className="flex flex-col gap-4">
-                <h3 className="text-sm font-medium text-foreground">
-                  Destinatario
-                </h3>
+            <div className="flex-1 overflow-y-auto p-6">
+              {step === 1 && (
+                <div className="flex flex-col gap-6">
+                  {/* Section 1: Destinatario (essential) */}
+                  <section className="flex flex-col gap-4">
+                    <h3 className="text-sm font-medium text-foreground">
+                      Destinatario
+                    </h3>
 
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <div className="flex flex-col gap-1.5 sm:col-span-2">
-                    <Label htmlFor="recipient-name">Nombre</Label>
-                    <Input
-                      id="recipient-name"
-                      type="text"
-                      value={formState.recipientName}
-                      onChange={(event) => {
-                        update("recipientName", event.target.value)
-                        clearError("recipientName")
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                        <Label htmlFor="recipient-name">Nombre</Label>
+                        <Input
+                          id="recipient-name"
+                          type="text"
+                          value={formState.recipientName}
+                          onChange={(event) => {
+                            update("recipientName", event.target.value)
+                            clearError("recipientName")
+                          }}
+                          onBlur={handleBlur}
+                          placeholder="Nombre del destinatario"
+                          aria-invalid={!!errors.recipientName}
+                        />
+                        {errors.recipientName && (
+                          <p className="text-sm text-destructive" role="alert">
+                            {errors.recipientName}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-1.5 sm:col-span-2">
+                        <Label htmlFor="recipient-email">Email</Label>
+                        <Input
+                          id="recipient-email"
+                          type="email"
+                          value={formState.recipientEmail}
+                          onChange={(event) => {
+                            update("recipientEmail", event.target.value)
+                            clearError("recipientEmail")
+                          }}
+                          onBlur={handleBlur}
+                          placeholder="email@ejemplo.com"
+                          aria-invalid={!!errors.recipientEmail}
+                        />
+                        {errors.recipientEmail && (
+                          <p className="text-sm text-destructive" role="alert">
+                            {errors.recipientEmail}
+                          </p>
+                        )}
+                      </div>
+                    </div>
+                  </section>
+
+                  <Separator />
+
+                  {/* Section 2: Acceso */}
+                  <section className="flex flex-col gap-4">
+                    <h3 className="text-sm font-medium text-foreground">
+                      Acceso
+                    </h3>
+
+                    <RoleScopeSelect
+                      role={formState.role}
+                      scope={formState.scope}
+                      onRoleChange={(role) => {
+                        update("role", role)
+                        clearError("role")
+                        clearError("scope")
                       }}
-                      onBlur={() => handleBlur("recipientName")}
-                      placeholder="Nombre del destinatario"
-                      aria-invalid={!!errors.recipientName}
+                      onScopeChange={(scope, scopeId) => {
+                        update("scope", scope)
+                        update("scopeId", scopeId)
+                        clearError("scope")
+                      }}
+                      roleError={errors.role}
+                      scopeError={errors.scope}
                     />
-                    {errors.recipientName && (
-                      <p className="text-sm text-destructive" role="alert">
-                        {errors.recipientName}
-                      </p>
-                    )}
-                  </div>
 
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="recipient-email">Email</Label>
-                    <Input
-                      id="recipient-email"
-                      type="email"
-                      value={formState.recipientEmail}
-                      onChange={(event) => {
-                        update("recipientEmail", event.target.value)
+                    <div className="flex flex-col gap-1.5">
+                      <Label htmlFor="destination-screen">
+                        Pantalla de destino
+                      </Label>
+                      <Select
+                        value={formState.destinationScreen}
+                        onValueChange={(value) => {
+                          update("destinationScreen", value)
+                          clearError("destinationScreen")
+                        }}
+                      >
+                        <SelectTrigger
+                          id="destination-screen"
+                          className="w-full"
+                          aria-invalid={!!errors.destinationScreen}
+                        >
+                          <SelectValue placeholder="Seleccionar pantalla" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {destinationOptions.map((option) => (
+                            <SelectItem key={option} value={option}>
+                              {option}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      {errors.destinationScreen && (
+                        <p className="text-sm text-destructive" role="alert">
+                          {errors.destinationScreen}
+                        </p>
+                      )}
+                    </div>
+                  </section>
+
+                  <Separator />
+
+                  {/* Section 3: Expiración (essential) */}
+                  <section className="flex flex-col gap-4">
+                    <h3 className="text-sm font-medium text-foreground">
+                      Vigencia
+                    </h3>
+
+                    <div className="flex flex-col gap-1.5">
+                      <Label>Expiración</Label>
+                      <ExpirationSelector
+                        value={formState.expiration}
+                        onChange={(value) => {
+                          update("expiration", value)
+                          clearError("expiration")
+                        }}
+                        error={errors.expiration}
+                      />
+                    </div>
+                  </section>
+                </div>
+              )}
+
+              {step === 2 && (
+                <div className="flex flex-col gap-6">
+                  {/* Section: Destinatario (optional) */}
+                  <section className="flex flex-col gap-4">
+                    <h3 className="text-sm font-medium text-foreground">
+                      Destinatario
+                    </h3>
+
+                    <div className="grid gap-4 sm:grid-cols-2">
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="recipient-phone">Teléfono</Label>
+                        <Input
+                          id="recipient-phone"
+                          type="tel"
+                          value={formState.recipientPhone}
+                          onChange={(event) => {
+                            update("recipientPhone", event.target.value)
+                            clearError("recipientPhone")
+                          }}
+                          onBlur={handleBlur}
+                          placeholder="+54 9 11 1234 5678"
+                          aria-invalid={!!errors.recipientPhone}
+                        />
+                        {errors.recipientPhone && (
+                          <p className="text-sm text-destructive" role="alert">
+                            {errors.recipientPhone}
+                          </p>
+                        )}
+                      </div>
+
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="internal-note">Nota interna</Label>
+                        <Textarea
+                          id="internal-note"
+                          value={formState.internalNote}
+                          onChange={(event) =>
+                            update("internalNote", event.target.value)
+                          }
+                          placeholder="Motivo del acceso, contexto..."
+                          rows={3}
+                        />
+                      </div>
+                    </div>
+                  </section>
+
+                  <Separator />
+
+                  {/* Section: Vigencia avanzada */}
+                  <section className="flex flex-col gap-4">
+                    <h3 className="text-sm font-medium text-foreground">
+                      Vigencia avanzada
+                    </h3>
+
+                    <div className="flex flex-col gap-1.5">
+                      <Label>Límite de usos</Label>
+                      <UsageLimitInput
+                        value={formState.usageLimit}
+                        onChange={(value) => {
+                          update("usageLimit", value)
+                          clearError("usageLimit")
+                        }}
+                        error={errors.usageLimit}
+                      />
+                    </div>
+
+                    <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-4">
+                      <div className="flex items-center gap-2">
+                        <Checkbox
+                          id="deferred-activation"
+                          checked={formState.deferredActivationEnabled}
+                          onCheckedChange={(checked) => {
+                            update(
+                              "deferredActivationEnabled",
+                              checked === true
+                            )
+                            if (checked === true) {
+                              const now = new Date()
+                              now.setMinutes(now.getMinutes() + 5)
+                              update(
+                                "deferredActivationDate",
+                                now.toISOString()
+                              )
+                            } else {
+                              update("deferredActivationDate", "")
+                            }
+                            clearError("deferredActivation")
+                          }}
+                        />
+                        <Label
+                          htmlFor="deferred-activation"
+                          className="font-normal text-foreground"
+                        >
+                          Activación diferida
+                        </Label>
+                      </div>
+
+                      {formState.deferredActivationEnabled && (
+                        <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
+                          <div className="flex flex-col gap-1.5">
+                            <Label htmlFor="activation-date">
+                              Fecha de activación
+                            </Label>
+                            <Popover
+                              open={activationCalendarOpen}
+                              onOpenChange={setActivationCalendarOpen}
+                            >
+                              <PopoverTrigger asChild>
+                                <Button
+                                  type="button"
+                                  id="activation-date"
+                                  variant="outline"
+                                  className={cn(
+                                    "w-full justify-start text-left font-normal sm:w-48",
+                                    !activationDate && "text-muted-foreground"
+                                  )}
+                                >
+                                  <CalendarIcon />
+                                  {activationDate
+                                    ? format(activationDate, "dd/MM/yyyy")
+                                    : "Seleccionar fecha"}
+                                </Button>
+                              </PopoverTrigger>
+                              <PopoverContent
+                                className="w-auto p-0"
+                                align="start"
+                              >
+                                <Calendar
+                                  mode="single"
+                                  selected={activationDate}
+                                  onSelect={handleActivationDateSelect}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+
+                          <div className="flex flex-col gap-1.5">
+                            <Label htmlFor="activation-time">Hora</Label>
+                            <div className="relative">
+                              <ClockIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
+                              <Input
+                                id="activation-time"
+                                type="time"
+                                value={
+                                  activationDate
+                                    ? format(activationDate, "HH:mm")
+                                    : ""
+                                }
+                                onChange={handleActivationTimeChange}
+                                className="w-full pl-9 sm:w-32"
+                                aria-invalid={!!errors.deferredActivation}
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {errors.deferredActivation && (
+                        <p className="text-sm text-destructive" role="alert">
+                          {errors.deferredActivation}
+                        </p>
+                      )}
+
+                      {errors.expiration && step === 2 && (
+                        <p className="text-sm text-destructive" role="alert">
+                          {errors.expiration}
+                        </p>
+                      )}
+                    </div>
+                  </section>
+
+                  <Separator />
+
+                  {/* Section: Entrega */}
+                  <section className="flex flex-col gap-4">
+                    <h3 className="text-sm font-medium text-foreground">
+                      Entrega
+                    </h3>
+
+                    <RadioGroup
+                      value={formState.deliveryChannel}
+                      onValueChange={(value) => {
+                        update("deliveryChannel", value as DeliveryChannel)
                         clearError("recipientEmail")
                       }}
-                      onBlur={() => handleBlur("recipientEmail")}
-                      placeholder="email@ejemplo.com"
-                      aria-invalid={!!errors.recipientEmail}
-                    />
-                    {errors.recipientEmail && (
-                      <p className="text-sm text-destructive" role="alert">
-                        {errors.recipientEmail}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="recipient-phone">Teléfono</Label>
-                    <Input
-                      id="recipient-phone"
-                      type="tel"
-                      value={formState.recipientPhone}
-                      onChange={(event) => {
-                        update("recipientPhone", event.target.value)
-                        clearError("recipientPhone")
-                      }}
-                      onBlur={() => handleBlur("recipientPhone")}
-                      placeholder="+54 9 11 1234 5678"
-                      aria-invalid={!!errors.recipientPhone}
-                    />
-                    {errors.recipientPhone && (
-                      <p className="text-sm text-destructive" role="alert">
-                        {errors.recipientPhone}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="flex flex-col gap-1.5 sm:col-span-2">
-                    <Label htmlFor="internal-note">Nota interna</Label>
-                    <Textarea
-                      id="internal-note"
-                      value={formState.internalNote}
-                      onChange={(event) =>
-                        update("internalNote", event.target.value)
-                      }
-                      placeholder="Motivo del acceso, contexto..."
-                      rows={3}
-                    />
-                  </div>
-                </div>
-              </section>
-
-              <Separator />
-
-              {/* Section 2: Acceso */}
-              <section className="flex flex-col gap-4">
-                <h3 className="text-sm font-medium text-foreground">Acceso</h3>
-
-                <RoleScopeSelect
-                  role={formState.role}
-                  scope={formState.scope}
-                  onRoleChange={(role) => {
-                    update("role", role)
-                    clearError("role")
-                    clearError("scope")
-                  }}
-                  onScopeChange={(scope, scopeId) => {
-                    update("scope", scope)
-                    update("scopeId", scopeId)
-                    clearError("scope")
-                  }}
-                  roleError={errors.role}
-                  scopeError={errors.scope}
-                />
-
-                <div className="flex flex-col gap-1.5">
-                  <Label htmlFor="destination-screen">
-                    Pantalla de destino
-                  </Label>
-                  <Select
-                    value={formState.destinationScreen}
-                    onValueChange={(value) => {
-                      update("destinationScreen", value)
-                      clearError("destinationScreen")
-                    }}
-                  >
-                    <SelectTrigger
-                      id="destination-screen"
-                      className="w-full"
-                      aria-invalid={!!errors.destinationScreen}
+                      className="flex flex-col gap-2"
                     >
-                      <SelectValue placeholder="Seleccionar pantalla" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {destinationOptions.map((option) => (
-                        <SelectItem key={option} value={option}>
-                          {option}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  {errors.destinationScreen && (
-                    <p className="text-sm text-destructive" role="alert">
-                      {errors.destinationScreen}
-                    </p>
-                  )}
-                </div>
-              </section>
-
-              <Separator />
-
-              {/* Section 3: Vigencia */}
-              <section className="flex flex-col gap-4">
-                <h3 className="text-sm font-medium text-foreground">
-                  Vigencia
-                </h3>
-
-                <div className="grid gap-6 sm:grid-cols-2">
-                  <div className="flex flex-col gap-1.5">
-                    <Label>Expiración</Label>
-                    <ExpirationSelector
-                      value={formState.expiration}
-                      onChange={(value) => {
-                        update("expiration", value)
-                        clearError("expiration")
-                      }}
-                      error={errors.expiration}
-                    />
-                  </div>
-
-                  <div className="flex flex-col gap-1.5">
-                    <Label>Límite de usos</Label>
-                    <UsageLimitInput
-                      value={formState.usageLimit}
-                      onChange={(value) => {
-                        update("usageLimit", value)
-                        clearError("usageLimit")
-                      }}
-                      error={errors.usageLimit}
-                    />
-                  </div>
-                </div>
-
-                <div className="flex flex-col gap-3 rounded-xl border border-border bg-muted/20 p-4">
-                  <div className="flex items-center gap-2">
-                    <Checkbox
-                      id="deferred-activation"
-                      checked={formState.deferredActivationEnabled}
-                      onCheckedChange={(checked) => {
-                        update("deferredActivationEnabled", checked === true)
-                        if (checked === true) {
-                          const now = new Date()
-                          now.setMinutes(now.getMinutes() + 5)
-                          update("deferredActivationDate", now.toISOString())
-                        } else {
-                          update("deferredActivationDate", "")
-                        }
-                        clearError("deferredActivation")
-                      }}
-                    />
-                    <Label
-                      htmlFor="deferred-activation"
-                      className="font-normal text-foreground"
-                    >
-                      Activación diferida
-                    </Label>
-                  </div>
-
-                  {formState.deferredActivationEnabled && (
-                    <div className="flex flex-col gap-3 sm:flex-row sm:items-end">
-                      <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="activation-date">
-                          Fecha de activación
-                        </Label>
-                        <Popover
-                          open={activationCalendarOpen}
-                          onOpenChange={setActivationCalendarOpen}
+                      {channelOptions.map((option) => (
+                        <div
+                          key={option.value}
+                          className="flex items-center gap-2"
                         >
-                          <PopoverTrigger asChild>
-                            <Button
-                              type="button"
-                              id="activation-date"
-                              variant="outline"
-                              className={cn(
-                                "w-full justify-start text-left font-normal sm:w-48",
-                                !activationDate && "text-muted-foreground"
-                              )}
-                            >
-                              <CalendarIcon />
-                              {activationDate
-                                ? format(activationDate, "dd/MM/yyyy")
-                                : "Seleccionar fecha"}
-                            </Button>
-                          </PopoverTrigger>
-                          <PopoverContent className="w-auto p-0" align="start">
-                            <Calendar
-                              mode="single"
-                              selected={activationDate}
-                              onSelect={handleActivationDateSelect}
-                            />
-                          </PopoverContent>
-                        </Popover>
-                      </div>
-
-                      <div className="flex flex-col gap-1.5">
-                        <Label htmlFor="activation-time">Hora</Label>
-                        <div className="relative">
-                          <ClockIcon className="pointer-events-none absolute top-1/2 left-2.5 size-4 -translate-y-1/2 text-muted-foreground" />
-                          <Input
-                            id="activation-time"
-                            type="time"
-                            value={
-                              activationDate
-                                ? format(activationDate, "HH:mm")
-                                : ""
-                            }
-                            onChange={handleActivationTimeChange}
-                            className="w-full pl-9 sm:w-32"
-                            aria-invalid={!!errors.deferredActivation}
+                          <RadioGroupItem
+                            value={option.value}
+                            id={`channel-${option.value}`}
                           />
+                          <Label
+                            htmlFor={`channel-${option.value}`}
+                            className="font-normal text-foreground"
+                          >
+                            {option.label}
+                          </Label>
                         </div>
+                      ))}
+                    </RadioGroup>
+
+                    {formState.deliveryChannel === "send_email" && (
+                      <div className="flex flex-col gap-1.5">
+                        <Label htmlFor="email-message">Preview del email</Label>
+                        <Textarea
+                          id="email-message"
+                          value={formState.emailMessage}
+                          onChange={(event) =>
+                            update("emailMessage", event.target.value)
+                          }
+                          placeholder="Mensaje del email..."
+                          rows={6}
+                        />
+                        <p className="text-xs text-muted-foreground">
+                          Usá {"{{link}}"} como placeholder para el link
+                          generado.
+                        </p>
                       </div>
-                    </div>
-                  )}
-
-                  {errors.deferredActivation && (
-                    <p className="text-sm text-destructive" role="alert">
-                      {errors.deferredActivation}
-                    </p>
-                  )}
+                    )}
+                  </section>
                 </div>
-              </section>
-
-              <Separator />
-
-              {/* Section 4: Entrega */}
-              <section className="flex flex-col gap-4">
-                <h3 className="text-sm font-medium text-foreground">Entrega</h3>
-
-                <RadioGroup
-                  value={formState.deliveryChannel}
-                  onValueChange={(value) => {
-                    update("deliveryChannel", value as DeliveryChannel)
-                    clearError("recipientEmail")
-                  }}
-                  className="flex flex-col gap-2"
-                >
-                  {channelOptions.map((option) => (
-                    <div key={option.value} className="flex items-center gap-2">
-                      <RadioGroupItem
-                        value={option.value}
-                        id={`channel-${option.value}`}
-                      />
-                      <Label
-                        htmlFor={`channel-${option.value}`}
-                        className="font-normal text-foreground"
-                      >
-                        {option.label}
-                      </Label>
-                    </div>
-                  ))}
-                </RadioGroup>
-
-                {formState.deliveryChannel === "send_email" && (
-                  <div className="flex flex-col gap-1.5">
-                    <Label htmlFor="email-message">Preview del email</Label>
-                    <Textarea
-                      id="email-message"
-                      value={formState.emailMessage}
-                      onChange={(event) =>
-                        update("emailMessage", event.target.value)
-                      }
-                      placeholder="Mensaje del email..."
-                      rows={6}
-                    />
-                    <p className="text-xs text-muted-foreground">
-                      Usá {"{{link}}"} como placeholder para el link generado.
-                    </p>
-                  </div>
-                )}
-              </section>
+              )}
             </div>
 
-            <DialogFooter>
-              <Button
-                type="button"
-                variant="outline"
-                onClick={handleCancel}
-                disabled={loading}
-              >
-                Cancelar
-              </Button>
-              <Button type="submit" disabled={loading}>
-                {loading ? (
-                  <>
-                    <Loader2Icon className="animate-spin" />
-                    Generando...
-                  </>
-                ) : (
-                  "Generar link"
-                )}
-              </Button>
-            </DialogFooter>
+            <div className="flex shrink-0 justify-end gap-2 p-4 pt-4">
+              {step === 1 ? (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleCancel}
+                    disabled={loading}
+                  >
+                    Cancelar
+                  </Button>
+                  <Button type="button" onClick={handleNext}>
+                    Siguiente
+                    <ChevronRightIcon />
+                  </Button>
+                </>
+              ) : (
+                <>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleBack}
+                    disabled={loading}
+                  >
+                    <ChevronLeftIcon />
+                    Anterior
+                  </Button>
+                  <Button type="submit" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <Loader2Icon className="animate-spin" />
+                        Generando...
+                      </>
+                    ) : (
+                      "Generar link"
+                    )}
+                  </Button>
+                </>
+              )}
+            </div>
           </form>
         )}
       </DialogContent>

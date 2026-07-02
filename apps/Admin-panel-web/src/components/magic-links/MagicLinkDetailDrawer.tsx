@@ -111,7 +111,7 @@ function ActionButton({
   ...props
 }: React.ComponentProps<typeof Button>) {
   return (
-    <Button className={cn("w-full sm:w-auto", className)} {...props}>
+    <Button className={cn("w-full", className)} {...props}>
       {children}
     </Button>
   )
@@ -326,15 +326,7 @@ function MagicLinkDetailDrawer({
             ) : (
               <>
                 {isActive && (
-                  <div className="flex flex-col gap-2 sm:flex-row">
-                    <ActionButton
-                      data-slot="magic-link-detail-revoke"
-                      variant="destructive"
-                      onClick={() => handleAction("revoke", "active")}
-                    >
-                      <BanIcon />
-                      Revocar
-                    </ActionButton>
+                  <div className="grid grid-cols-2 gap-2">
                     <ActionButton
                       data-slot="magic-link-detail-extend"
                       variant="outline"
@@ -350,6 +342,15 @@ function MagicLinkDetailDrawer({
                     >
                       <SendIcon />
                       Reenviar
+                    </ActionButton>
+                    <ActionButton
+                      data-slot="magic-link-detail-revoke"
+                      variant="destructive"
+                      className="col-span-2"
+                      onClick={() => handleAction("revoke", "active")}
+                    >
+                      <BanIcon />
+                      Revocar
                     </ActionButton>
                   </div>
                 )}
