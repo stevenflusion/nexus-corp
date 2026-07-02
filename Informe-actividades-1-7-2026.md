@@ -1,6 +1,6 @@
 # Informe de avances del proyecto
 
-Fecha: 2026-07-02
+Fecha: 2026-07-01
 
 ## Contexto general
 
