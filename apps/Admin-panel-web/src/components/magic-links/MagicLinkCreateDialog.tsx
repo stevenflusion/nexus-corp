@@ -335,14 +335,8 @@ function MagicLinkCreateDialog({
     setStep(1)
   }
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault()
-
-    // If on step 1, Enter key should go to step 2, not submit
-    if (step === 1) {
-      handleNext()
-      return
-    }
+  const handleSubmit = async () => {
+    if (step !== 2) return
 
     if (!validateAll()) {
       return
@@ -514,10 +508,7 @@ function MagicLinkCreateDialog({
             </DialogFooter>
           </div>
         ) : (
-          <form
-            onSubmit={handleSubmit}
-            className="flex flex-1 flex-col overflow-hidden"
-          >
+          <div className="flex flex-1 flex-col overflow-hidden">
             <DialogHeader className="shrink-0">
               <DialogTitle>Crear MagicLink</DialogTitle>
               <DialogDescription>
@@ -959,7 +950,7 @@ function MagicLinkCreateDialog({
                     <ChevronLeftIcon />
                     Anterior
                   </Button>
-                  <Button type="submit" disabled={loading}>
+                  <Button type="button" disabled={loading} onClick={handleSubmit}>
                     {loading ? (
                       <>
                         <Loader2Icon className="animate-spin" />
@@ -972,7 +963,7 @@ function MagicLinkCreateDialog({
                 </>
               )}
             </div>
-          </form>
+          </div>
         )}
       </DialogContent>
     </Dialog>
