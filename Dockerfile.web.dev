@@ -1,0 +1,19 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY .npmrc ./
+
+COPY apps/nexus-corp-web/package.json ./apps/nexus-corp-web/
+COPY packages/ui/package.json ./packages/ui/
+
+RUN npm install
+
+COPY . .
+
+WORKDIR /app/apps/nexus-corp-web
+
+EXPOSE 4321
+
+CMD ["npm","run","dev"]

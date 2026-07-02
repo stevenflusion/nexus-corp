@@ -4,7 +4,7 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "dev": "astro dev",
+    "dev": "astro dev --host 0.0.0.0",
     "build": "astro build",
     "build:static": "node scripts/build-static.mjs",
     "build:cpanel": "node scripts/build-static.mjs",
