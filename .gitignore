@@ -36,6 +36,7 @@ next-env.d.ts
 npm-debug.log*
 
 # Local assistant/tooling artifacts
+.atl/
 .codex*
 .claude*
 CLAUDE.local.md
