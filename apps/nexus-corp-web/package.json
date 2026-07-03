@@ -20,6 +20,7 @@
     "@astrojs/node": "^9.5.5",
     "@astrojs/react": "^4.4.2",
     "@fontsource-variable/geist": "^5.2.9",
+    "@n8n/chat": "^1.27.1",
     "@phosphor-icons/react": "^2.1.10",
     "@types/react": "^19.2.14",
     "@types/react-dom": "^19.2.3",
