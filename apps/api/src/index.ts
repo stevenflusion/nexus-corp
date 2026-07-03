@@ -1,3 +1,4 @@
+import "./env.js";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
 import { apiKeyMiddleware } from "./middleware/api_key_middleware";

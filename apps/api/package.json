@@ -6,10 +6,12 @@
   "scripts": {
     "dev": "tsx watch src/index.ts",
     "build": "tsc",
-    "start": "node dist/index.js"
+    "start": "node dist/index.js",
+    "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
     "@hono/node-server": "^1.19.6",
+    "dotenv": "^17.4.2",
     "drizzle-orm": "^0.39.1",
     "drizzle-zod": "^0.8.3",
     "hono": "^4.11.0",

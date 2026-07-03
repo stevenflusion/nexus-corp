@@ -8,6 +8,8 @@
     "build:static": "npm run build:static --workspace apps/nexus-corp-web",
     "build:cpanel": "npm run build:static --workspace apps/nexus-corp-web",
     "dev": "turbo dev",
+    "predev": "docker compose stop api 2>/dev/null; docker compose up -d postgres 2>/dev/null && sleep 3 && npm run db:migrate",
+    "db:migrate": "npm run db:migrate --workspace apps/api",
     "dev:web": "npm run dev --workspace apps/nexus-corp-web",
     "dev:backend": "npm run dev --workspace apps/api",
     "dev:admin": "npm run dev --workspace apps/admin-panel-web",

@@ -51,6 +51,12 @@ services:
     env_file:
       - .env
 
+    environment:
+      - DATABASE_URL=postgres://postgres:postgres@postgres:5432/nexus
+      - JWT_SECRET=${JWT_SECRET}
+      - ENCRYPTION_KEY=${ENCRYPTION_KEY}
+      - VALID_API_KEY=${VALID_API_KEY}
+
     volumes:
       - .:/app
       - api_node_modules:/app/apps/api/node_modules
