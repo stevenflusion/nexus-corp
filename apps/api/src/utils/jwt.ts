@@ -12,11 +12,28 @@ export interface JwtPayload {
   email_admin_users: string;
 }
 
+export interface MagicLinkJwtPayload {
+  token_id: string;
+  role: string;
+  scopeId: string;
+  destinationScreen: string;
+}
+
 // ==========================
 // CREATE TOKEN
 // ==========================
 
 export function createToken(payload: JwtPayload) {
+  return jwt.sign(payload, JWT_SECRET, {
+    expiresIn: "8h",
+  });
+}
+
+// ==========================
+// CREATE MAGIC LINK TOKEN
+// ==========================
+
+export function createMagicLinkToken(payload: MagicLinkJwtPayload): string {
   return jwt.sign(payload, JWT_SECRET, {
     expiresIn: "8h",
   });
