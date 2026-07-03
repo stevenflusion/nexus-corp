@@ -1,4 +1,4 @@
-import {pgTable, integer, pgEnum, timestamp, varchar, decimal} from "drizzle-orm/pg-core";
+import {pgTable, integer, pgEnum, timestamp, varchar, decimal, text} from "drizzle-orm/pg-core";
 
 export const statusEnum = pgEnum("status_leads", ["new", "contacted", "qualified", "lost"]);
 export const sourceEnum = pgEnum("source_leads", ["web", "manual", "quote", "chatbot", "otro"]);
@@ -12,6 +12,7 @@ export const leads = pgTable("leads", {
     status_leads: statusEnum("status_leads").default("new"),
     source_leads: sourceEnum("source_leads").default("web"),
     monthly_family_income: decimal("monthly_family_income", { precision: 10, scale: 2 }),
+    coments_optionals_lead: text("coments_optionals_lead"),
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
 });

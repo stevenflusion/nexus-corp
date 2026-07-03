@@ -13,7 +13,7 @@ export const audit_logs = pgTable("audit_logs",{
 
     action_audit_logs: varchar("action_audit_logs", {length:100}).notNull(),
 
-    createdAt: timestamp("created_at")
+    created_at: timestamp("created_at")
         .defaultNow(),
 
 
