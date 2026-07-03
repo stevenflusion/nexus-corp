@@ -9,16 +9,19 @@ import {
   sanitizeLeadUpdateStatus 
 } from "../dto/leadDTO"; // El archivo DTO que armamos antes
 
+
+
+
 const leadsController = new Hono();
 
 // 1. LISTAR TODOS
-leadsController.get("/", async (c) => {
+leadsController.get("/",   async (c) => {
   const allLeads = await getAll<LeadResponseDto>(leads);
   return c.json(allLeads);
 });
 
 // 2. LEER POR ID
-leadsController.get("/:id", async (c) => {
+leadsController.get("/:id",  async (c) => {
   const id = Number(c.req.param("id"));
   const lead = await getById<LeadResponseDto>(leads, leads.id_leads, id);
 
@@ -29,24 +32,38 @@ leadsController.get("/:id", async (c) => {
   return c.json(lead);
 });
 
-// 3. CREAR LEAD (monthly_family_income es opcional internamente en la sanitización)
+// 3. CREAR LEAD (monthly_family_income, optional_comentes_lead es opcional internamente en la sanitización)
+// 3. CREAR LEAD
 leadsController.post("/", async (c) => {
   const body = await c.req.json();
   const payload = sanitizeLeadCreate(body);
 
   if (!payload) {
-    return c.json({ 
-      error: "name_leads, email_leads, phone_leads and city_leads are required" 
-    }, 400);
+    return c.json(
+      {
+        error:
+          "name_leads, email_leads, phone_leads and city_leads are required",
+      },
+      400
+    );
   }
 
-  // Guardamos usando el CRUD genérico
+  // Buscar si ya existe un lead con ese teléfono
+  const existingLead = await getByField<LeadResponseDto>(
+    leads,
+    leads.phone_leads,
+    payload.phone_leads
+  );
+
+  if (existingLead) {
+    // Ya existe, no lo volvemos a crear
+    return c.json(existingLead, 200);
+  }
+
+  // No existe, crear uno nuevo
   const created = await createOne<LeadCreateDto>(leads, payload);
 
-  // Mapeamos a la respuesta basándonos en los datos generados
-  const response = created as LeadResponseDto;
-
-  return c.json(response, 201);
+  return c.json(created as LeadResponseDto, 201);
 });
 
 // 4. ACTUALIZAR SOLO STATUS (Filtra todo lo demás)
