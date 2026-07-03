@@ -23,19 +23,26 @@ function redirectWithError(
 }
 
 export async function GET(request: Request) {
-  const { searchParams, origin } = new URL(request.url)
+  const { searchParams } = new URL(request.url)
   const token = searchParams.get("token")
+
+  // Use the Host header to construct the base URL.
+  // request.url may contain 0.0.0.0 when the dev server binds to 0.0.0.0,
+  // which breaks cookies (wrong domain) and redirects.
+  const protocol = request.headers.get("x-forwarded-proto") || "http"
+  const host = request.headers.get("host") || "localhost:3000"
+  const baseUrl = `${protocol}://${host}`
 
   // No token in the URL — redirect to login with error
   if (!token) {
-    return redirectWithError("invalid", origin)
+    return redirectWithError("invalid", baseUrl)
   }
 
   const apiKey = process.env.API_KEY
   const apiUrl = process.env.API_URL
 
   if (!apiKey || !apiUrl) {
-    return redirectWithError("unknown", origin)
+    return redirectWithError("unknown", baseUrl)
   }
 
   try {
@@ -63,7 +70,7 @@ export async function GET(request: Request) {
         }
       } else if (response.status === 409) errorType = "used"
 
-      return redirectWithError(errorType, origin)
+      return redirectWithError(errorType, baseUrl)
     }
 
     const data = (await response.json()) as {
@@ -72,7 +79,7 @@ export async function GET(request: Request) {
     }
 
     if (!data.token) {
-      return redirectWithError("unknown", origin)
+      return redirectWithError("unknown", baseUrl)
     }
 
     // Set the auth-token cookie directly on the redirect response.
@@ -80,7 +87,7 @@ export async function GET(request: Request) {
     // — the cookie is lost. Must set it on the response object directly.
     const destination = data.destinationScreen ?? "/dashboard"
     const redirectResponse = NextResponse.redirect(
-      new URL(destination, origin)
+      new URL(destination, baseUrl)
     )
 
     redirectResponse.cookies.set(COOKIE_NAME, data.token, {
