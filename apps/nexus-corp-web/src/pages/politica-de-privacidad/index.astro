@@ -1,0 +1,17 @@
+---
+import Header from "../../components/Header.astro"
+import Footer from "../../components/Footer.astro"
+import PdfViewer from "../../components/PdfViewer"
+import MainLayout from "../../layouts/main.astro"
+---
+
+<MainLayout
+  title="Política de Privacidad | NEXUS"
+  description="Política de privacidad y tratamiento de datos personales de NEXUS."
+>
+  <Header />
+  <main id="contenido">
+    <PdfViewer src="/documents/politica_privacidad.pdf" client:load />
+  </main>
+  <Footer />
+</MainLayout>
