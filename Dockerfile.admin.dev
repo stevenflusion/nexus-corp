@@ -1,0 +1,25 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY package*.json ./
+COPY .npmrc ./
+
+# Copiar todos los package.json de workspaces
+COPY apps/admin-panel-web/package.json ./apps/admin-panel-web/
+COPY apps/api/package.json ./apps/api/
+COPY apps/nexus-corp-web/package.json ./apps/nexus-corp-web/
+COPY packages/ui/package.json ./packages/ui/
+
+RUN npm config set fetch-retries 5 \
+  && npm config set fetch-retry-mintimeout 20000 \
+  && npm config set fetch-retry-maxtimeout 120000 \
+  && npm ci --include-workspace-root
+
+COPY . .
+
+WORKDIR /app/apps/admin-panel-web
+
+EXPOSE 3000
+
+CMD ["npm","run","dev"]

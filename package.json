@@ -4,20 +4,21 @@
   "private": true,
   "scripts": {
     "build": "turbo build",
-    "build:web": "npm run build --workspace apps/Nexus-Corp-Web",
-    "build:static": "npm run build:static --workspace apps/Nexus-Corp-Web",
-    "build:cpanel": "npm run build:static --workspace apps/Nexus-Corp-Web",
+    "build:web": "npm run build --workspace apps/nexus-corp-web",
+    "build:static": "npm run build:static --workspace apps/nexus-corp-web",
+    "build:cpanel": "npm run build:static --workspace apps/nexus-corp-web",
     "dev": "turbo dev",
-    "dev:web": "npm run dev --workspace apps/Nexus-Corp-Web",
-    "dev:backend": "npm run dev --workspace apps/Backend",
-    "dev:admin": "npm run dev --workspace apps/Admin-panel-web",
-    "start": "node ./apps/Nexus-Corp-Web/dist/server/entry.mjs",
+    "dev:web": "npm run dev --workspace apps/nexus-corp-web",
+    "dev:backend": "npm run dev --workspace apps/api",
+    "dev:admin": "npm run dev --workspace apps/admin-panel-web",
+    "start": "node ./apps/nexus-corp-web/dist/server/entry.mjs",
     "lint": "turbo lint",
     "test": "turbo test",
     "format": "turbo format",
     "typecheck": "turbo typecheck"
   },
   "devDependencies": {
+    "drizzle-kit": "^0.31.10",
     "playwright": "^1.60.0",
     "prettier": "^3.8.1",
     "prettier-plugin-astro": "^0.14.1",
@@ -34,7 +35,10 @@
     "packages/*"
   ],
   "dependencies": {
+    "drizzle-orm": "^0.45.2",
     "framer-motion": "^12.39.0",
-    "lucide-react": "^1.16.0"
+    "lucide-react": "^1.16.0",
+    "pg": "^8.22.0",
+    "postgres": "^3.4.9"
   }
 }

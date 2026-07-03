@@ -1,0 +1,20 @@
+FROM node:20-alpine
+
+WORKDIR /app
+
+COPY .npmrc ./
+COPY apps/api/package.json ./apps/api/
+
+RUN npm config set fetch-retries 5 \
+  && npm config set fetch-retry-mintimeout 20000 \
+  && npm config set fetch-retry-maxtimeout 120000 \
+  && cd /app/apps/api \
+  && npm install
+
+COPY . .
+
+WORKDIR /app/apps/api
+
+EXPOSE 4000
+
+CMD ["npm","run","dev"]
