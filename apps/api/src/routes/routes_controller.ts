@@ -5,6 +5,8 @@ import { leadNotesController } from "../controller/control_lead_notes";
 import { admin_usersController } from "../controller/control_adm";
 import { auditLogsController } from "../controller/control_audit_logs";
 import { authController } from "../controller/control_auth";
+import { magicLinksController } from "../controller/control_magic_links";
+import { magicLinkAuthController } from "../controller/control_magic_link_auth";
 
 const apiRouter = new Hono();
 
@@ -15,6 +17,8 @@ apiRouter.route("/notes", leadNotesController);
 apiRouter.route("/admin", admin_usersController);
 apiRouter.route("/audit-logs", auditLogsController);
 apiRouter.route("/auth", authController);
+apiRouter.route("/magic-links", magicLinksController);
+apiRouter.route("/auth/magic-link", magicLinkAuthController);
 
 
 

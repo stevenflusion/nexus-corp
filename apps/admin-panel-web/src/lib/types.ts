@@ -2,7 +2,7 @@
 
 export type MagicLinkStatus = "active" | "expired" | "used" | "revoked"
 
-export type MagicLinkRole = "admin" | "brand_manager" | "tendero" | "delivery"
+export type MagicLinkRole = "admin" | "brand_manager" | "developer" | "external"
 
 export type DeliveryChannel = "generate_only" | "send_email" | "generate_qr"
 

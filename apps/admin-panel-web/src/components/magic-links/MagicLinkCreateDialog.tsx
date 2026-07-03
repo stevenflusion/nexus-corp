@@ -425,8 +425,8 @@ function MagicLinkCreateDialog({
   const roleLabel: Record<MagicLinkRole, string> = {
     admin: "Admin",
     brand_manager: "Brand Manager",
-    tendero: "Tendero",
-    delivery: "Delivery",
+    developer: "Desarrollador",
+    external: "Externo",
   }
 
   const channelLabel: Record<DeliveryChannel, string> = {

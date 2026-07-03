@@ -30,8 +30,8 @@ const roleLabels: Record<MagicLinkRole | "all", string> = {
   all: "Todos",
   admin: "Admin",
   brand_manager: "Brand Manager",
-  tendero: "Tendero",
-  delivery: "Delivery",
+  developer: "Desarrollador",
+  external: "Externo",
 }
 
 interface MagicLinkFiltersProps {
@@ -116,8 +116,8 @@ function MagicLinkFilters({
               <SelectItem value="brand_manager">
                 {roleLabels.brand_manager}
               </SelectItem>
-              <SelectItem value="tendero">{roleLabels.tendero}</SelectItem>
-              <SelectItem value="delivery">{roleLabels.delivery}</SelectItem>
+              <SelectItem value="developer">{roleLabels.developer}</SelectItem>
+              <SelectItem value="external">{roleLabels.external}</SelectItem>
             </SelectContent>
           </Select>
 
