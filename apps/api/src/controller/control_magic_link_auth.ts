@@ -1,4 +1,4 @@
-import { Hono } from "hono";
+import { Hono, type Context } from "hono";
 import { eq } from "drizzle-orm";
 
 import { db } from "../database/database";
@@ -14,7 +14,7 @@ const magicLinkAuthController = new Hono();
 // HELPERS
 // ==========================
 
-function getClientIp(c: any): string {
+function getClientIp(c: Context): string {
   return (
     c.req.header("x-forwarded-for") ??
     c.req.header("x-real-ip") ??
@@ -22,7 +22,7 @@ function getClientIp(c: any): string {
   );
 }
 
-function getDevice(c: any): string {
+function getDevice(c: Context): string {
   const userAgent = c.req.header("user-agent") ?? "unknown";
   return userAgent.slice(0, 200);
 }

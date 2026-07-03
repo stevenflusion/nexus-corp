@@ -1,9 +1,11 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
-
-if (!JWT_SECRET) {
-  throw new Error("JWT_SECRET is missing");
+function getJwtSecret(): string {
+  const secret = process.env.JWT_SECRET;
+  if (!secret) {
+    throw new Error("JWT_SECRET is missing");
+  }
+  return secret;
 }
 
 export interface JwtPayload {
@@ -24,7 +26,7 @@ export interface MagicLinkJwtPayload {
 // ==========================
 
 export function createToken(payload: JwtPayload) {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: "8h",
   });
 }
@@ -34,7 +36,7 @@ export function createToken(payload: JwtPayload) {
 // ==========================
 
 export function createMagicLinkToken(payload: MagicLinkJwtPayload): string {
-  return jwt.sign(payload, JWT_SECRET, {
+  return jwt.sign(payload, getJwtSecret(), {
     expiresIn: "8h",
   });
 }
@@ -44,5 +46,5 @@ export function createMagicLinkToken(payload: MagicLinkJwtPayload): string {
 // ==========================
 
 export function verifyToken(token: string): JwtPayload {
-  return jwt.verify(token, JWT_SECRET) as JwtPayload;
+  return jwt.verify(token, getJwtSecret()) as JwtPayload;
 }
