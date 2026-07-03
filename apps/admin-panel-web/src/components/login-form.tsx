@@ -10,7 +10,7 @@ import {
   FieldGroup,
 } from "@/components/ui/field"
 import { Input } from "@/components/ui/input"
-import { Loader2Icon } from "lucide-react"
+import { Loader2Icon, CircleAlertIcon, CheckCircle2Icon } from "lucide-react"
 import { loginAction } from "@/app/actions/login"
 
 export function LoginForm({
@@ -51,7 +51,22 @@ export function LoginForm({
             />
           </Field>
           {state.error && (
-            <p className="text-center text-sm text-destructive">{state.error}</p>
+            <div
+              role="alert"
+              className="flex items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+            >
+              <CircleAlertIcon className="size-4 shrink-0" />
+              <span>{state.error}</span>
+            </div>
+          )}
+          {state.success && !state.error && (
+            <div
+              role="status"
+              className="flex items-center gap-2 rounded-lg border border-emerald-500/30 bg-emerald-500/5 p-3 text-sm text-emerald-600 dark:text-emerald-400"
+            >
+              <CheckCircle2Icon className="size-4 shrink-0" />
+              <span>Sesión iniciada. Redirigiendo...</span>
+            </div>
           )}
           <Field>
             <Button

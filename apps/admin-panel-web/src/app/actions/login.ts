@@ -32,7 +32,7 @@ export async function loginAction(
   const password = formData.get("password")?.toString() ?? ""
 
   if (!email || !password) {
-    return { success: false, error: "Credenciales inválidas" }
+    return { success: false, error: "Por favor completa todos los campos." }
   }
 
   try {
@@ -49,14 +49,23 @@ export async function loginAction(
     })
 
     if (!response.ok) {
-      return { success: false, error: "Credenciales inválidas" }
+      if (response.status === 401) {
+        return { success: false, error: "Email o contraseña incorrectos." }
+      }
+      if (response.status === 403) {
+        return { success: false, error: "Tu cuenta está inactiva. Contacta al administrador." }
+      }
+      if (response.status === 500) {
+        return { success: false, error: "Error del servidor. Intenta de nuevo más tarde." }
+      }
+      return { success: false, error: "No se pudo iniciar sesión. Verifica tus credenciales." }
     }
 
     const data = (await response.json()) as { token?: string }
     const token = data.token
 
     if (!token) {
-      return { success: false, error: "Credenciales inválidas" }
+      return { success: false, error: "Respuesta inválida del servidor." }
     }
 
     const cookieStore = await cookies()
@@ -70,6 +79,6 @@ export async function loginAction(
 
     return { success: true }
   } catch {
-    return { success: false, error: "Error de conexión. Intenta de nuevo." }
+    return { success: false, error: "No se pudo conectar al servidor. Verifica tu conexión." }
   }
 }
