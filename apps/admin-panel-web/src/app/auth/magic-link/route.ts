@@ -1,4 +1,3 @@
-import { cookies } from "next/headers"
 import { NextResponse } from "next/server"
 
 const COOKIE_NAME = "auth-token"
@@ -76,9 +75,15 @@ export async function GET(request: Request) {
       return redirectWithError("unknown", origin)
     }
 
-    // Set the auth-token cookie with the JWT
-    const cookieStore = await cookies()
-    cookieStore.set(COOKIE_NAME, data.token, {
+    // Set the auth-token cookie directly on the redirect response.
+    // cookies().set() from next/headers does NOT work with NextResponse.redirect()
+    // — the cookie is lost. Must set it on the response object directly.
+    const destination = data.destinationScreen ?? "/dashboard"
+    const redirectResponse = NextResponse.redirect(
+      new URL(destination, origin)
+    )
+
+    redirectResponse.cookies.set(COOKIE_NAME, data.token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === "production",
       sameSite: "lax",
@@ -86,9 +91,7 @@ export async function GET(request: Request) {
       path: "/",
     })
 
-    // Redirect to the destination screen (or dashboard as fallback)
-    const destination = data.destinationScreen ?? "/dashboard"
-    return NextResponse.redirect(new URL(destination, origin))
+    return redirectResponse
   } catch {
     return redirectWithError("unknown", origin)
   }
