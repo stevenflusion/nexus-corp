@@ -36,6 +36,8 @@ interface ImportMetaEnv {
   readonly WHATSAPP_PHONE_NUMBER_ID?: string
   readonly WHATSAPP_TOKEN?: string
   readonly WHATSAPP_VERIFY_TOKEN?: string
+  readonly VALID_API_KEY?: string
+  readonly HONO_API_URL?: string
 }
 
 interface ImportMeta {
