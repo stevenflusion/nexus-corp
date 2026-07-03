@@ -13,6 +13,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
+import type { AuthUser } from "@/lib/auth"
 import {
   GalleryVerticalEndIcon,
   AudioLinesIcon,
@@ -26,11 +27,6 @@ import {
 } from "lucide-react"
 
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   teams: [
     {
       name: "Acme Inc",
@@ -97,7 +93,24 @@ const data = {
   ],
 }
 
-export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+const FALLBACK_AVATAR = "/avatars/shadcn.jpg"
+
+export function AppSidebar({
+  user,
+  ...props
+}: React.ComponentProps<typeof Sidebar> & { user: AuthUser | null }) {
+  const userProps = user
+    ? {
+        name: user.name_admin_users,
+        email: user.email_admin_users,
+        avatar: FALLBACK_AVATAR,
+      }
+    : {
+        name: "Invitado",
+        email: "",
+        avatar: FALLBACK_AVATAR,
+      }
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -108,7 +121,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser user={userProps} />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
