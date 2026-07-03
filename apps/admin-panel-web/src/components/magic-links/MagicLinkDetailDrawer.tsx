@@ -41,8 +41,8 @@ interface MagicLinkDetailDrawerProps {
 const roleLabels: Record<MagicLink["role"], string> = {
   admin: "Admin",
   brand_manager: "Brand Manager",
-  tendero: "Tendero",
-  delivery: "Delivery",
+  developer: "Desarrollador",
+  external: "Externo",
 }
 
 const channelLabels: Record<MagicLink["deliveryChannel"], string> = {
