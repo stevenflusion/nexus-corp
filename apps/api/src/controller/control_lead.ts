@@ -60,8 +60,10 @@ leadsController.post("/", async (c) => {
     const updateData: Record<string, unknown> = {
       city_leads: payload.city_leads,
       monthly_family_income: payload.monthly_family_income,
+      coments_optionals_lead: payload.coments_optionals_lead,
       updatedAt: new Date(),
     };
+
 
     const updated = await updateById<LeadResponseDto>(
       leads,

@@ -5,7 +5,7 @@ export const prerender = false; // asegura que esto se ejecute en el servidor, n
 const API_URL = import.meta.env.PUBLIC_HONO_API_URL || "http://api:4000/api";
 const API_KEY = import.meta.env.PUBLIC_VALID_API_KEY || "";
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress }) => {
   try {
     const payload = await request.json();
 
@@ -14,6 +14,7 @@ export const POST: APIRoute = async ({ request }) => {
       headers: {
         "Content-Type": "application/json",
         "x-api-key": API_KEY,
+        "x-forwarded-for": clientAddress,
       },
       body: JSON.stringify(payload),
     });

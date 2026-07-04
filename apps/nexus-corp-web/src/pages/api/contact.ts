@@ -21,7 +21,10 @@ const saveLeadInHono = async (leadPayload: {
   status_leads: string;
   source_leads: string;
   coments_optionals_lead: string;
-}) => {
+  acceptedTerms : boolean;
+},
+  clientIp:string
+) => {
   const honoApiKey =
     import.meta.env.PUBLIC_VALID_API_KEY ||
     process.env.PUBLIC_VALID_API_KEY ||
@@ -33,15 +36,21 @@ const saveLeadInHono = async (leadPayload: {
     "http://api:4000/api/";
 
   try {
-    console.log(`${honoUrl}leads`);
     const response = await fetch(`${honoUrl}/leads`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": honoApiKey,
+        "x-forwarded-for": clientIp,
+
       },
       body: JSON.stringify(leadPayload),
     });
+
+    if (!response.ok) {
+      const errorBody = await response.json().catch(() => null);
+      console.log("Hono rechazó el lead:", response.status, errorBody);
+    }
 
     return response.ok;
   } catch (error) {
@@ -50,7 +59,7 @@ const saveLeadInHono = async (leadPayload: {
   }
 };
 
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress  }) => {
   if (!request.headers.get("content-type")?.includes("application/json")) {
     return Response.json(
       { error: "Content-Type no permitido." },
@@ -106,7 +115,8 @@ export const POST: APIRoute = async ({ request }) => {
     status_leads: "new",
     source_leads: `web`,
     coments_optionals_lead: message,
-  });
+    acceptedTerms: true,
+  }, clientAddress);
 
   if (!leadSaved) {
     return Response.json(
