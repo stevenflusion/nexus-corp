@@ -22,7 +22,8 @@ export function sanitizeCreateQuoteWithLeadRequest(
     typeof body.name !== "string" ||
     typeof body.email !== "string" ||
     typeof body.phone !== "string" ||
-    typeof body.city !== "string"
+    typeof body.city !== "string" ||
+    body.acceptedTerms !== true
   ) {
     return null;
   }
@@ -56,6 +57,7 @@ export function sanitizeCreateQuoteWithLeadRequest(
       source_leads: "quote",
       monthly_family_income: body.monthlyFamilyIncome != null ? String(body.monthlyFamilyIncome) : null,
       coments_optionals_lead: body.comentsOptionalsLead != null ? String(body.comentsOptionalsLead) : null,
+      accepted_terms_lead: body.acceptedTerms === true,
     },
     quoteData: {
       lead_id : 0,

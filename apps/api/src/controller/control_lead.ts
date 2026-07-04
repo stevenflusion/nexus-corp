@@ -8,6 +8,8 @@ import {
   sanitizeLeadCreate, 
   sanitizeLeadUpdateStatus 
 } from "../dto/leadDTO"; // El archivo DTO que armamos antes
+import { getClientIp } from "../utils/request";
+import { leadsService } from "../services/leads_services";
 
 
 
@@ -19,7 +21,15 @@ leadsController.get("/",   async (c) => {
   const allLeads = await getAll<LeadResponseDto>(leads);
   return c.json(allLeads);
 });
-
+leadsController.get("/with-quotes", async (c) => {
+  try {
+    const leadsWithQuotes = await leadsService.getAllLeadsWithQuotes();
+    return c.json(leadsWithQuotes);
+  } catch (error) {
+    console.error("Error al obtener leads con quotes:", error);
+    return c.json({ error: "Error interno al consultar leads." }, 500);
+  }
+});
 // 2. LEER POR ID
 leadsController.get("/:id",  async (c) => {
   const id = Number(c.req.param("id"));
@@ -39,33 +49,39 @@ leadsController.post("/", async (c) => {
   const payload = sanitizeLeadCreate(body);
 
   if (!payload) {
-    return c.json(
-      {
-        error:
-          "name_leads, email_leads, phone_leads and city_leads are required",
-      },
-      400
-    );
+    return c.json({ error: "..." }, 400);
   }
 
-  // Buscar si ya existe un lead con ese teléfono
   const existingLead = await getByField<LeadResponseDto>(
-    leads,
-    leads.phone_leads,
-    payload.phone_leads
+    leads, leads.phone_leads, payload.phone_leads
   );
 
   if (existingLead) {
-    // Ya existe, no lo volvemos a crear
-    return c.json(existingLead, 200);
+    const updateData: Record<string, unknown> = {
+      city_leads: payload.city_leads,
+      monthly_family_income: payload.monthly_family_income,
+      updatedAt: new Date(),
+    };
+
+    const updated = await updateById<LeadResponseDto>(
+      leads,
+      leads.id_leads,
+      existingLead.id_leads,
+      updateData
+    );
+
+    return c.json(updated as LeadResponseDto, 200);
   }
 
-  // No existe, crear uno nuevo
-  const created = await createOne<LeadCreateDto>(leads, payload);
+  const enrichedPayload: LeadCreateDto = {
+    ...payload,
+    accepted_terms_at: new Date(),
+    accepted_terms_ip: getClientIp(c),
+  };
 
+  const created = await createOne<LeadCreateDto>(leads, enrichedPayload);
   return c.json(created as LeadResponseDto, 201);
 });
-
 // 4. ACTUALIZAR SOLO STATUS (Filtra todo lo demás)
 leadsController.put("/:id", async (c) => {
   const id = Number(c.req.param("id"));

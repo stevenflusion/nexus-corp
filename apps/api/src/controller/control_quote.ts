@@ -10,6 +10,8 @@ import {
 } from "../dto/quotesDTO";
 import { sanitizeCreateQuoteWithLeadRequest } from "../dto/quotes_whit_leadDTO";
 import { quotesService } from "../services/quotes_services";
+import { getClientIp } from "../utils/request";
+
 
 const quotesController = new Hono();
 
@@ -103,7 +105,8 @@ quotesController.post("/with-lead", async (c) => {
 
 
     // El controlador NO sabe qué es 'createOne' ni 'getByField'. Solo llama al servicio.
-    const result = await quotesService.createQuoteWithLead(payload);
+    const ip = getClientIp(c);
+    const result = await quotesService.createQuoteWithLead(payload, {ip});
 
     return c.json({
       success: true,

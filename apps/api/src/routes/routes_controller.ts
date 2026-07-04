@@ -24,7 +24,7 @@ apiRouter.route("/notes", leadNotesController);
 apiRouter.use("/admin/*", authMiddleware);
 apiRouter.route("/admin", admin_usersController);
 
-apiRouter.use("/audit-logs/*", authMiddleware);
+
 apiRouter.route("/audit-logs", auditLogsController);
 
 //Sin authMiddleware porque ya esta integrado en su controller

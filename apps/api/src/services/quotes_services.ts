@@ -7,10 +7,9 @@ import { QuoteWithLeadFlexDto } from "../dto/quotes_whit_leadDTO";
 import { LeadCreateWhitQuoteDto } from "../dto/leadDTO";
 
 export const quotesService = {
-  async createQuoteWithLead(payload: QuoteWithLeadFlexDto) {
+  async createQuoteWithLead(payload: QuoteWithLeadFlexDto, meta: { ip: string }) {
     const { leadData, quoteData } = payload;
 
-    // Transformar Request DTO -> Create DTO
     const createLeadData: LeadCreateWhitQuoteDto = {
       name_leads: leadData.name_leads,
       email_leads: leadData.email_leads,
@@ -20,8 +19,10 @@ export const quotesService = {
       source_leads: "quote",
       monthly_family_income: leadData.monthly_family_income ?? null,
       coments_optionals_lead : leadData.coments_optionals_lead ?? null,
+      accepted_terms_lead: leadData.accepted_terms_lead ?? false,
+      accepted_terms_at: leadData.accepted_terms_lead ? new Date() : null,
+      accepted_terms_ip: leadData.accepted_terms_lead ? meta.ip : null,
     };
-
     // Buscar lead existente
     const existingLead = await getByField<{ id_leads: number }>(
       leads,
