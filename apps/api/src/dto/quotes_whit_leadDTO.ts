@@ -30,13 +30,21 @@ export function sanitizeCreateQuoteWithLeadRequest(
   if (
     typeof body.product !== "string" ||
     typeof body.quoteType !== "string" ||
-    typeof body.amount !== "string" ||
-    typeof body.downPayment !== "string" ||
-    typeof body.monthlyPayment !== "string" ||
-    typeof body.annualRate !== "string"
+    typeof body.amount !== "number" ||
+  typeof body.downPayment !== "number" ||
+  typeof body.monthlyPayment !== "number" ||
+  typeof body.annualRate !== "number"
   ) {
     return null;
   }
+
+
+  const contactMap: Record<string, "phone" | "email" | "whatsapp" | "other"> = {
+  llamada: "phone",
+  correo: "email",
+  whatsapp: "whatsapp",
+};
+
 
   return {
     leadData:{
@@ -47,24 +55,24 @@ export function sanitizeCreateQuoteWithLeadRequest(
       status_leads: "new",
       source_leads: "quote",
       monthly_family_income: body.monthlyFamilyIncome != null ? String(body.monthlyFamilyIncome) : null,
-      coments_optionals_lead: body.coments_optionals_lead != null ? String(body.comentsOptionalsLead) : null,
+      coments_optionals_lead: body.comentsOptionalsLead != null ? String(body.comentsOptionalsLead) : null,
     },
     quoteData: {
       lead_id : 0,
       product_quotes: body.product as "vehicle" | "housing" | "consumer",
 
-      requested_amount_quotes: body.amount.trim(),
+      requested_amount_quotes: String(body.amount),
 
-      down_payment_quotes: body.downPayment.trim(),
+      down_payment_quotes: String(body.downPayment),
 
-      monthly_payment_quotes: body.monthlyPayment.trim(),
+      monthly_payment_quotes: String(body.monthlyPayment),
 
       term_months_quotes: Number(body.termMonths),
 
-      annual_interest_rate_quotes: body.annualRate.trim(),
+      annual_interest_rate_quotes: String(body.annualRate),
 
       contact_preference_quotes:
-        body.contactPreference as "phone" | "email" | "whatsapp" | "other",
+        contactMap[body.contactPreference as string] ?? "other",
 
       result_status_quotes: String(body.resultStatus),
 }

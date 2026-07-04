@@ -106,12 +106,12 @@ const saveLeadInHono = async (leadPayload: {
 
   
 
-  const honoApiKey = import.meta.env.VALID_API_KEY || process.env.VALID_API_KEY || "";
-const honoUrl = import.meta.env.HONO_API_URL || process.env.HONO_API_URL || "http://api:4000/api/";
+  const honoApiKey = import.meta.env.PUBLIC_VALID_API_KEY || process.env.PUBLIC_VALID_API_KEY || "";
+const honoUrl = import.meta.env.PUBLIC_HONO_API_URL || process.env.PUBLIC_HONO_API_URL || "http://api:4000/api/";
 
 
   try {
-    const response = await fetch(`${honoUrl}leads`, {
+    const response = await fetch(`${honoUrl}/leads`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

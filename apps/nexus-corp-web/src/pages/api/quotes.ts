@@ -18,27 +18,25 @@ export interface QuoteLeadPayload {
 }
 
 export const sendQuoteWithLead = async (payload: QuoteLeadPayload) => {
-  const apiUrl =
-    import.meta.env.HONO_API_URL || process.env.HONO_API_URL || "quotes/with-lead";
-  const apiKey =
-    import.meta.env.VALID_API_KEY || process.env.VALID_API_KEY || "falseKey";
   try {
-    const response = await fetch(`${apiUrl}quotes/with-lead`, {
+
+    console.log('Esta es la data: ', payload);
+    const response = await fetch("/api/quotes-with-lead", {
       method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key" : apiKey,
-      },
+      headers: { "Content-Type": "application/json" },
       body: JSON.stringify(payload),
     });
 
+    const data = await response.json().catch(() => null);
+
     if (!response.ok) {
-      throw new Error(`HTTP ${response.status}`);
+      console.error(`Error ${response.status} al enviar cotización:`, data);
+      return null;
     }
 
-    return await response.json();
+    return data;
   } catch (error) {
-    console.error("Error sending quote:", error);
+    console.error("Error de red al enviar cotización:", error);
     return null;
   }
 };

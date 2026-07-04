@@ -117,6 +117,9 @@ quotesController.post("/with-lead", async (c) => {
     }, 201);
 
   } catch (error: any) {
+
+    console.error("Error en /quotes/with-lead:", error);
+
     // Manejo limpio de errores de validación o del servidor
     if (error.message === "INVALID_DATA") {
       return c.json({ error: "Datos del Lead o de la Cotización inválidos o incompletos." }, 400);

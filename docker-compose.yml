@@ -108,8 +108,8 @@ services:
       - .env
 
     environment:
-      - VALID_API_KEY=${VALID_API_KEY}
-      - HONO_API_URL=http://api:4000/api/
+      - PUBLIC_VALID_API_KEY=${VALID_API_KEY}
+      - PUBLIC_HONO_API_URL=${HONO_API_URL}
 
     volumes:
       - .:/app

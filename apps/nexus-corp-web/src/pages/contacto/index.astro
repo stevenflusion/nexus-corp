@@ -196,7 +196,7 @@ const contactCards = [
   <span>
     He leído y acepto los
     <a
-      href="/terminos-de-privacidad"
+      href="/politica-de-privacidad"
       target="_blank"
       class="font-bold text-[var(--nexus-green)] underline hover:text-[var(--nexus-green-business)]"
     >
@@ -284,6 +284,7 @@ const contactCards = [
           phone: contactFields.phone?.value.trim(),
           service: contactFields.service?.value,
           message: contactFields.message?.value.trim(),
+          acceptedTerms: contactFields.terms?.checked === true,
         }),
       });
 
