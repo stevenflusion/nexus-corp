@@ -8,6 +8,7 @@ import {
   sanitizeQuoteCreate, 
   sanitizeQuoteUpdate 
 } from "../dto/quotesDTO";
+import { sanitizeCreateQuoteWithLeadRequest } from "../dto/quotes_whit_leadDTO";
 import { quotesService } from "../services/quotes_services";
 
 const quotesController = new Hono();
@@ -87,8 +88,22 @@ quotesController.post("/with-lead", async (c) => {
   try {
     const body = await c.req.json();
 
+
+    const payload = sanitizeCreateQuoteWithLeadRequest(body);
+
+
+    if (!payload) {
+      return c.json(
+        {
+          error: "Datos inválidos o incompletos.",
+        },
+        400
+      );
+    }
+
+
     // El controlador NO sabe qué es 'createOne' ni 'getByField'. Solo llama al servicio.
-    const result = await quotesService.createQuoteWithLead(body.leadData, body.quoteData);
+    const result = await quotesService.createQuoteWithLead(payload);
 
     return c.json({
       success: true,

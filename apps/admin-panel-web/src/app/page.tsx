@@ -1,8 +1,15 @@
 import { LoginForm } from "@/components/login-form"
 import { ThemeToggle } from "@/components/theme-toggle"
+import { CircleAlertIcon } from "lucide-react"
 import Image from "next/image"
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ magic_error?: string }>
+}) {
+  const { magic_error } = await searchParams
+
   return (
     <div className="relative flex min-h-svh flex-col items-center justify-center gap-6 bg-background p-6 md:p-10">
       <div className="absolute top-4 right-4">
@@ -25,6 +32,15 @@ export default function LoginPage() {
           decisiones financieras con mayor seguridad.
         </p>
       </div>
+      {magic_error && (
+        <div
+          role="alert"
+          className="flex w-full max-w-sm items-center gap-2 rounded-lg border border-destructive/30 bg-destructive/5 p-3 text-sm text-destructive"
+        >
+          <CircleAlertIcon className="size-4 shrink-0" />
+          <span>{magic_error}</span>
+        </div>
+      )}
       <div className="w-full max-w-sm">
         <LoginForm />
       </div>

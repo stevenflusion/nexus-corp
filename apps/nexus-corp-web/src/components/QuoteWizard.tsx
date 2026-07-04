@@ -15,17 +15,19 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-type ProductId = "vehiculo" | "vivienda" | "consumo"
-type ContactPreference = "whatsapp" | "llamada" | "correo"
+import { sendQuoteWithLead } from "../pages/api/quotes";
+
+type ProductId = "vehicle" | "housing" | "consumer"
+type ContactPreference = "whatsapp" | "phone" | "email"
 type LeadSaveStatus = "idle" | "saving" | "saved" | "local" | "error"
 
 const DEFAULT_INCOME = 1800
 const DEFAULT_DEBTS = 250
-const LOCAL_QUOTE_LEADS_KEY = "nexus:quote-leads"
+
 
 const products = [
   {
-    id: "vehiculo" as const,
+    id: "vehicle" as const,
     title: "Vehículo automotriz",
     description:
       "Compra, renovación o evaluación de entrada para auto nuevo o seminuevo.",
@@ -45,7 +47,7 @@ const products = [
       "Factores que influyen: tipo de cliente, tipo de entidad, financiera, perfil crediticio y condiciones comerciales.",
   },
   {
-    id: "vivienda" as const,
+    id: "housing" as const,
     title: "Vivienda",
     description:
       "Preparación para compra, construcción, mejora o consolidación patrimonial.",
@@ -65,7 +67,7 @@ const products = [
       "Tasa nominal referencial para preparar una conversación de asesoría.",
   },
   {
-    id: "consumo" as const,
+    id: "consumer" as const,
     title: "Crédito de consumo",
     description:
       "Ordenamiento de capacidad para estudios, salud, equipamiento o metas familiares.",
@@ -171,55 +173,18 @@ interface QuoteLeadPayload {
   resultStatus: string
   contactPreference: ContactPreference
   acceptedTerms: boolean
-  leadStatus: "nuevo"
+  leadStatus: "new"
 }
 
 interface QuoteWizardProps {
   initialProduct?: ProductId
 }
 
-const appendLocalQuoteLead = (payload: QuoteLeadPayload) => {
-  try {
-    const stored = window.localStorage.getItem(LOCAL_QUOTE_LEADS_KEY)
-    const parsed: unknown = stored ? JSON.parse(stored) : []
-    const current = Array.isArray(parsed) ? parsed : []
 
-    window.localStorage.setItem(
-      LOCAL_QUOTE_LEADS_KEY,
-      JSON.stringify(
-        [...current, { ...payload, createdAt: new Date().toISOString() }].slice(
-          -200
-        )
-      )
-    )
-  } catch {
-    // The lead can still be sent by WhatsApp if browser storage is unavailable.
-  }
-}
 
-const saveQuoteLead = async (payload: QuoteLeadPayload) => {
-  try {
-    const response = await fetch("/api/quotes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-
-    if (response.ok) {
-      return "saved" as const
-    }
-  } catch {
-    // Static exports do not have local API routes; keep a browser copy instead.
-  }
-
-  appendLocalQuoteLead(payload)
-  return "local" as const
-}
 
 export default function QuoteWizard({
-  initialProduct = "vehiculo",
+  initialProduct = "vehicle",
 }: QuoteWizardProps) {
   const initialSelectedProduct =
     products.find((item) => item.id === initialProduct) ?? defaultProduct
@@ -291,7 +256,7 @@ export default function QuoteWizard({
       term
     )
     const netIncome = Math.max(safeIncome - safeMonthlyDebts, 0)
-    const capacityRatio = currentProduct.id === "vivienda" ? 0.4 : 0.35
+    const capacityRatio = currentProduct.id === "housing" ? 0.4 : 0.35
     const suggestedCapacity = Math.max(
       safeIncome * capacityRatio - safeMonthlyDebts,
       0
@@ -373,7 +338,7 @@ export default function QuoteWizard({
       resultStatus: calculation.status,
       contactPreference: preference,
       acceptedTerms: consent,
-      leadStatus: "nuevo",
+      leadStatus: "new",
     }),
     [
       calculation.amount,
@@ -447,7 +412,9 @@ export default function QuoteWizard({
       setLeadSaveStatus("saving")
 
       try {
-        const status = await saveQuoteLead(quoteLeadPayload)
+        
+        const status = await sendQuoteWithLead(quoteLeadPayload)
+        console.log(status);
         setLeadSaveStatus(status)
         setSavedLeadKey(quoteLeadKey)
       } catch {

@@ -8,7 +8,6 @@ const rootDir = fileURLToPath(new URL("..", import.meta.url))
 const tempDir = join(rootDir, ".tmp-static-routes")
 
 const apiRoutesDir = join(rootDir, "src", "pages", "api")
-const webhookRoute = join(rootDir, "src", "pages", "webhook.ts")
 
 const run = (command, args, options = {}) =>
   new Promise((resolve, reject) => {
@@ -63,10 +62,6 @@ const getDynamicRoutes = async () => [
     source,
     backup: join(tempDir, "api", relative(apiRoutesDir, source)),
   })),
-  {
-    source: webhookRoute,
-    backup: join(tempDir, "webhook.ts"),
-  },
 ]
 
 const moveIfExists = async (source, target) => {

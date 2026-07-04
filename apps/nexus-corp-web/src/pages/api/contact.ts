@@ -30,10 +30,11 @@ const saveLeadInHono = async (leadPayload: {
   const honoUrl =
     import.meta.env.HONO_API_URL ||
     process.env.HONO_API_URL ||
-    "http://api:4000/api/leads";
+    "http://api:4000/api/";
 
   try {
-    const response = await fetch(honoUrl, {
+    console.log(`${honoUrl}leads`);
+    const response = await fetch(`${honoUrl}leads`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

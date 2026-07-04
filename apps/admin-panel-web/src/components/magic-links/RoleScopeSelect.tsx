@@ -27,23 +27,23 @@ const scopeOptions: Record<MagicLinkRole, ScopeOption[]> = {
     { id: "brand-002", label: "Nexus" },
     { id: "brand-003", label: "Corp Brand A" },
   ],
-  tendero: [
-    { id: "shop-001", label: "Tienda Centro" },
-    { id: "shop-002", label: "Tienda Norte" },
-    { id: "shop-003", label: "Tienda Sur" },
+  developer: [
+    { id: "dev-001", label: "Dev Shop Centro" },
+    { id: "dev-002", label: "Dev Shop Norte" },
+    { id: "dev-003", label: "Dev Shop Sur" },
   ],
-  delivery: [
-    { id: "zone-001", label: "Zona Urbana" },
-    { id: "zone-002", label: "Zona Rural" },
-    { id: "zone-003", label: "Zona Mixta" },
+  external: [
+    { id: "partner-001", label: "Zona Urbana" },
+    { id: "partner-002", label: "Zona Rural" },
+    { id: "partner-003", label: "Zona Mixta" },
   ],
 }
 
 const roleLabels: Record<MagicLinkRole, string> = {
   admin: "Admin",
   brand_manager: "Brand Manager",
-  tendero: "Tendero",
-  delivery: "Delivery",
+  developer: "Desarrollador",
+  external: "Externo",
 }
 
 interface RoleScopeSelectProps {

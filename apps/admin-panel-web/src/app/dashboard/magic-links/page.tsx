@@ -237,7 +237,7 @@ export default function MagicLinksPage() {
         <h1 className="text-2xl font-bold">Magic Links</h1>
         <p className="text-sm text-muted-foreground">
           Gestiona los links de acceso para administradores, brand managers,
-          tenderos y delivery.
+          desarrolladores y externos.
         </p>
       </div>
 

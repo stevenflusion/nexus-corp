@@ -1,27 +1,32 @@
 import { quotes } from "../database/schemas/quotes";
 import { leads } from "../database/schemas/leads";
+
 import { createOne, getByField } from "../utils/crud";
-import { sanitizeQuoteCreate, QuoteCreateDto } from "../dto/quotesDTO";
-import { sanitizeLeadCreate, LeadCreateDto } from "../dto/leadDTO";
+
+import { QuoteWithLeadFlexDto } from "../dto/quotes_whit_leadDTO";
+import { LeadCreateWhitQuoteDto } from "../dto/leadDTO";
 
 export const quotesService = {
-  /**
-   * Procesa el flujo completo de registrar una cotización junto a un lead usando su teléfono
-   */
-  async createQuoteWithLead(rawLeadData: unknown, rawQuoteData: unknown) {
-    // 1. Sanitizar internamente en la capa de negocio
-    const cleanLeadData = sanitizeLeadCreate(rawLeadData);
-    const cleanQuoteData = sanitizeQuoteCreate({ ...rawQuoteData as any, lead_id: 0 });
+  async createQuoteWithLead(payload: QuoteWithLeadFlexDto) {
+    const { leadData, quoteData } = payload;
 
-    if (!cleanLeadData || !cleanQuoteData) {
-      throw new Error("INVALID_DATA");
-    }
+    // Transformar Request DTO -> Create DTO
+    const createLeadData: LeadCreateWhitQuoteDto = {
+      name_leads: leadData.name_leads,
+      email_leads: leadData.email_leads,
+      phone_leads: leadData.phone_leads,
+      city_leads: leadData.city_leads,
+      status_leads: leadData.status_leads,
+      source_leads: "quote",
+      monthly_family_income: leadData.monthly_family_income ?? null,
+      coments_optionals_lead : leadData.coments_optionals_lead ?? null,
+    };
 
-    // 2. Buscar si el lead ya existe por teléfono
+    // Buscar lead existente
     const existingLead = await getByField<{ id_leads: number }>(
       leads,
       leads.phone_leads,
-      cleanLeadData.phone_leads
+      createLeadData.phone_leads
     );
 
     let targetLeadId: number;
@@ -30,20 +35,24 @@ export const quotesService = {
     if (existingLead) {
       targetLeadId = existingLead.id_leads;
     } else {
-      // Crear el nuevo lead si no existe
-      const newLead = await createOne<any>(leads, cleanLeadData);
+      const newLead = await createOne<LeadCreateWhitQuoteDto>(
+        leads,
+        createLeadData
+      );
+
       targetLeadId = newLead.id_leads;
       isNewLead = true;
     }
 
-    // 3. Enlazar el ID y crear la cotización
-    cleanQuoteData.lead_id = targetLeadId;
-    const finalQuote = await createOne<any>(quotes, cleanQuoteData);
+    const finalQuote = await createOne(quotes, {
+      ...quoteData,
+      lead_id: targetLeadId,
+    });
 
     return {
       lead_id: targetLeadId,
       isNewLead,
-      quote: finalQuote
+      quote: finalQuote,
     };
-  }
+  },
 };

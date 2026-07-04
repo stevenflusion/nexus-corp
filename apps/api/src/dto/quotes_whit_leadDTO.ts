@@ -1,8 +1,72 @@
 import { QuoteCreateDto } from "./quotesDTO"; // Ajusta la ruta a tus archivos
-import { LeadCreateDto } from "./leadDTO";
+import { LeadRecuestWhitQuoteDto } from "./leadDTO";
 
 // Este es el DTO compuesto que usará el controlador
 export type QuoteWithLeadFlexDto = {
-  quoteData: Omit<QuoteCreateDto, "lead_id">; // Copia todo QuoteCreateDto pero quita el lead_id
-  leadData: LeadCreateDto;
+  quoteData: QuoteCreateDto; // Copia todo QuoteCreateDto pero quita el lead_id
+  leadData: LeadRecuestWhitQuoteDto;
 };
+
+
+export function sanitizeCreateQuoteWithLeadRequest(
+  data: unknown
+): QuoteWithLeadFlexDto | null {
+
+  if (typeof data !== "object" || data === null) {
+    return null;
+  }
+
+  const body = data as Record<string, unknown>;
+
+  if (
+    typeof body.name !== "string" ||
+    typeof body.email !== "string" ||
+    typeof body.phone !== "string" ||
+    typeof body.city !== "string"
+  ) {
+    return null;
+  }
+
+  if (
+    typeof body.product !== "string" ||
+    typeof body.quoteType !== "string" ||
+    typeof body.amount !== "string" ||
+    typeof body.downPayment !== "string" ||
+    typeof body.monthlyPayment !== "string" ||
+    typeof body.annualRate !== "string"
+  ) {
+    return null;
+  }
+
+  return {
+    leadData:{
+      name_leads: body.name.trim(),
+      phone_leads: body.phone.trim(),
+      city_leads: body.city.trim(),
+      email_leads: body.email.trim(),
+      status_leads: "new",
+      source_leads: "quote",
+      monthly_family_income: body.monthlyFamilyIncome != null ? String(body.monthlyFamilyIncome) : null,
+      coments_optionals_lead: body.coments_optionals_lead != null ? String(body.comentsOptionalsLead) : null,
+    },
+    quoteData: {
+      lead_id : 0,
+      product_quotes: body.product as "vehicle" | "housing" | "consumer",
+
+      requested_amount_quotes: body.amount.trim(),
+
+      down_payment_quotes: body.downPayment.trim(),
+
+      monthly_payment_quotes: body.monthlyPayment.trim(),
+
+      term_months_quotes: Number(body.termMonths),
+
+      annual_interest_rate_quotes: body.annualRate.trim(),
+
+      contact_preference_quotes:
+        body.contactPreference as "phone" | "email" | "whatsapp" | "other",
+
+      result_status_quotes: String(body.resultStatus),
+}
+  };
+}

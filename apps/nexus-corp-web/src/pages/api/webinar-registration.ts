@@ -107,12 +107,11 @@ const saveLeadInHono = async (leadPayload: {
   
 
   const honoApiKey = import.meta.env.VALID_API_KEY || process.env.VALID_API_KEY || "";
-const honoUrl = import.meta.env.HONO_API_URL || process.env.HONO_API_URL || "http://api:4000/api/leads";
+const honoUrl = import.meta.env.HONO_API_URL || process.env.HONO_API_URL || "http://api:4000/api/";
 
-console.log("Revisando credenciales inyectadas:", { honoApiKey, honoUrl });
 
   try {
-    const response = await fetch(honoUrl, {
+    const response = await fetch(`${honoUrl}leads`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

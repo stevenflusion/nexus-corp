@@ -14,6 +14,23 @@ export type LeadCreateDto = Pick<
   coments_optionals_lead?: string | null;
 };
 
+export type LeadCreateWhitQuoteDto = Pick<
+  LeadDTO, 
+  "name_leads" | "email_leads" | "phone_leads" | "city_leads" | "status_leads" | "source_leads" 
+> & {
+  monthly_family_income?: string | null;
+  coments_optionals_lead?: string | null;
+};
+
+export type LeadRecuestWhitQuoteDto = Pick<
+  LeadDTO, 
+  "name_leads" | "email_leads" | "phone_leads" | "city_leads" | "status_leads" | "source_leads"   
+> & {
+  id_leads? : number | null;
+  monthly_family_income?: string | null;
+  coments_optionals_lead?: string | null;
+};
+
 // 2. DTO para ACTUALIZAR: Solo el id (obligatorio) y el status (obligatorio según tu regla)
 export type LeadUpdateStatusDto = {
   id_leads: number;

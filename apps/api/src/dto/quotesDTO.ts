@@ -15,6 +15,7 @@ export type QuoteCreateDto = Pick<
   | "annual_interest_rate_quotes"
   | "monthly_payment_quotes"
   | "contact_preference_quotes"
+  | "result_status_quotes"
 >;
 
 // DTO para Actualización: Todo opcional excepto el ID del registro
@@ -44,7 +45,7 @@ export function sanitizeQuoteCreate(body: unknown): QuoteCreateDto | null {
     ? String(payload.annual_interest_rate_quotes).trim() : "";
   const monthly_payment_quotes = typeof payload.monthly_payment_quotes === "string" || typeof payload.monthly_payment_quotes === "number" 
     ? String(payload.monthly_payment_quotes).trim() : "";
-
+  const result_status_quotes = typeof payload.result_status_quotes === "string" ? payload.result_status_quotes : "pending";
   // Validar Enums estrictamente
   const validProducts = ["vehicle", "housing", "consumer"];
   const product_quotes = typeof payload.product_quotes === "string" && validProducts.includes(payload.product_quotes)
@@ -60,7 +61,7 @@ export function sanitizeQuoteCreate(body: unknown): QuoteCreateDto | null {
     term_months_quotes === undefined || Number.isNaN(term_months_quotes) ||
     !requested_amount_quotes || !down_payment_quotes || 
     !annual_interest_rate_quotes || !monthly_payment_quotes ||
-    !product_quotes || !contact_preference_quotes
+    !product_quotes || !contact_preference_quotes || !result_status_quotes
   ) {
     return null;
   }
@@ -74,6 +75,7 @@ export function sanitizeQuoteCreate(body: unknown): QuoteCreateDto | null {
     annual_interest_rate_quotes,
     monthly_payment_quotes,
     contact_preference_quotes,
+    result_status_quotes
   };
 }
 
