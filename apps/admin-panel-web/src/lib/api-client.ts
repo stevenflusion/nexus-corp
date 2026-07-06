@@ -116,3 +116,50 @@ export async function apiPost<T>(path: string, body?: unknown): Promise<T> {
     throw new ApiError(0, "Error de conexión")
   }
 }
+
+export async function apiPut<T>(path: string, body?: unknown): Promise<T> {
+  ensureConfig()
+
+  try {
+    const response = await fetch(buildUrl(path), {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY!,
+      },
+      body: body ? JSON.stringify(body) : undefined,
+    })
+
+    if (!response.ok) {
+      throw await parseError(response)
+    }
+
+    return response.json() as Promise<T>
+  } catch (error) {
+    if (error instanceof ApiError) throw error
+    throw new ApiError(0, "Error de conexión")
+  }
+}
+
+export async function apiDelete<T>(path: string): Promise<T> {
+  ensureConfig()
+
+  try {
+    const response = await fetch(buildUrl(path), {
+      method: "DELETE",
+      headers: {
+        "Content-Type": "application/json",
+        "x-api-key": API_KEY!,
+      },
+    })
+
+    if (!response.ok) {
+      throw await parseError(response)
+    }
+
+    return response.json() as Promise<T>
+  } catch (error) {
+    if (error instanceof ApiError) throw error
+    throw new ApiError(0, "Error de conexión")
+  }
+}

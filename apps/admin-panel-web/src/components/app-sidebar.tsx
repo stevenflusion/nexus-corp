@@ -13,7 +13,7 @@ import {
   SidebarHeader,
   SidebarRail,
 } from "@/components/ui/sidebar"
-import type { AuthUser } from "@/lib/auth"
+import type { User } from "@/lib/auth"
 import {
   GalleryVerticalEndIcon,
   AudioLinesIcon,
@@ -50,18 +50,22 @@ const data = {
       url: "/dashboard",
       icon: <LayoutDashboardIcon />,
     },
-    {
-      title: "Administrador",
-      url: "#",
-      icon: <UserRoundCogIcon />,
-      isActive: true,
-      items: [
         {
-          title: "Magic Links",
-          url: "/dashboard/magic-links",
+          title: "Administrador",
+          url: "#",
+          icon: <UserRoundCogIcon />,
+          isActive: true,
+          items: [
+            {
+              title: "Magic Links",
+              url: "/dashboard/magic-links",
+            },
+            {
+              title: "Leads",
+              url: "/dashboard/leads",
+            },
+          ],
         },
-      ],
-    },
     {
       title: "Settings",
       url: "#",
@@ -95,16 +99,32 @@ const data = {
 
 const FALLBACK_AVATAR = "/avatars/shadcn.jpg"
 
+function formatRole(role: string): string {
+  return role
+    .replace(/_/g, " ")
+    .replace(/\b\w/g, (c) => c.toUpperCase())
+}
+
 export function AppSidebar({
   user,
+  sessionSlot,
   ...props
-}: React.ComponentProps<typeof Sidebar> & { user: AuthUser | null }) {
+}: React.ComponentProps<typeof Sidebar> & {
+  user: User | null
+  sessionSlot?: React.ReactNode
+}) {
   const userProps = user
-    ? {
-        name: user.name_admin_users,
-        email: user.email_admin_users,
-        avatar: FALLBACK_AVATAR,
-      }
+    ? user.kind === "auth"
+      ? {
+          name: user.name_admin_users,
+          email: user.email_admin_users,
+          avatar: FALLBACK_AVATAR,
+        }
+      : {
+          name: formatRole(user.role),
+          email: user.scopeId,
+          avatar: FALLBACK_AVATAR,
+        }
     : {
         name: "Invitado",
         email: "",
@@ -121,6 +141,7 @@ export function AppSidebar({
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
+        {sessionSlot}
         <NavUser user={userProps} />
       </SidebarFooter>
       <SidebarRail />
