@@ -1,0 +1,1 @@
+ALTER TABLE "quotes" ADD COLUMN "result_status_quotes" varchar(50) DEFAULT 'pending';

@@ -15,17 +15,19 @@ import {
 } from "lucide-react"
 import { useEffect, useMemo, useState } from "react"
 
-type ProductId = "vehiculo" | "vivienda" | "consumo"
-type ContactPreference = "whatsapp" | "llamada" | "correo"
+import { sendQuoteWithLead } from "../pages/api/quotes";
+
+type ProductId = "vehicle" | "housing" | "consumer"
+type ContactPreference = "whatsapp" | "phone" | "email"
 type LeadSaveStatus = "idle" | "saving" | "saved" | "local" | "error"
 
 const DEFAULT_INCOME = 1800
 const DEFAULT_DEBTS = 250
-const LOCAL_QUOTE_LEADS_KEY = "nexus:quote-leads"
+
 
 const products = [
   {
-    id: "vehiculo" as const,
+    id: "vehicle" as const,
     title: "Vehículo automotriz",
     description:
       "Compra, renovación o evaluación de entrada para auto nuevo o seminuevo.",
@@ -45,7 +47,7 @@ const products = [
       "Factores que influyen: tipo de cliente, tipo de entidad, financiera, perfil crediticio y condiciones comerciales.",
   },
   {
-    id: "vivienda" as const,
+    id: "housing" as const,
     title: "Vivienda",
     description:
       "Preparación para compra, construcción, mejora o consolidación patrimonial.",
@@ -65,7 +67,7 @@ const products = [
       "Tasa nominal referencial para preparar una conversación de asesoría.",
   },
   {
-    id: "consumo" as const,
+    id: "consumer" as const,
     title: "Crédito de consumo",
     description:
       "Ordenamiento de capacidad para estudios, salud, equipamiento o metas familiares.",
@@ -171,55 +173,20 @@ interface QuoteLeadPayload {
   resultStatus: string
   contactPreference: ContactPreference
   acceptedTerms: boolean
-  leadStatus: "nuevo"
+  leadStatus: "new"
+  monthlyFamilyIncome?: number
+
 }
 
 interface QuoteWizardProps {
   initialProduct?: ProductId
 }
 
-const appendLocalQuoteLead = (payload: QuoteLeadPayload) => {
-  try {
-    const stored = window.localStorage.getItem(LOCAL_QUOTE_LEADS_KEY)
-    const parsed: unknown = stored ? JSON.parse(stored) : []
-    const current = Array.isArray(parsed) ? parsed : []
 
-    window.localStorage.setItem(
-      LOCAL_QUOTE_LEADS_KEY,
-      JSON.stringify(
-        [...current, { ...payload, createdAt: new Date().toISOString() }].slice(
-          -200
-        )
-      )
-    )
-  } catch {
-    // The lead can still be sent by WhatsApp if browser storage is unavailable.
-  }
-}
 
-const saveQuoteLead = async (payload: QuoteLeadPayload) => {
-  try {
-    const response = await fetch("/api/quotes", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(payload),
-    })
-
-    if (response.ok) {
-      return "saved" as const
-    }
-  } catch {
-    // Static exports do not have local API routes; keep a browser copy instead.
-  }
-
-  appendLocalQuoteLead(payload)
-  return "local" as const
-}
 
 export default function QuoteWizard({
-  initialProduct = "vehiculo",
+  initialProduct = "vehicle",
 }: QuoteWizardProps) {
   const initialSelectedProduct =
     products.find((item) => item.id === initialProduct) ?? defaultProduct
@@ -233,7 +200,7 @@ export default function QuoteWizard({
   const [downPayment, setDownPayment] = useState(
     Math.round(
       initialSelectedProduct.defaultAmount *
-        initialSelectedProduct.suggestedDownPayment
+      initialSelectedProduct.suggestedDownPayment
     )
   )
   const [term, setTerm] = useState(initialSelectedProduct.defaultTerm)
@@ -291,7 +258,7 @@ export default function QuoteWizard({
       term
     )
     const netIncome = Math.max(safeIncome - safeMonthlyDebts, 0)
-    const capacityRatio = currentProduct.id === "vivienda" ? 0.4 : 0.35
+    const capacityRatio = currentProduct.id === "housing" ? 0.4 : 0.35
     const suggestedCapacity = Math.max(
       safeIncome * capacityRatio - safeMonthlyDebts,
       0
@@ -373,7 +340,8 @@ export default function QuoteWizard({
       resultStatus: calculation.status,
       contactPreference: preference,
       acceptedTerms: consent,
-      leadStatus: "nuevo",
+      leadStatus: "new",
+      monthlyFamilyIncome: income,
     }),
     [
       calculation.amount,
@@ -388,6 +356,7 @@ export default function QuoteWizard({
       currentProduct.rateSummary,
       currentProduct.title,
       email,
+      income,
       name,
       phone,
       preference,
@@ -447,7 +416,9 @@ export default function QuoteWizard({
       setLeadSaveStatus("saving")
 
       try {
-        const status = await saveQuoteLead(quoteLeadPayload)
+
+        const status = await sendQuoteWithLead(quoteLeadPayload)
+        console.log(status);
         setLeadSaveStatus(status)
         setSavedLeadKey(quoteLeadKey)
       } catch {
@@ -474,7 +445,7 @@ export default function QuoteWizard({
     setDownPayment(
       Math.round(
         initialSelectedProduct.defaultAmount *
-          initialSelectedProduct.suggestedDownPayment
+        initialSelectedProduct.suggestedDownPayment
       )
     )
     setTerm(initialSelectedProduct.defaultTerm)
@@ -561,11 +532,10 @@ export default function QuoteWizard({
                   className="grid grid-cols-[56px_1fr] items-center gap-5"
                 >
                   <span
-                    className={`grid size-14 place-items-center rounded-full border-2 text-xl font-black ${
-                      index <= step
-                        ? "border-white bg-white text-[#006b25]"
-                        : "border-white/55 text-white"
-                    }`}
+                    className={`grid size-14 place-items-center rounded-full border-2 text-xl font-black ${index <= step
+                      ? "border-white bg-white text-[#006b25]"
+                      : "border-white/55 text-white"
+                      }`}
                   >
                     {index + 1}
                   </span>
@@ -612,11 +582,10 @@ export default function QuoteWizard({
                   className="grid min-w-0 justify-items-center gap-2 text-center"
                 >
                   <span
-                    className={`grid size-9 place-items-center rounded-full border-2 text-sm font-black ${
-                      index <= step
-                        ? "border-white bg-white text-[#006b25]"
-                        : "border-white/55 text-white"
-                    }`}
+                    className={`grid size-9 place-items-center rounded-full border-2 text-sm font-black ${index <= step
+                      ? "border-white bg-white text-[#006b25]"
+                      : "border-white/55 text-white"
+                      }`}
                   >
                     {index + 1}
                   </span>
@@ -630,9 +599,8 @@ export default function QuoteWizard({
                           : "Resultado"}
                   </span>
                   <span
-                    className={`size-3 rounded-full ${
-                      index <= step ? "bg-[#b8f7c5]" : "bg-white/65"
-                    }`}
+                    className={`size-3 rounded-full ${index <= step ? "bg-[#b8f7c5]" : "bg-white/65"
+                      }`}
                   />
                 </li>
               ))}
@@ -686,26 +654,23 @@ export default function QuoteWizard({
                           type="button"
                           disabled={!isReady}
                           onClick={() => selectProduct(item.id)}
-                          className={`min-h-[18rem] rounded-lg border p-6 text-left transition ${
-                            selected
-                              ? "border-[#b8f7c5] bg-[#006b25] text-white shadow-xl shadow-[#006b25]/12"
-                              : "border-[#d8eadf] bg-white text-[#08272d] hover:border-[#006b25]/40"
-                          } disabled:cursor-wait disabled:opacity-70`}
+                          className={`min-h-[18rem] rounded-lg border p-6 text-left transition ${selected
+                            ? "border-[#b8f7c5] bg-[#006b25] text-white shadow-xl shadow-[#006b25]/12"
+                            : "border-[#d8eadf] bg-white text-[#08272d] hover:border-[#006b25]/40"
+                            } disabled:cursor-wait disabled:opacity-70`}
                           data-testid={`product-${item.id}`}
                         >
                           <span
-                            className={`grid size-14 place-items-center rounded-lg ${
-                              selected
-                                ? "bg-white/12 text-white"
-                                : "bg-[#edf8f0] text-[#006b25]"
-                            }`}
+                            className={`grid size-14 place-items-center rounded-lg ${selected
+                              ? "bg-white/12 text-white"
+                              : "bg-[#edf8f0] text-[#006b25]"
+                              }`}
                           >
                             <Icon className="size-8" aria-hidden="true" />
                           </span>
                           <p
-                            className={`mt-8 text-xs font-black uppercase ${
-                              selected ? "text-[#b8f7c5]" : "text-[#007127]"
-                            }`}
+                            className={`mt-8 text-xs font-black uppercase ${selected ? "text-[#b8f7c5]" : "text-[#007127]"
+                              }`}
                           >
                             {item.accent}
                           </p>
@@ -713,25 +678,22 @@ export default function QuoteWizard({
                             {item.title}
                           </h2>
                           <p
-                            className={`mt-3 text-sm leading-6 ${
-                              selected ? "text-white/84" : "text-[#4e575e]"
-                            }`}
+                            className={`mt-3 text-sm leading-6 ${selected ? "text-white/84" : "text-[#4e575e]"
+                              }`}
                           >
                             {item.description}
                           </p>
                           <p
-                            className={`mt-4 rounded-lg px-3 py-2 text-sm leading-5 font-black ${
-                              selected
-                                ? "bg-white/10 text-white"
-                                : "bg-[#edf8f0] text-[#006b25]"
-                            }`}
+                            className={`mt-4 rounded-lg px-3 py-2 text-sm leading-5 font-black ${selected
+                              ? "bg-white/10 text-white"
+                              : "bg-[#edf8f0] text-[#006b25]"
+                              }`}
                           >
                             {item.rateSummary}
                           </p>
                           <span
-                            className={`mt-8 inline-flex items-center gap-2 text-sm font-black ${
-                              selected ? "text-[#b8f7c5]" : "text-[#006b25]"
-                            }`}
+                            className={`mt-8 inline-flex items-center gap-2 text-sm font-black ${selected ? "text-[#b8f7c5]" : "text-[#006b25]"
+                              }`}
                           >
                             {selected ? "Seleccionado" : "Elegir opción"}
                             {selected && (
@@ -954,9 +916,17 @@ export default function QuoteWizard({
                           className="mt-1 size-4 shrink-0 accent-[#007127]"
                         />
                         <span>
-                          Acepto los términos y condiciones y autorizo el uso de
-                          mis datos para recibir información sobre mi
-                          cotización.
+                          Acepto los{" "}
+    
+      <a href="/politica-de-privacidad"
+      target="_blank"
+      rel="noreferrer"
+      className="font-black text-[#007127] underline underline-offset-2 hover:text-[#006b25]"
+    >  
+      términos y condiciones
+    </a>{" "}
+    y autorizo el uso de mis datos para recibir información
+    sobre mi cotización.
                         </span>
                       </label>
                     </div>
@@ -972,190 +942,189 @@ export default function QuoteWizard({
                 </div>
               )}
 
-              {step === 3 && (
-                <div
-                  className="grid gap-6 xl:grid-cols-[1fr_0.92fr]"
-                  data-testid="step-result"
-                >
-                  <div className="rounded-lg border border-[#d8eadf] bg-white p-5 shadow-sm sm:p-7">
-                    <p className="text-sm font-black text-[#007127] uppercase">
-                      Paso 4
-                    </p>
-                    <h1 className="mt-3 text-2xl font-black text-[#006b25] sm:text-3xl">
-                      Resultado para iniciar asesoría
-                    </h1>
-                    <p className="mt-3 text-base leading-7 text-[#4e575e]">
-                      Este resultado no aprueba ni niega una operación. Sirve
-                      para decidir qué revisar con un asesor antes de gestionar.
-                    </p>
+            {step === 3 && (
+              <div
+                className="grid gap-6 xl:grid-cols-[1fr_0.92fr]"
+                data-testid="step-result"
+              >
+                <div className="rounded-lg border border-[#d8eadf] bg-white p-5 shadow-sm sm:p-7">
+                  <p className="text-sm font-black text-[#007127] uppercase">
+                    Paso 4
+                  </p>
+                  <h1 className="mt-3 text-2xl font-black text-[#006b25] sm:text-3xl">
+                    Resultado para iniciar asesoría
+                  </h1>
+                  <p className="mt-3 text-base leading-7 text-[#4e575e]">
+                    Este resultado no aprueba ni niega una operación. Sirve
+                    para decidir qué revisar con un asesor antes de gestionar.
+                  </p>
 
-                    <div
-                      className={`mt-8 rounded-lg border p-5 ${
-                        calculation.statusTone === "healthy"
-                          ? "border-[#007127]/30 bg-[#effaf3]"
-                          : calculation.statusTone === "tight"
-                            ? "border-[#c38b00]/35 bg-[#fff7df]"
-                            : "border-[#b42318]/25 bg-[#fff1f0]"
+                  <div
+                    className={`mt-8 rounded-lg border p-5 ${calculation.statusTone === "healthy"
+                      ? "border-[#007127]/30 bg-[#effaf3]"
+                      : calculation.statusTone === "tight"
+                        ? "border-[#c38b00]/35 bg-[#fff7df]"
+                        : "border-[#b42318]/25 bg-[#fff1f0]"
                       }`}
-                    >
-                      <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
-                        <div>
-                          <p className="text-xs font-black text-[#006b25] uppercase">
-                            Lectura referencial
-                          </p>
-                          <h2 className="mt-2 text-2xl font-black text-[#08272d]">
-                            {calculation.status}
-                          </h2>
-                          <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4e575e]">
-                            {calculation.guidance}
-                          </p>
-                        </div>
-                        <BadgeCheck
-                          className="size-10 shrink-0 text-[#007127]"
-                          aria-hidden="true"
-                        />
+                  >
+                    <div className="flex flex-col gap-4 sm:flex-row sm:items-start sm:justify-between">
+                      <div>
+                        <p className="text-xs font-black text-[#006b25] uppercase">
+                          Lectura referencial
+                        </p>
+                        <h2 className="mt-2 text-2xl font-black text-[#08272d]">
+                          {calculation.status}
+                        </h2>
+                        <p className="mt-3 max-w-2xl text-sm leading-6 text-[#4e575e]">
+                          {calculation.guidance}
+                        </p>
                       </div>
-                    </div>
-
-                    <div className="mt-5 grid gap-3 sm:grid-cols-2">
-                      <MetricCard
-                        label="Monto a analizar"
-                        value={formatCurrency(calculation.financed)}
+                      <BadgeCheck
+                        className="size-10 shrink-0 text-[#007127]"
+                        aria-hidden="true"
                       />
-                      <MetricCard
-                        label="Cuota estimada"
-                        value={formatCurrency(calculation.monthlyPayment)}
-                      />
-                      <MetricCard
-                        label="Capacidad sugerida"
-                        value={formatCurrency(calculation.suggestedCapacity)}
-                      />
-                      <MetricCard
-                        label="Entrada sugerida"
-                        value={formatCurrency(calculation.suggestedDownPayment)}
-                      />
-                      <MetricCard
-                        label="Tasa usada"
-                        value={formatPercent(currentProduct.annualRate)}
-                      />
-                    </div>
-
-                    <p className="mt-5 rounded-lg border border-[#d8eadf] bg-[#f8fdf9] px-4 py-3 text-sm font-bold text-[#4e575e]">
-                      {leadSaveStatus === "saved"
-                        ? "Cotización registrada para Excel."
-                        : leadSaveStatus === "local"
-                          ? "Cotización guardada localmente. En despliegue estático se requiere un backend externo para registro centralizado."
-                          : "Cotización preparada para registro comercial."}
-                    </p>
-
-                    <div className="mt-7 flex flex-col gap-3 sm:flex-row">
-                      <a
-                        href={whatsappHref}
-                        target="_blank"
-                        rel="noreferrer"
-                        className="inline-flex items-center justify-center gap-3 rounded-lg bg-[#007127] px-5 py-4 text-sm font-black text-white transition hover:bg-[#006b25]"
-                        data-testid="whatsapp-result"
-                      >
-                        Enviar resumen a WhatsApp
-                        <MessageCircle className="size-5" aria-hidden="true" />
-                      </a>
-                      <button
-                        type="button"
-                        onClick={copySummary}
-                        className="inline-flex items-center justify-center gap-3 rounded-lg border border-[#cfe6d6] bg-white px-5 py-4 text-sm font-black text-[#006b25] transition hover:border-[#007127]/40"
-                      >
-                        {copied ? "Resumen copiado" : "Copiar resumen"}
-                        <ClipboardCheck className="size-5" aria-hidden="true" />
-                      </button>
                     </div>
                   </div>
 
-                  <div className="rounded-lg bg-[#006b25] bg-[linear-gradient(145deg,#007127_0%,#00541f_56%,#002023_100%)] p-5 text-white sm:p-7">
-                    <p className="text-xs font-black text-[#b8f7c5] uppercase">
-                      Siguientes pasos
-                    </p>
-                    <h2 className="mt-3 text-2xl font-black">
-                      Qué revisa NEXUS contigo
-                    </h2>
-                    <div className="mt-6 grid gap-3">
-                      {[
-                        "Capacidad real después de gastos y compromisos.",
-                        "Documentos necesarios para una conversación formal.",
-                        "Escenarios de entrada, plazo y cuota más sanos.",
-                        "Alternativas posibles según objetivo y perfil.",
-                      ].map((item) => (
-                        <div
-                          key={item}
-                          className="flex gap-3 rounded-lg bg-white/8 p-4 text-sm leading-6 text-white/84"
-                        >
-                          <Check
-                            className="mt-0.5 size-5 shrink-0 text-[#b8f7c5]"
-                            aria-hidden="true"
-                          />
-                          <span>{item}</span>
-                        </div>
-                      ))}
-                    </div>
-                    <p className="mt-6 text-xs leading-5 text-white/62">
-                      La decisión final depende de políticas de entidades,
-                      historial, documentación, garantías y condiciones
-                      vigentes.
-                    </p>
+                  <div className="mt-5 grid gap-3 sm:grid-cols-2">
+                    <MetricCard
+                      label="Monto a analizar"
+                      value={formatCurrency(calculation.financed)}
+                    />
+                    <MetricCard
+                      label="Cuota estimada"
+                      value={formatCurrency(calculation.monthlyPayment)}
+                    />
+                    <MetricCard
+                      label="Capacidad sugerida"
+                      value={formatCurrency(calculation.suggestedCapacity)}
+                    />
+                    <MetricCard
+                      label="Entrada sugerida"
+                      value={formatCurrency(calculation.suggestedDownPayment)}
+                    />
+                    <MetricCard
+                      label="Tasa usada"
+                      value={formatPercent(currentProduct.annualRate)}
+                    />
+                  </div>
+
+                  <p className="mt-5 rounded-lg border border-[#d8eadf] bg-[#f8fdf9] px-4 py-3 text-sm font-bold text-[#4e575e]">
+                    {leadSaveStatus === "saved"
+                      ? "Cotización registrada para Excel."
+                      : leadSaveStatus === "local"
+                        ? "Cotización guardada localmente. En despliegue estático se requiere un backend externo para registro centralizado."
+                        : "Cotización preparada para registro comercial."}
+                  </p>
+
+                  <div className="mt-7 flex flex-col gap-3 sm:flex-row">
+                    <a
+                      href={whatsappHref}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="inline-flex items-center justify-center gap-3 rounded-lg bg-[#007127] px-5 py-4 text-sm font-black text-white transition hover:bg-[#006b25]"
+                      data-testid="whatsapp-result"
+                    >
+                      Enviar resumen a WhatsApp
+                      <MessageCircle className="size-5" aria-hidden="true" />
+                    </a>
+                    <button
+                      type="button"
+                      onClick={copySummary}
+                      className="inline-flex items-center justify-center gap-3 rounded-lg border border-[#cfe6d6] bg-white px-5 py-4 text-sm font-black text-[#006b25] transition hover:border-[#007127]/40"
+                    >
+                      {copied ? "Resumen copiado" : "Copiar resumen"}
+                      <ClipboardCheck className="size-5" aria-hidden="true" />
+                    </button>
                   </div>
                 </div>
-              )}
-            </div>
 
-            {error && (
-              <p
-                className="mt-5 rounded-lg border border-[#b42318]/20 bg-[#fff1f0] px-4 py-3 text-sm font-bold text-[#b42318]"
-                role="alert"
-                aria-live="assertive"
-              >
-                {error}
-              </p>
+                <div className="rounded-lg bg-[#006b25] bg-[linear-gradient(145deg,#007127_0%,#00541f_56%,#002023_100%)] p-5 text-white sm:p-7">
+                  <p className="text-xs font-black text-[#b8f7c5] uppercase">
+                    Siguientes pasos
+                  </p>
+                  <h2 className="mt-3 text-2xl font-black">
+                    Qué revisa NEXUS contigo
+                  </h2>
+                  <div className="mt-6 grid gap-3">
+                    {[
+                      "Capacidad real después de gastos y compromisos.",
+                      "Documentos necesarios para una conversación formal.",
+                      "Escenarios de entrada, plazo y cuota más sanos.",
+                      "Alternativas posibles según objetivo y perfil.",
+                    ].map((item) => (
+                      <div
+                        key={item}
+                        className="flex gap-3 rounded-lg bg-white/8 p-4 text-sm leading-6 text-white/84"
+                      >
+                        <Check
+                          className="mt-0.5 size-5 shrink-0 text-[#b8f7c5]"
+                          aria-hidden="true"
+                        />
+                        <span>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <p className="mt-6 text-xs leading-5 text-white/62">
+                    La decisión final depende de políticas de entidades,
+                    historial, documentación, garantías y condiciones
+                    vigentes.
+                  </p>
+                </div>
+              </div>
             )}
+          </div>
 
-            <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+          {error && (
+            <p
+              className="mt-5 rounded-lg border border-[#b42318]/20 bg-[#fff1f0] px-4 py-3 text-sm font-bold text-[#b42318]"
+              role="alert"
+              aria-live="assertive"
+            >
+              {error}
+            </p>
+          )}
+
+          <div className="mt-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+            <button
+              type="button"
+              onClick={back}
+              disabled={!isReady || step === 0}
+              aria-disabled={!isReady || step === 0}
+              className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#cfe6d6] bg-white px-5 py-3 text-sm font-black text-[#006b25] transition enabled:hover:border-[#007127]/40 disabled:cursor-not-allowed disabled:opacity-40"
+            >
+              <ArrowLeft className="size-4" aria-hidden="true" />
+              Anterior
+            </button>
+
+            {step < steps.length - 1 ? (
               <button
                 type="button"
-                onClick={back}
-                disabled={!isReady || step === 0}
-                aria-disabled={!isReady || step === 0}
-                className="inline-flex items-center justify-center gap-2 rounded-lg border border-[#cfe6d6] bg-white px-5 py-3 text-sm font-black text-[#006b25] transition enabled:hover:border-[#007127]/40 disabled:cursor-not-allowed disabled:opacity-40"
+                disabled={!isReady || leadSaveStatus === "saving"}
+                aria-busy={leadSaveStatus === "saving"}
+                className="inline-flex items-center justify-center gap-3 rounded-lg bg-[#006b25] px-6 py-3 text-sm font-black text-white transition hover:bg-[#007127]"
+                data-testid="quote-next"
+                onClick={() => void next()}
               >
-                <ArrowLeft className="size-4" aria-hidden="true" />
-                Anterior
+                {leadSaveStatus === "saving" ? "Registrando..." : "Continuar"}
+                <ArrowRight className="size-5" aria-hidden="true" />
               </button>
-
-              {step < steps.length - 1 ? (
-                <button
-                  type="button"
-                  disabled={!isReady || leadSaveStatus === "saving"}
-                  aria-busy={leadSaveStatus === "saving"}
-                  className="inline-flex items-center justify-center gap-3 rounded-lg bg-[#006b25] px-6 py-3 text-sm font-black text-white transition hover:bg-[#007127]"
-                  data-testid="quote-next"
-                  onClick={() => void next()}
-                >
-                  {leadSaveStatus === "saving" ? "Registrando..." : "Continuar"}
-                  <ArrowRight className="size-5" aria-hidden="true" />
-                </button>
-              ) : (
-                <button
-                  type="button"
-                  onClick={reset}
-                  className="inline-flex items-center justify-center gap-3 rounded-lg bg-[#006b25] px-6 py-3 text-sm font-black text-white transition hover:bg-[#007127]"
-                  data-testid="quote-reset"
-                >
-                  Nueva simulación
-                  <Calculator className="size-5" aria-hidden="true" />
-                </button>
-              )}
-            </div>
+            ) : (
+              <button
+                type="button"
+                onClick={reset}
+                className="inline-flex items-center justify-center gap-3 rounded-lg bg-[#006b25] px-6 py-3 text-sm font-black text-white transition hover:bg-[#007127]"
+                data-testid="quote-reset"
+              >
+                Nueva simulación
+                <Calculator className="size-5" aria-hidden="true" />
+              </button>
+            )}
           </div>
-        </main>
       </div>
-    </section>
+    </main>
+      </div >
+    </section >
   )
 }
 
@@ -1357,14 +1326,14 @@ function TextInput({
   type?: string
   id: string
   inputMode?:
-    | "none"
-    | "text"
-    | "tel"
-    | "url"
-    | "email"
-    | "numeric"
-    | "decimal"
-    | "search"
+  | "none"
+  | "text"
+  | "tel"
+  | "url"
+  | "email"
+  | "numeric"
+  | "decimal"
+  | "search"
 }) {
   return (
     <label

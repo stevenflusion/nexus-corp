@@ -129,6 +129,20 @@ const contactCards = [
               data-contact-name
             />
           </label>
+          
+          <label
+  class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
+>
+  Correo electrónico
+  <input
+    class="h-12 rounded-lg border border-[var(--nexus-line-soft)] bg-white px-4 font-semibold transition outline-none focus:border-[var(--nexus-green)] focus:ring-4 focus:ring-[var(--nexus-green)]/12"
+    type="email"
+    autocomplete="email"
+    placeholder="tu@correo.com"
+    required
+    data-contact-email
+  />
+</label>
 
           <label
             class="grid gap-2 text-sm font-black text-[var(--nexus-blue-dark)]"
@@ -171,6 +185,34 @@ const contactCards = [
               placeholder="Cuéntanos qué quieres preparar"
               data-contact-message></textarea>
           </label>
+          <label class="flex items-start gap-3 text-sm text-[var(--nexus-gray)]">
+  <input
+    type="checkbox"
+    required
+    class="mt-1 size-4 rounded border-[var(--nexus-line-soft)] accent-[var(--nexus-green)]"
+    data-contact-terms
+  />
+
+  <span>
+    He leído y acepto los
+    <a
+      href="/politica-de-privacidad"
+      target="_blank"
+      class="font-bold text-[var(--nexus-green)] underline hover:text-[var(--nexus-green-business)]"
+    >
+      Términos y Condiciones
+    </a>
+    y la
+    <a
+      href="/politica-de-privacidad"
+      target="_blank"
+      class="font-bold text-[var(--nexus-green)] underline hover:text-[var(--nexus-green-business)]"
+    >
+      Política de Privacidad
+    </a>
+    para el tratamiento de mis datos personales.
+  </span>
+</label>
 
           <button
             type="submit"
@@ -181,8 +223,7 @@ const contactCards = [
           </button>
 
           <p class="text-sm leading-6 text-[var(--nexus-gray)]">
-            Este formulario no guarda datos. Prepara un mensaje para enviarlo
-            desde tu WhatsApp.
+            Al enviar este formulario aceptas el tratamiento de tus datos personales para que un asesor de NEXUS pueda contactarte. Posteriormente se abrirá WhatsApp para continuar la conversación.
           </p>
         </form>
       </div>
@@ -194,47 +235,105 @@ const contactCards = [
 
 <script>
   const query = <T extends Element>(selector: string) =>
-    document.querySelector<T>(selector)
+    document.querySelector<T>(selector);
 
-  const contactForm = query<HTMLFormElement>("[data-contact-form]")
+  const contactForm = query<HTMLFormElement>("[data-contact-form]");
+
   const contactFields = {
     name: query<HTMLInputElement>("[data-contact-name]"),
+    email: query<HTMLInputElement>("[data-contact-email]"),
     phone: query<HTMLInputElement>("[data-contact-phone]"),
     service: query<HTMLSelectElement>("[data-contact-service]"),
     message: query<HTMLTextAreaElement>("[data-contact-message]"),
-  }
+    terms: query<HTMLInputElement>("[data-contact-terms]"),
+  };
 
-  contactForm?.addEventListener("submit", (event) => {
-    event.preventDefault()
+  contactForm?.addEventListener("submit", async (event) => {
+    event.preventDefault();
 
-    const phoneDigits = contactFields.phone?.value.replace(/\D/g, "") ?? ""
+    const phoneDigits = contactFields.phone?.value.replace(/\D/g, "") ?? "";
+
     if (phoneDigits.length < 9 || phoneDigits.length > 13) {
       contactFields.phone?.setCustomValidity(
         "Ingresa un teléfono válido para coordinar por WhatsApp."
-      )
+      );
     } else {
-      contactFields.phone?.setCustomValidity("")
+      contactFields.phone?.setCustomValidity("");
     }
 
     if (!contactForm.reportValidity()) {
-      return
+      return;
     }
 
-    const message = [
-      "Hola NEXUS, quiero solicitar asesoría financiera.",
-      `Nombre: ${contactFields.name?.value.trim() || ""}`,
-      `Teléfono: ${contactFields.phone?.value.trim() || ""}`,
-      `Servicio: ${
-        contactFields.service?.selectedOptions[0]?.textContent ||
-        "Asesoría general"
-      }`,
-      `Comentario: ${contactFields.message?.value.trim() || "Sin comentario adicional."}`,
-    ].join("\n")
+    // ==========================
+    // 1. Registrar Lead
+    // ==========================
+    try {
+      if (!contactFields.terms?.checked) {
+  alert("Debes aceptar los Términos y Condiciones para continuar.");
+  return;
+}
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: contactFields.name?.value.trim(),
+          email: contactFields.email?.value.trim(),
+          phone: contactFields.phone?.value.trim(),
+          service: contactFields.service?.value,
+          message: contactFields.message?.value.trim(),
+          acceptedTerms: contactFields.terms?.checked === true,
+        }),
+      });
 
-    window.open(
-      `https://wa.me/593981371278?text=${encodeURIComponent(message)}`,
-      "_blank",
-      "noopener,noreferrer"
-    )
-  })
+      if (!response.ok) {
+        const error = await response.json();
+
+        alert(
+          error.error ??
+            "No pudimos registrar tu solicitud. Inténtalo nuevamente."
+        );
+
+        return;
+      }
+
+      // ==========================
+      // 2. Construir mensaje WhatsApp
+      // ==========================
+      const message = [
+        "Hola NEXUS, quiero solicitar asesoría financiera.",
+        `Nombre: ${contactFields.name?.value.trim() || ""}`,
+        `Correo: ${contactFields.email?.value.trim() || ""}`,
+        `Teléfono: ${contactFields.phone?.value.trim() || ""}`,
+        `Servicio: ${
+          contactFields.service?.selectedOptions[0]?.textContent ??
+          "Asesoría general"
+        }`,
+        `Comentario: ${
+          contactFields.message?.value.trim() ||
+          "Sin comentario adicional."
+        }`,
+      ].join("\n");
+
+      // ==========================
+      // 3. Abrir WhatsApp
+      // ==========================
+      window.open(
+        `https://wa.me/593981371278?text=${encodeURIComponent(message)}`,
+        "_blank",
+        "noopener,noreferrer"
+      );
+
+      // Opcional: limpiar el formulario
+      contactForm.reset();
+    } catch (error) {
+      console.error(error);
+
+      alert(
+        "Ocurrió un error al enviar tu solicitud. Inténtalo nuevamente."
+      );
+    }
+  });
 </script>

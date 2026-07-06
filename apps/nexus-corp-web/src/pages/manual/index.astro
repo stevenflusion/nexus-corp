@@ -20,7 +20,7 @@ import Header from "../../components/Header.astro"
 import MotionViewport from "../../components/MotionViewport"
 import MainLayout from "../../layouts/main.astro"
 
-const primaryCtaLabel = "Reservar mi cupo"
+const primaryCtaLabel = "Reservar mi Manual"
 
 const benefits = [
   {
@@ -105,8 +105,8 @@ const testimonials = [
 ---
 
 <MainLayout
-  title="Webinar NEXUS | Guia financiera para vivienda y vehiculo"
-  description="Webinar gratuito NEXUS para aprender a preparar decisiones financieras de vivienda, departamento o vehiculo con mayor claridad."
+  title="Manual gratuito NEXUS | Guia financiera para vivienda y vehiculo"
+  description="Descarga gratis la guia NEXUS para aprender a preparar decisiones financieras de vivienda, departamento o vehiculo con mayor claridad."
   ogImage="/webinar/webinar-guide.jpeg"
 >
   <Header />
@@ -119,7 +119,7 @@ const testimonials = [
           <p
             class="inline-flex rounded-lg border border-[var(--nexus-line)] bg-white px-4 py-2 text-xs font-black text-[var(--nexus-green)] uppercase shadow-sm"
           >
-            Webinar gratuito NEXUS
+            Manual gratuito NEXUS
           </p>
           <h1
             class="mt-6 text-4xl leading-[1.03] font-black text-[var(--nexus-blue-dark)] sm:text-5xl lg:text-6xl"
@@ -144,7 +144,7 @@ const testimonials = [
               href="#webinar-contenido"
               class="inline-flex min-h-12 items-center justify-center gap-3 rounded-lg border border-[var(--nexus-line)] bg-white px-6 py-4 text-sm font-black text-[var(--nexus-blue)] transition hover:bg-[var(--nexus-cream)]"
             >
-              Ver contenido del webinar
+              Ver contenido del Manual
               <BookOpen className="size-5" aria-hidden="true" />
             </a>
           </div>
@@ -308,10 +308,10 @@ const testimonials = [
             </span>
             <div>
               <p class="text-xs font-black text-[var(--nexus-green)] uppercase">
-                Registro al webinar
+                Descarga tu manual
               </p>
               <h2 class="text-2xl font-black text-[var(--nexus-blue-dark)]">
-                Recibe el enlace y la guia
+                Recibe la guia en tu correo
               </h2>
             </div>
           </div>
@@ -399,8 +399,16 @@ const testimonials = [
               data-webinar-consent
             />
             <span>
-              Acepto que NEXUS use mis datos para enviarme el enlace del
-              webinar, la guia gratuita y seguimiento de la asesoria.
+              Acepto que NEXUS use mis datos para enviarme la guia gratuita y
+    seguimiento de la asesoria, y he leido los
+    
+     <a href="/politica-de-privacidad"
+      target="_blank"
+      rel="noreferrer"
+      class="font-black text-[var(--nexus-green)] underline underline-offset-2 hover:text-[var(--nexus-green-business)]"
+    >
+      terminos y condiciones
+    </a>.
             </span>
           </label>
 
@@ -474,7 +482,7 @@ const testimonials = [
             href="#webinar-registro"
             class="mt-8 inline-flex min-h-12 items-center justify-center gap-3 rounded-lg bg-[var(--nexus-green)] px-6 py-4 text-sm font-black text-white transition hover:bg-[var(--nexus-green-business)]"
           >
-            Quiero entrar al webinar
+            Quiero descargar el Manual
             <ArrowRight className="size-5" aria-hidden="true" />
           </a>
         </div>
@@ -635,9 +643,9 @@ const testimonials = [
               <p
                 class="text-xs font-black text-[var(--nexus-green-premium)] uppercase"
               >
-                Registro por correo
+                Descarga por correo
               </p>
-              <h3 class="text-2xl font-black">Reserva tu cupo</h3>
+              <h3 class="text-2xl font-black">Descarga tu Manual</h3>
             </div>
           </div>
 
@@ -645,7 +653,7 @@ const testimonials = [
             <div
               class="rounded-lg border border-white/12 bg-white/8 p-4 text-sm font-bold text-white/78"
             >
-              Webinar gratuito para preparar decisiones de vivienda, vehiculo y
+              Manual gratuito para preparar decisiones de vivienda, vehiculo y
               planificacion financiera.
             </div>
             <div
@@ -665,7 +673,7 @@ const testimonials = [
           </a>
 
           <p class="mt-4 text-center text-xs leading-5 font-bold text-white/58">
-            Sin spam y sin tarjeta. Solo informacion para coordinar el webinar.
+            Sin spam y sin tarjeta. Solo informacion para enviarte el manual.
           </p>
         </div>
       </div>
@@ -758,7 +766,7 @@ const testimonials = [
 
       setWebinarStatus(
         "success",
-        "Registro recibido. Te enviaremos el enlace del webinar y la guia gratuita al correo indicado."
+        "Registro recibido. Te enviaremos el manual y la guia gratuita al correo indicado."
       )
       webinarForm.reset()
     } catch {

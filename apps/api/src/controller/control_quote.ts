@@ -8,7 +8,10 @@ import {
   sanitizeQuoteCreate, 
   sanitizeQuoteUpdate 
 } from "../dto/quotesDTO";
+import { sanitizeCreateQuoteWithLeadRequest } from "../dto/quotes_whit_leadDTO";
 import { quotesService } from "../services/quotes_services";
+import { getClientIp } from "../utils/request";
+
 
 const quotesController = new Hono();
 
@@ -87,8 +90,23 @@ quotesController.post("/with-lead", async (c) => {
   try {
     const body = await c.req.json();
 
+
+    const payload = sanitizeCreateQuoteWithLeadRequest(body);
+
+
+    if (!payload) {
+      return c.json(
+        {
+          error: "Datos inválidos o incompletos.",
+        },
+        400
+      );
+    }
+
+
     // El controlador NO sabe qué es 'createOne' ni 'getByField'. Solo llama al servicio.
-    const result = await quotesService.createQuoteWithLead(body.leadData, body.quoteData);
+    const ip = getClientIp(c);
+    const result = await quotesService.createQuoteWithLead(payload, {ip});
 
     return c.json({
       success: true,
@@ -102,6 +120,9 @@ quotesController.post("/with-lead", async (c) => {
     }, 201);
 
   } catch (error: any) {
+
+    console.error("Error en /quotes/with-lead:", error);
+
     // Manejo limpio de errores de validación o del servidor
     if (error.message === "INVALID_DATA") {
       return c.json({ error: "Datos del Lead o de la Cotización inválidos o incompletos." }, 400);

@@ -11,7 +11,7 @@ function normalizeRows<T>(result: T[] | { rows: T[] }): T[] {
 export async function createOne<T extends Record<string, unknown>>(table: any, data: T) {
   const rows = await db.insert(table).values(data).returning();
   const [row] = normalizeRows(rows);
-  return row as T;
+  return row;
 }
 
 export async function getAll<T>(table: any) {
