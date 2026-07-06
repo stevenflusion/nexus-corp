@@ -10,6 +10,7 @@
     "db:migrate": "drizzle-kit migrate"
   },
   "dependencies": {
+    "@azure/storage-blob": "^12.33.0",
     "@hono/node-server": "^1.19.6",
     "dotenv": "^17.4.2",
     "drizzle-orm": "^0.39.1",
