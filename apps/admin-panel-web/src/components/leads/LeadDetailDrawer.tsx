@@ -82,6 +82,17 @@ function formatPercent(value: string): string {
   }).format(num)
 }
 
+function calculateFinanced(amount: string, downPayment: string): string {
+  const a = Number(amount)
+  const d = Number(downPayment)
+  if (!Number.isFinite(a) || !Number.isFinite(d)) return "—"
+  return new Intl.NumberFormat("es-EC", {
+    style: "currency",
+    currency: "USD",
+    minimumFractionDigits: 2,
+  }).format(Math.max(a - d, 0))
+}
+
 function QuoteRow({ quote }: { quote: Quote }) {
   return (
     <div className="flex flex-col gap-1 rounded-lg border border-border bg-muted/30 p-3 text-sm">
@@ -92,7 +103,9 @@ function QuoteRow({ quote }: { quote: Quote }) {
         </span>
       </div>
       <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm text-muted-foreground">
-        <span>Monto: {formatCurrency(quote.requested_amount_quotes)}</span>
+        <span>Monto objetivo: {formatCurrency(quote.requested_amount_quotes)}</span>
+        <span>Entrada: {formatCurrency(quote.down_payment_quotes)}</span>
+        <span>A financiar: {calculateFinanced(quote.requested_amount_quotes, quote.down_payment_quotes)}</span>
         <span>Cuota: {formatCurrency(quote.monthly_payment_quotes)}</span>
         <span>Plazo: {quote.term_months_quotes} meses</span>
         <span>TNA: {formatPercent(quote.annual_interest_rate_quotes)}</span>
