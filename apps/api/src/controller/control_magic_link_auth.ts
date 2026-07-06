@@ -5,7 +5,8 @@ import { db } from "../database/database";
 import { magic_links, magic_link_activity } from "../database/schemas";
 import { createOne, getByField } from "../utils/crud";
 import { hashToken } from "../utils/token";
-import { createMagicLinkToken } from "../utils/jwt";
+import jwt from "jsonwebtoken";
+import { createMagicLinkToken, verifyMagicLinkToken, getJwtSecret } from "../utils/jwt";
 import { verifyMagicLinkSchema } from "../dto/magic_links_dto";
 
 const magicLinkAuthController = new Hono();
@@ -129,12 +130,18 @@ magicLinkAuthController.post("/verify", async (c) => {
       destinationScreen: link.destinationScreen,
     });
 
+    const jwtExpiresAt = new Date(Date.now() + 8 * 60 * 60 * 1000);
+    const dbExpiresAt = link.expirationDate ? new Date(link.expirationDate) : null;
+    const effectiveExpiresAt =
+      dbExpiresAt && dbExpiresAt < jwtExpiresAt ? dbExpiresAt : jwtExpiresAt;
+
     return c.json(
       {
         token,
         role: link.role,
         scopeId: link.scopeId,
         destinationScreen: link.destinationScreen,
+        expiresAt: effectiveExpiresAt.toISOString(),
       },
       200
     );
@@ -145,6 +152,79 @@ magicLinkAuthController.post("/verify", async (c) => {
 
     console.error("Error verifying magic link:", error);
     return c.json({ error: "Internal server error" }, 500);
+  }
+});
+
+// ==========================
+// GET SESSION STATUS
+// GET /session
+// ==========================
+
+magicLinkAuthController.get("/session", async (c) => {
+  try {
+    const authorization = c.req.header("Authorization");
+
+    if (!authorization || !authorization.startsWith("Bearer ")) {
+      return c.json({ valid: false, reason: "missing_token" }, 401);
+    }
+
+    const token = authorization.replace("Bearer ", "");
+
+    let payload: ReturnType<typeof verifyMagicLinkToken>;
+    let jwtExpiresAt: Date | null = null;
+
+    try {
+      const decoded = jwt.verify(token, getJwtSecret()) as
+        import("jsonwebtoken").JwtPayload & import("../utils/jwt").MagicLinkJwtPayload;
+      payload = {
+        token_id: decoded.token_id,
+        role: decoded.role,
+        scopeId: decoded.scopeId,
+        destinationScreen: decoded.destinationScreen,
+      };
+      if (decoded.exp) {
+        jwtExpiresAt = new Date(decoded.exp * 1000);
+      }
+    } catch {
+      return c.json({ valid: false, reason: "expired" }, 200);
+    }
+
+    const link = await getByField<typeof magic_links.$inferSelect>(
+      magic_links,
+      magic_links.id,
+      payload.token_id
+    );
+
+    if (!link) {
+      return c.json({ valid: false, reason: "revoked" }, 200);
+    }
+
+    if (link.status === "revoked") {
+      return c.json({ valid: false, reason: "revoked" }, 200);
+    }
+
+    if (link.expirationDate && new Date(link.expirationDate) < new Date()) {
+      return c.json({ valid: false, reason: "expired" }, 200);
+    }
+
+    const dbExpiresAt = link.expirationDate ? new Date(link.expirationDate) : null;
+    const effectiveExpiresAt =
+      jwtExpiresAt && dbExpiresAt
+        ? jwtExpiresAt < dbExpiresAt
+          ? jwtExpiresAt
+          : dbExpiresAt
+        : jwtExpiresAt ?? dbExpiresAt;
+
+    return c.json(
+      {
+        valid: true,
+        expiresAt: effectiveExpiresAt?.toISOString(),
+      },
+      200
+    );
+  } catch (error) {
+    console.error("Error validating magic link session:", error);
+    return c.json({ valid: false, reason: "error" }, 500);
   }
 });
 

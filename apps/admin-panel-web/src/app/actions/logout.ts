@@ -34,5 +34,6 @@ export async function logoutAction(): Promise<void> {
   }
 
   cookieStore.delete(COOKIE_NAME)
+  cookieStore.delete("magic-link-exp")
   redirect("/")
 }

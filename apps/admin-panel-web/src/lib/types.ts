@@ -73,3 +73,56 @@ export interface MagicLinkFilters {
   dateFrom: string | null
   dateTo: string | null
 }
+
+// ─── Lead domain types ───────────────────────────────────────────
+
+export type LeadStatus = "new" | "contacted" | "qualified" | "lost"
+
+export type LeadSource = "web" | "manual" | "quote" | "chatbot" | "otro"
+
+export interface Quote {
+  id_quotes: number
+  lead_id: number
+  product_quotes: string
+  requested_amount_quotes: string // decimal as string
+  down_payment_quotes: string // decimal as string
+  term_months_quotes: number
+  annual_interest_rate_quotes: string // decimal as string
+  monthly_payment_quotes: string // decimal as string
+  contact_preference_quotes: string
+  result_status_quotes: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface LeadNote {
+  id_lead_notes: number
+  manager_lead_notes: string
+  note_lead_notes: string
+  id_leads: number
+  createdAt: string
+}
+
+export interface Lead {
+  id_leads: number
+  name_leads: string
+  email_leads: string | null
+  phone_leads: string | null
+  city_leads: string | null
+  status_leads: LeadStatus
+  source_leads: LeadSource
+  monthly_family_income: string | null // decimal as string
+  coments_optionals_lead: string | null
+  accepted_terms_lead: boolean
+  accepted_terms_at: string | null
+  accepted_terms_ip: string | null
+  createdAt: string
+  updatedAt: string
+  quotes?: Quote[]
+}
+
+export interface LeadFilters {
+  search: string
+  status: LeadStatus | "all"
+  source: LeadSource | "all"
+}

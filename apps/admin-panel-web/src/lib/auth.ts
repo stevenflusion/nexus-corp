@@ -1,10 +1,21 @@
 import { cookies } from "next/headers"
 
 export type AuthUser = {
+  kind: "auth"
   id_admin_users: number
   name_admin_users: string
   email_admin_users: string
 }
+
+export type MagicLinkUser = {
+  kind: "magic-link"
+  token_id: string
+  role: string
+  scopeId: string
+  destinationScreen: string
+}
+
+export type User = AuthUser | MagicLinkUser
 
 /**
  * Decode a JWT payload without verifying the signature.
@@ -38,7 +49,35 @@ function toAuthUser(payload: Record<string, unknown>): AuthUser | null {
     return null
   }
 
-  return { id_admin_users: id, name_admin_users: name, email_admin_users: email }
+  return {
+    kind: "auth",
+    id_admin_users: id,
+    name_admin_users: name,
+    email_admin_users: email,
+  }
+}
+
+function toMagicLinkUser(payload: Record<string, unknown>): MagicLinkUser | null {
+  const token_id = payload.token_id
+  const role = payload.role
+  const scopeId = payload.scopeId
+  const destinationScreen = payload.destinationScreen
+
+  if (
+    typeof token_id !== "string" ||
+    typeof role !== "string" ||
+    typeof scopeId !== "string"
+  ) {
+    return null
+  }
+
+  return {
+    kind: "magic-link",
+    token_id,
+    role,
+    scopeId,
+    destinationScreen: typeof destinationScreen === "string" ? destinationScreen : "",
+  }
 }
 
 /**
@@ -47,7 +86,7 @@ function toAuthUser(payload: Record<string, unknown>): AuthUser | null {
  * Returns null when the user is not authenticated or the token is invalid.
  * Never throws and never exposes the raw JWT to client components.
  */
-export async function getAuthUser(): Promise<AuthUser | null> {
+export async function getAuthUser(): Promise<User | null> {
   try {
     const cookieStore = await cookies()
     const token = cookieStore.get("auth-token")?.value
@@ -57,7 +96,7 @@ export async function getAuthUser(): Promise<AuthUser | null> {
     const payload = decodeJwtPayload(token)
     if (!payload) return null
 
-    return toAuthUser(payload)
+    return toAuthUser(payload) ?? toMagicLinkUser(payload)
   } catch {
     return null
   }

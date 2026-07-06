@@ -1,7 +1,24 @@
 import { NextResponse } from "next/server"
 
 const COOKIE_NAME = "auth-token"
+const EXP_COOKIE_NAME = "magic-link-exp"
 const EIGHT_HOURS_IN_SECONDS = 8 * 60 * 60
+
+function getJwtExpiresAt(token: string): string | null {
+  try {
+    const payloadBase64 = token.split(".")[1]
+    if (!payloadBase64) return null
+    const base64 = payloadBase64.replace(/-/g, "+").replace(/_/g, "/")
+    const json = atob(base64)
+    const payload = JSON.parse(json)
+    if (typeof payload.exp === "number") {
+      return new Date(payload.exp * 1000).toISOString()
+    }
+  } catch {
+    // ignore decode errors
+  }
+  return null
+}
 
 const ERROR_MESSAGES: Record<string, string> = {
   invalid: "El link no es válido.",
@@ -76,6 +93,7 @@ export async function GET(request: Request) {
     const data = (await response.json()) as {
       token?: string
       destinationScreen?: string
+      expiresAt?: string
     }
 
     if (!data.token) {
@@ -98,8 +116,19 @@ export async function GET(request: Request) {
       path: "/",
     })
 
+    const expiresAt = data.expiresAt || getJwtExpiresAt(data.token)
+    if (expiresAt) {
+      redirectResponse.cookies.set(EXP_COOKIE_NAME, expiresAt, {
+        httpOnly: false,
+        secure: process.env.NODE_ENV === "production",
+        sameSite: "strict",
+        maxAge: EIGHT_HOURS_IN_SECONDS,
+        path: "/",
+      })
+    }
+
     return redirectResponse
   } catch {
-    return redirectWithError("unknown", origin)
+    return redirectWithError("unknown", baseUrl)
   }
 }

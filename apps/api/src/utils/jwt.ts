@@ -1,6 +1,6 @@
 import jwt from "jsonwebtoken";
 
-function getJwtSecret(): string {
+export function getJwtSecret(): string {
   const secret = process.env.JWT_SECRET;
   if (!secret) {
     throw new Error("JWT_SECRET is missing");
@@ -47,4 +47,12 @@ export function createMagicLinkToken(payload: MagicLinkJwtPayload): string {
 
 export function verifyToken(token: string): JwtPayload {
   return jwt.verify(token, getJwtSecret()) as JwtPayload;
+}
+
+// ==========================
+// VERIFY MAGIC LINK TOKEN
+// ==========================
+
+export function verifyMagicLinkToken(token: string): MagicLinkJwtPayload {
+  return jwt.verify(token, getJwtSecret()) as MagicLinkJwtPayload;
 }
