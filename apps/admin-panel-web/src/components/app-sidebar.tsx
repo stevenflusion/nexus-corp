@@ -107,11 +107,9 @@ function formatRole(role: string): string {
 
 export function AppSidebar({
   user,
-  sessionSlot,
   ...props
 }: React.ComponentProps<typeof Sidebar> & {
   user: User | null
-  sessionSlot?: React.ReactNode
 }) {
   const userProps = user
     ? user.kind === "auth"
@@ -141,7 +139,6 @@ export function AppSidebar({
         <NavProjects projects={data.projects} />
       </SidebarContent>
       <SidebarFooter>
-        {sessionSlot}
         <NavUser user={userProps} />
       </SidebarFooter>
       <SidebarRail />

@@ -1,29 +1,32 @@
-# Informe de Desarrollo: Dashboard de Leads y Cotizaciones
+# Informe de Desarrollo: Magic Link Session Lifecycle — Temporizador, Revocación Instantánea y Notificaciones Contextuales
 
 **Fecha:** 2026-07-06  
-**Autor:** Steven  
+**Autor:** Steven (con asistencia de Gentle AI)  
 **Rama:** Dev/Steven  
-**Commits:** `1470aeb`, `ebac0dd`  
-**Estado:** Pusheado a GitHub, listo para merge a master
+**Estado:** En Dev/Steven, listo para merge
 
 ---
 
 ## 1. Resumen Ejecutivo
 
-Implementación completa del **dashboard de administración de leads** en el panel de administración (`apps/admin-panel-web`). Esta funcionalidad permite al equipo de NEXUS visualizar, filtrar, clasificar y gestionar el pipeline comercial de leads con sus cotizaciones asociadas, directamente desde el panel de administración.
+Implementación completa del ciclo de vida de sesiones **Magic Link** en el panel de administración y la API. Esto arregla dos problemas críticos de seguridad y UX: (1) las sesiones Magic Link expiraban invisibles para el usuario, sin ningún temporizador ni aviso, y (2) cuando el administrador revocaba un Magic Link, la sesión del usuario seguía activa indefinidamente.
 
-**15 archivos creados/modificados**, **~1,780 líneas de código**, siguiendo el patrón de arquitectura establecido por el módulo de Magic Links.
+**~300 líneas de delta** en 12 archivos, divididos en backend (API), frontend (Next.js 15), auth (middleware + cookies) y estado cliente (React Context + polling).
 
 ### Qué se entregó
 
 | Funcionalidad | Estado | Detalle |
 |---|---|---|
-| Tabla de leads con cotizaciones | ✅ | Paginación, filtros, búsqueda, ordenamiento client-side |
-| Detalle de lead (Sheet drawer) | ✅ | Info completa, cotizaciones, cambio de estado, notas CRUD |
-| Filtros avanzados | ✅ | Por estado (new/contacted/qualified/lost) y origen (web/manual/quote/chatbot/otro) |
-| CRUD de notas de seguimiento | ✅ | Crear, editar inline, eliminar con confirmación |
-| Cambio de estado del lead | ✅ | PUT al backend con selector desplegable |
-| Seed de datos de prueba | ✅ | 6 leads + 6 cotizaciones con datos realistas |
+| Temporizador visible en sesión Magic Link | ✅ | Countdown `H:MM:SS` en header derecho, con icono de reloj |
+| Cierre de sesión por expiración | ✅ | Sonner toast "tiempo superado", redirect automático |
+| Revocación instantánea | ✅ | Admin revoca → sesión cierra en ≤30s con toast "link revocado" |
+| Sync entre pestañas | ✅ | BroadcastChannel + storage fallback para logout instantáneo en todas las tabs |
+| Cookie `magic-link-exp` | ✅ | non-httpOnly, SameSite=Strict, alineada con la expiración real del link |
+| Endpoint `GET /auth/magic-link/session` | ✅ | Valida token JWT contra PostgreSQL, devuelve `{valid, reason?, expiresAt?}` |
+| Fix bug "tiempo superado" inmediato | ✅ | El POST /verify marcaba el link como "used" y GET /session lo invalidaba al instante |
+| Email de Magic Link funcional | ✅ | Resend API key corregida en root .env + logs de debug |
+| Limpieza de datos de prueba | ✅ | Truncate de `magic_links` y `magic_link_activity` |
+| UI — temporizador agrandado y reposicionado | ✅ | De sidebar footer a header superior derecho, con icono `ClockIcon` |
 
 ---
 
@@ -31,31 +34,21 @@ Implementación completa del **dashboard de administración de leads** en el pan
 
 ### 2.1. Problema
 
-El backend ya tenía implementado el 100% del CRUD de leads, cotizaciones y notas de seguimiento (trabajo previo de Mateo). Sin embargo, el panel de administración **carecía de cualquier interfaz** para acceder a estos datos. Los leads entraban por el cotizador de nexus-web, por formularios de contacto, o se registraban manualmente, pero no había forma de visualizarlos, clasificarlos ni hacer seguimiento.
+El sistema de Magic Links ya permitía generar, enviar y verificar enlaces de acceso, pero el ciclo de vida de la sesión era **completamente invisible**:
+
+1. **Sin temporizador:** El usuario no veía cuánto tiempo le quedaba. El link podía vencerse en 1h y el usuario seguía dentro del dashboard sin saberlo.
+2. **Revocación sin efecto:** Cuando el administrador revocaba un link desde el panel, la base de datos cambiaba a `status = "revoked"`, pero el JWT en la cookie `auth-token` seguía siendo aceptado por el middleware. El usuario nunca se enteraba.
+3. **Mensajes solo en login:** Los errores `expired`, `revoked`, `used` solo aparecían como banner en la página de login (`/?magic_error=...`). Si el usuario ya estaba dentro del dashboard, no había forma de notificarle.
+4. **Sidebar mostraba "Invitado":** Los usuarios de Magic Link tenían un JWT con `{token_id, role, scopeId}`, pero `getAuthUser()` esperaba `{id_admin_users, name_admin_users, email_admin_users}`, así que devolvía `null` y el sidebar mostraba "Invitado".
+5. **Bug crítico:** Al usar un link de un solo uso (`single`), el `POST /verify` lo marcaba como `status = "used"` inmediatamente. El siguiente poll de `GET /session` lo invalidaba, mostrando **"tiempo superado"** a los pocos segundos de entrar.
 
 ### 2.2. Objetivo
 
-Construir una interfaz de gestión de leads que:
-
-1. **Liste todos los leads** con sus cotizaciones anidadas en una sola vista.
-2. **Permita filtrar** por estado del pipeline y origen del lead.
-3. **Permita cambiar el estado** del lead (nuevo → contactado → calificado → perdido).
-4. **Permita agregar notas de seguimiento** con autor, contenido y timestamp.
-5. **Sea consistente** con el resto del admin panel (patrón Magic Links).
-
-### 2.3. Contrato de API
-
-Mateo dejó documentado el contrato en `docs/contrato-leads-quotes.md`. El backend expone 7 endpoints:
-
-| Método | Endpoint | Propósito |
-|---|---|---|
-| `GET` | `/api/leads/with-quotes` | Todos los leads con array de cotizaciones |
-| `GET` | `/api/leads/:id` | Lead puntual |
-| `PUT` | `/api/leads/:id` | Cambiar `status_leads` |
-| `GET` | `/api/notes/lead/:id` | Notas de un lead |
-| `POST` | `/api/notes` | Crear nota |
-| `PUT` | `/api/notes/:id` | Editar nota |
-| `DELETE` | `/api/notes/:id` | Eliminar nota |
+1. Dar **visibilidad** del tiempo restante a los usuarios de Magic Link.
+2. Invalidar sesiones **automáticamente** cuando el admin revoca o el tiempo vence.
+3. Mostrar **mensajes contextuales** en runtime (dentro del dashboard), no solo en login.
+4. Asegurar que un link "usado" no cierre una sesión activa (solo previene nuevos logins).
+5. Corregir la configuración de email (Resend) para que el envío funcione.
 
 ---
 
@@ -64,253 +57,293 @@ Mateo dejó documentado el contrato en `docs/contrato-leads-quotes.md`. El backe
 ### 3.1. Diagrama de Flujo de Datos
 
 ```
-┌───────────────────────────────────────────────────────────────┐
-│                    Admin Panel (Next.js 15)                   │
-│                                                               │
-│   /dashboard/leads/page.tsx                                   │
-│   ├── LeadFilters  ──► filtros client-side (status, source) │
-│   ├── LeadsTable   ──► tabla con click → abre drawer        │
-│   ├── Pagination   ──► slice de array (client-side)           │
-│   └── LeadDetailDrawer (Sheet)                                │
-│       ├── Lead info + Status selector                         │
-│       ├── Quotes list (cotizaciones anidadas)                 │
-│       └── LeadNotes (CRUD completo)                           │
-│                                                               │
-└────────────────────────┬────────────────────────────────────────┘
-                       │
-                       ▼
-┌───────────────────────────────────────────────────────────────┐
-│              Repository Facade (lib/leads.ts)                   │
-│                                                               │
-│   getLeadsWithQuotes()  ──► GET /leads/with-quotes            │
-│   updateLeadStatus()    ──► PUT /leads/:id                    │
-│   getLeadNotes()        ──► GET /notes/lead/:id               │
-│   createLeadNote()      ──► POST /notes                       │
-│   updateLeadNote()       ──► PUT /notes/:id                   │
-│   deleteLeadNote()       ──► DELETE /notes/:id                │
-│                                                               │
-└────────────────────────┬────────────────────────────────────────┘
-                       │
-                       ▼
-┌───────────────────────────────────────────────────────────────┐
-│              Backend API (Hono.js 4 + Drizzle ORM)            │
-│                                                               │
-│   Controladores: control_lead.ts, control_lead_notes.ts       │
-│   Servicios:     leads_services.ts (leftJoin quotes)          │
-│   DTOs:          leadDTO.ts, lead_notesDTO.ts, quotesDTO.ts   │
-│   DB:            PostgreSQL via Drizzle                       │
-│                                                               │
-└───────────────────────────────────────────────────────────────┘
+┌────────────────────────────────────────────────────────────────────┐
+│                    Admin crea Magic Link (1h)                       │
+│                          ↓                                          │
+│              POST /magic-links (Hono + Drizzle)                    │
+│              Guarda en PostgreSQL: id, expirationDate, status        │
+└─────────────────────────┬────────────────────────────────────────────┘
+                          ↓
+┌────────────────────────────────────────────────────────────────────┐
+│              Usuario hace click en el link /auth/magic-link?token=   │
+│                          ↓                                          │
+│              Next.js Route Handler: app/auth/magic-link/route.ts    │
+│              Proxies a POST /auth/magic-link/verify                 │
+│              Backend devuelve: {token, expiresAt}                    │
+│              Frontend setea dos cookies:                              │
+│                • auth-token (httpOnly, JWT con token_id, role, ...) │
+│                • magic-link-exp (non-httpOnly, ISO8601 expiresAt)  │
+│                          ↓                                          │
+│              Redirect a /dashboard                                   │
+└─────────────────────────┬────────────────────────────────────────────┘
+                          ↓
+┌────────────────────────────────────────────────────────────────────┐
+│                    Dashboard Layout (Next.js App Router)            │
+│                                                                     │
+│   SessionMonitorProvider (React Context + Client Component)        │
+│   ├── Lee magic-link-exp de document.cookie                         │
+│   ├── Inicia countdown de 1 segundo → formatea H:MM:SS             │
+│   ├── Pollea GET /api/auth/magic-link/session cada 30s              │
+│   │      ↓                                                          │
+│   │   Route Handler lee auth-token → proxies a API con Bearer      │
+│   │      ↓                                                          │
+│   │   API valida token_id vs PostgreSQL → {valid, reason?, expiresAt?}│
+│   │                                                                 │
+│   ├── Si valid=false → sonner toast + logoutAction + BroadcastChannel│
+│   │   • reason="revoked" → toast: "link revocado"                  │
+│   │   • reason="expired" → toast: "tiempo superado"                 │
+│   │                                                                 │
+│   └── BroadcastChannel("magic-link-session")                       │
+│       ├─ Primary: BroadcastChannel (Chrome, Firefox, Edge)         │
+│       └─ Fallback: storage event (Safari, browsers sin BC)         │
+│                                                                     │
+│   SessionCountdown (Badge + cva)                                     │
+│   ├── Rendered en header superior derecho (ml-auto)                  │
+│   ├── Format: H:MM:SS con icono ClockIcon                           │
+│   ├── Variantes por cva:                                            │
+│   │   • default (>5min) → bg-primary                               │
+│   │   • warning (1-5min) → bg-muted-foreground                     │
+│   │   • danger (<1min) → bg-destructive + animate-pulse              │
+│   └── Hidden para usuarios admin (no magic-link-exp cookie)        │
+│                                                                     │
+└─────────────────────────┬────────────────────────────────────────────┘
+                          ↓
+┌────────────────────────────────────────────────────────────────────┐
+│              Admin revoca el link desde /dashboard/magic-links       │
+│                          ↓                                          │
+│              POST /magic-links/:id/revoke → DB status = "revoked"   │
+│                          ↓                                          │
+│              Siguiente poll (≤30s) devuelve valid=false, reason="revoked"│
+│              → Toast "link revocado", logoutAction, broadcast a tabs │
+│              → Todas las tabs se cierran instantáneamente            │
+└────────────────────────────────────────────────────────────────────┘
 ```
 
 ### 3.2. Decisiones de Diseño Clave
 
 | Decisión | Alternativa Rechazada | Fundamento |
 |---|---|---|
-| **Sheet drawer** para detalle | Ruta separada `/leads/[id]` | Menor latencia (reusa datos del listado), mejor UX en desktop. Si el volumen de leads crece, se migra a ruta dedicada con fetch incremental. |
-| **Client-side pagination** | Server-side pagination | El backend devuelve el array completo. Para <500 leads, paginar client-side es suficiente y evita modificar la API. |
-| **Replicar patrón Magic Links** | Abstraer componentes genéricos | Magic Links es el estándar del equipo. Replicar su arquitectura (facade, Table, Filters, Drawer, sonner toasts) minimiza carga cognitiva y acelera delivery. |
-| **Tipos con snake_case exacto** | Mapear a camelCase | El backend devuelve snake_case nativamente. Mantener los mismos nombres evita bugs de mapping y reduce transformaciones innecesarias. |
-| **IDs como `number`** | IDs como `string` | PostgreSQL `serial` / `integer` devuelve números. El frontend los tipó inicialmente como string, lo cual rompió el endpoint `POST /notes` (el sanitizador backend exige `typeof === "number"`). Corregido antes de release. |
+| **Polling HTTP cada 30s** | WebSocket / SSE | No hay infra de real-time en el proyecto. WebSocket requiere conexiones persistentes y manejo de estado en el backend. Polling es stateless, simple y suficiente para una latencia de 30s en un admin panel. |
+| **Cookie `magic-link-exp` (non-httpOnly)** | Parsear JWT en cliente | El JWT está en cookie httpOnly, inaccesible desde JS. Una cookie separada con solo la fecha de expiración evita exponer secretos y permite el countdown sin server round-trip. |
+| **BroadcastChannel + storage fallback** | Solo polling | Sin BroadcastChannel, una pestaña abierta esperaría hasta 30s para enterarse de una revocación. BC permite logout instantáneo. Storage event es fallback para Safari. |
+| **Unión discriminada `AuthUser \| MagicLinkUser`** | Sintetizar magic-link como AuthUser | `AuthUser` tiene campos que no existen en magic-link (`id_admin_users`, `email_admin_users`). Una unión con `kind` discriminant previene bugs donde el código asume que todo usuario tiene email_admin_users. |
+| **GET /session no invalida por "used"** | Mantener `used` como inválido | Un link "used" significa "ya fue usado para loguearse", no "la sesión es inválida". El JWT sigue siendo válido hasta su expiración. Invalidar por "used" causaba el bug de "tiempo superado" inmediato. |
 
 ---
 
 ## 4. Desglose Técnico
 
-### 4.1. Foundation (3 archivos modificados)
+### 4.1. Backend (3 archivos modificados)
 
-#### `src/lib/api-client.ts` — Extensión del cliente HTTP
+#### `apps/api/src/utils/jwt.ts` — `verifyMagicLinkToken()`
 
-Antes solo tenía `apiGet` y `apiPost`. Se agregaron:
+Nuevo helper para verificar JWTs de Magic Link con `jwt.verify`, retornando `MagicLinkJwtPayload` (`token_id`, `role`, `scopeId`, `destinationScreen`).
 
+#### `apps/api/src/controller/control_magic_link_auth.ts` — `POST /verify` y `GET /session`
+
+**POST /verify** (antes):
+- Devolvía solo `{token, role, scopeId, destinationScreen}`
+- Marcaba link como `status = "used"` inmediatamente (para `single` usage)
+
+**POST /verify** (después):
+- Devuelve `expiresAt`: `min(JWT exp 8h, DB expirationDate)`
+- Sigue marcando como "used" para prevenir re-uso, pero el `GET /session` ya no considera "used" como inválido
+
+**GET /session** (nuevo):
 ```typescript
-export async function apiPut<T>(path: string, body?: unknown): Promise<T>
-export async function apiDelete<T>(path: string): Promise<T>
+GET /auth/magic-link/session
+Authorization: Bearer <magic-link-jwt>
+→ 200 { valid: true, expiresAt: "2026-07-06T18:00:00.000Z" }
+→ 200 { valid: false, reason: "revoked" }
+→ 200 { valid: false, reason: "expired" }
+→ 401 { valid: false, reason: "missing_token" }
 ```
 
-Ambos con el mismo manejo de errores (`ApiError` con `status` y `message`), headers `x-api-key`, y fallback a "Error de conexión" en caso de excepción de red.
+Validación:
+1. Extrae `token_id` del JWT
+2. Busca en `magic_links` por `id = token_id`
+3. Si no existe → `reason: "revoked"` (el link fue borrado)
+4. Si `status === "revoked"` → `reason: "revoked"`
+5. Si `expirationDate < now` → `reason: "expired"`
+6. Calcula `effectiveExpiresAt = min(JWT exp, DB expirationDate)`
 
-#### `src/lib/types.ts` — Dominio Lead
+#### `apps/api/src/services/email.ts` — Logs de debug
 
-Tipos que matchean exactamente el schema del backend:
+Agregados logs en cada paso del envío:
+- `[Email Service] RESEND_API_KEY present? true/false`
+- `[Email Service] Sending email via Resend... {from, to}`
+- `[Email Service] Resend response: {...}`
+- `[Email Service] Exception sending email: ...`
+
+Esto permitió diagnosticar que el problema era que `RESEND_API_KEY` estaba en `apps/api/.env` en vez de en el root `.env` (que es donde `env.ts` carga dotenv).
+
+#### `apps/api/src/controller/control_magic_links.ts` — Logs de debug
+
+Agregados logs alrededor del envío de email en `POST /`:
+- `[MagicLink Create] Attempting to send email to: ...`
+- `[MagicLink Create] Email send result: {sent, error?}`
+
+### 4.2. Frontend — Auth y Cookies (4 archivos modificados)
+
+#### `apps/admin-panel-web/src/app/auth/magic-link/route.ts`
+
+- Recibe `expiresAt` del backend (si está presente) o lo deriva del JWT como fallback
+- Setea `magic-link-exp` cookie: `non-httpOnly`, `SameSite=Strict`, `path=/`, valor ISO8601
+
+#### `apps/admin-panel-web/src/app/actions/logout.ts`
+
+- Borra ambas cookies: `auth-token` y `magic-link-exp`
+
+#### `apps/admin-panel-web/src/lib/auth.ts` — Unión discriminada
 
 ```typescript
-export interface Lead {
-  id_leads: number           // serial PK
-  name_leads: string
-  email_leads: string | null
-  phone_leads: string | null
-  city_leads: string | null
-  status_leads: LeadStatus   // enum: new | contacted | qualified | lost
-  source_leads: LeadSource   // enum: web | manual | quote | chatbot | otro
-  monthly_family_income: string | null  // decimal as string
-  coments_optionals_lead: string | null
-  accepted_terms_lead: boolean
-  accepted_terms_at: string | null
-  accepted_terms_ip: string | null
-  createdAt: string
-  updatedAt: string
-  quotes?: Quote[]           // nested from GET /leads/with-quotes
+export type AuthUser = {
+  kind: "auth"
+  id_admin_users: number
+  name_admin_users: string
+  email_admin_users: string
 }
 
-export interface Quote {
-  id_quotes: number
-  lead_id: number
-  product_quotes: string     // vehicle | housing | consumer
-  requested_amount_quotes: string
-  down_payment_quotes: string
-  term_months_quotes: number
-  annual_interest_rate_quotes: string
-  monthly_payment_quotes: string
-  contact_preference_quotes: string
-  result_status_quotes: string
-  createdAt: string
-  updatedAt: string
+export type MagicLinkUser = {
+  kind: "magic-link"
+  token_id: string
+  role: string
+  scopeId: string
+  destinationScreen?: string
 }
+
+export type User = AuthUser | MagicLinkUser
 ```
 
-#### `src/components/app-sidebar.tsx` — Navegación
+`getAuthUser()`:
+- Intenta `jwt.verify` como `AuthUser` (campos `id_admin_users`)
+- Si falla, intenta como `MagicLinkUser` (campos `token_id`, `role`)
+- Retorna `null` si ambos fallan
 
-Agregado el item **"Leads"** bajo la sección "Administrador", con icono `Users` y link a `/dashboard/leads`.
+#### `apps/admin-panel-web/src/middleware.ts`
 
-### 4.2. Componentes UI (10 archivos nuevos)
+- Al redirigir un usuario no autenticado, también borra `magic-link-exp` para evitar que el countdown quede visible en la página de login
 
-#### `src/components/leads/LeadsTable.tsx`
+### 4.3. Frontend — Estado Cliente (2 archivos nuevos)
 
-Tabla con shadcn/ui `<Table>`:
-- 6 columnas: Estado, Nombre, Contacto, Ciudad/Origen, Cotizaciones, Creado
-- Click en fila abre el `LeadDetailDrawer`
-- `StatusBadge` en la columna de estado
-- Badge de origen (Web, Manual, Cotizador, etc.)
-- Formato de fecha con `Intl.DateTimeFormat("es-AR")`
+#### `apps/admin-panel-web/src/components/session-monitor-provider.tsx`
 
-#### `src/components/leads/LeadFilters.tsx`
+**Responsabilidades:**
+1. **Inicialización**: lee `magic-link-exp` de `document.cookie` al montar
+2. **Countdown**: `setInterval` cada 1s, formatea `H:MM:SS`
+3. **Polling**: `setInterval` cada 30s, llama `GET /api/auth/magic-link/session`
+4. **Invalidación**: si `valid === false`, muestra toast contextual y llama `logoutAction` después de 3.5s
+5. **Cross-tab sync**:
+   - **BroadcastChannel** (primary): `bc.postMessage({type: "magic-link-invalidated", reason})`
+   - **Storage fallback**: `localStorage.setItem("magic-link-invalidated", JSON.stringify({reason, time}))` + listener `window.addEventListener("storage", ...)`
+   - Limpia `localStorage` después de 100ms para evitar polución
 
-Filtros client-side:
-- **Buscador**: por nombre, email o teléfono (input con icono Search)
-- **Status**: dropdown con 5 opciones (todos + 4 estados)
-- **Source**: dropdown con 6 opciones (todos + 5 orígenes)
-- **Limpiar filtros**: botón ghost visible solo cuando hay filtros activos
+**Toast messages:**
+| Reason | Título | Descripción |
+|---|---|---|
+| `revoked` | **link revocado** | Tu acceso fue revocado. Serás redirigido en unos segundos. |
+| `expired` (default) | **tiempo superado** | Tu sesión expiró. Serás redirigido en unos segundos. |
 
-#### `src/components/leads/Pagination.tsx`
+#### `apps/admin-panel-web/src/hooks/useSessionMonitor.ts`
 
-Controles de paginación:
-- Botones anterior/siguiente
-- Indicador "Página X de Y"
-- Selector de items por página: 6, 12, 24
-- Total de resultados
+Thin hook que consume `SessionMonitorContext`. Usado por `SessionCountdown`.
 
-#### `src/components/leads/LeadDetailDrawer.tsx`
+### 4.4. Frontend — UI (1 archivo nuevo, 2 modificados)
 
-Sheet lateral (shadcn/ui `<Sheet>`) con 5 secciones:
+#### `apps/admin-panel-web/src/components/session-countdown.tsx`
 
-1. **Estado**: Badge + selector desplegable para cambiar `status_leads`. PUT al backend, toast de éxito/error, actualización optimista del listado.
-2. **Información general**: Nombre, email, teléfono, ciudad, origen, ingresos, comentarios.
-3. **Términos**: Aceptados (sí/no), fecha, IP.
-4. **Cotizaciones**: Lista de `QuoteRow` con formato de moneda y porcentaje.
-5. **Metadata**: Fechas de creación y actualización.
+- **Badge** de shadcn/ui con **cva** para variantes
+- **Formato**: `H:MM:SS` (con horas si `remaining >= 3600s`)
+- **Icono**: `ClockIcon` de lucide-react
+- **Tamaño**: `h-8`, `text-sm`, `px-3` (antes era `h-5`, `text-xs`)
+- **Variantes**:
+  - `default` (>5min): `bg-primary text-primary-foreground`
+  - `warning` (1-5min): `bg-muted-foreground text-background ring-1`
+  - `danger` (<1min): `bg-destructive text-white animate-pulse`
+- **Posición**: Header superior derecho (`ml-auto` en `dashboard/layout.tsx`)
 
-**Helpers de formato** (agregados en commit `ebac0dd`):
-```typescript
-function formatCurrency(value: string): string
-function formatPercent(value: string): string
-function calculateFinanced(amount: string, downPayment: string): string
-```
+#### `apps/admin-panel-web/src/components/app-sidebar.tsx` (modificado)
 
-#### `src/components/leads/QuoteRow.tsx` (dentro del drawer)
+- Removida la prop `sessionSlot` (antes renderizaba el countdown en el footer)
+- Ahora acepta solo `user` y mapea `MagicLinkUser` a `NavUser` props:
+  - `name`: `formatRole(role)` (ej: "Administrador", "Vendedor")
+  - `email`: `scopeId` (ej: "all", "zone-norte")
 
-Card por cada cotización:
-- Producto y resultado del cotizador
-- Monto objetivo, entrada inicial, **monto a financiar** (calculado como `monto - entrada`)
-- Cuota mensual, plazo, TNA
+#### `apps/admin-panel-web/src/app/dashboard/layout.tsx` (modificado)
 
-#### `src/components/leads/LeadNotes.tsx`
+- Wrap con `<SessionMonitorProvider>`
+- Renderiza `<SessionCountdown />` en el header, alineado a la derecha (`ml-auto`)
+- El sidebar ya no recibe `sessionSlot`
 
-CRUD completo de notas de seguimiento:
-- **Listado**: autor, contenido, fecha
-- **Crear**: formulario inline con Input (autor) + Textarea (nota) + botones Guardar/Cancelar
-- **Editar inline**: al hacer click en el lápiz, el item se convierte en formulario editable
-- **Eliminar**: botón de basura → dispara `ConfirmDialog` → DELETE al backend → actualización optimista
+### 4.5. Frontend — Proxy API (1 archivo nuevo)
 
-#### `src/components/leads/StatusBadge.tsx`
+#### `apps/admin-panel-web/src/app/api/auth/magic-link/session/route.ts`
 
-Badge de color según estado:
-- `new` → verde
-- `contacted` → azul
-- `qualified` → amarillo/naranja
-- `lost` → gris/rojo
+Next.js Route Handler:
+1. Lee `auth-token` cookie (httpOnly) server-side
+2. Forwards como `Authorization: Bearer <token>` a `GET ${apiUrl}/auth/magic-link/session`
+3. Si la API devuelve `valid: true` pero sin `expiresAt`, enriquece con `getJwtExpiresAt()` del token
+4. Retorna JSON al cliente
 
-#### Otros componentes
-
-- `EmptyState.tsx` — Dos variantes: "No hay leads" y "No hay resultados para tu búsqueda"
-- `LoadingSkeleton.tsx` — Skeleton loader con 6 columnas para la tabla
-- `ConfirmDialog.tsx` — Diálogo genérico de confirmación (título, descripción, botones)
-
-### 4.3. Página principal
-
-#### `src/app/dashboard/leads/page.tsx`
-
-Page component que orquesta todo:
-1. **useEffect** → llama `getLeadsWithQuotes(filters)`
-2. **useState** → filtros, leads, loading, paginación, lead seleccionado
-3. **Filtrado client-side** → búsqueda por texto + status + source
-4. **Paginación** → slice del array filtrado
-5. **Render condicional** → loading ? Skeleton : empty ? EmptyState : Table + Pagination
-6. **LeadDetailDrawer** → pasando lead, estado de apertura, handlers de cambio de estado y delete
-7. **ConfirmDialog** → para confirmar eliminación de notas
-
-### 4.4. Seed de datos de prueba
-
-#### `apps/api/src/scripts/seed-leads-and-quotes.ts`
-
-Script standalone que usa Drizzle ORM directamente (no requiere backend corriendo). Inserta:
-
-| Lead | Origen | Estado | Ciudad | Producto | Monto |
-|---|---|---|---|---|---|
-| Carlos Mendoza | Web | Nuevo | Quito | Vehículo | $28,000 |
-| Laura Sánchez | Web | Contactado | Guayaquil | Vivienda | $85,000 |
-| Pedro Vásquez | Manual | Calificado | Cuenca | Consumo | $12,000 |
-| Ana Torres | Manual | Nuevo | Ambato | Vehículo | $15,000 |
-| Mateo Velasco | Quote | Nuevo | Quito | Vehículo | $32,000 |
-| Diana Ramírez | Quote | Perdido | Manta | Consumo | $8,000 |
-
-Cada lead tiene exactamente **1 cotización** con datos realistas (tasas, plazos, resultados del cotizador).
+Por qué un Route Handler: el cliente JS no puede leer cookies httpOnly. Este endpoint actúa como proxy seguro.
 
 ---
 
 ## 5. Bugs Encontrados y Corregidos
 
-### 5.1. CRÍTICO: `id_leads` como string rompía creación de notas
+### 5.1. CRÍTICO: "tiempo superado" inmediato al entrar con Magic Link
 
-**Síntoma:** Al intentar crear una nota, el backend respondía 400:  
-`{ error: "manager_lead_notes, note_lead_notes and id_leads are required" }`
+**Síntoma:** Creás un link de 1h, entrás con él, y a los pocos segundos aparece **"tiempo superado"** y te saca.
 
-**Causa raíz:** El frontend tipó `id_leads: string` en `src/lib/types.ts`, pero el backend sanitizador en `lead_notesDTO.ts` exige:
-```typescript
-const id_leads = typeof payload.id_leads === "number" ? payload.id_leads : undefined;
-```
+**Causa raíz:** El flujo era:
+1. Usuario hace click → `POST /verify` marca el link como `status = "used"` (si es single-use)
+2. Se setea la cookie `auth-token` con JWT válido por 8h
+3. El `SessionMonitorProvider` hace su primera poll a `GET /session`
+4. El endpoint ve `status === "used"` y devuelve `valid: false, reason: "used"`
+5. El provider no tiene handler para `"used"`, así que cae al default `"expired"` → toast "tiempo superado" → logout
 
-**Fix:** Cambiar **todos los IDs** de `string` → `number` en tipos, facade y componentes. PostgreSQL `serial` siempre devuelve números.
+**Fix:**
+1. `GET /session` ya NO considera `status === "used"` como inválido. Solo `"revoked"` y tiempo vencido invalidan.
+2. `POST /verify` ahora devuelve `expiresAt` (la fecha REAL del link, no la del JWT de 8h), así que el countdown muestra el tiempo correcto.
 
-### 5.2. `LeadsListResponse` ficticio causaba `leads is undefined`
+### 5.2. CRÍTICO: `ReferenceError` en catch block del verify
 
-**Síntoma:** Runtime TypeError al cargar la página: `can't access property "length", leads is undefined`
+**Síntoma:** Si el backend fallaba (red caída, API down), el catch block explotaba con `ReferenceError: origin is not defined` en vez de redirigir al login con error.
 
-**Causa raíz:** El facade `getLeadsWithQuotes` esperaba `{ items: Lead[] }` (envelope paginado), pero el backend devuelve `Lead[]` directamente.
+**Causa:** La variable `origin` no existía en el scope. La correcta era `baseUrl`.
 
-**Fix:** Eliminar la interfaz `LeadsListResponse` y consumir `apiGet<Lead[]>("/leads/with-quotes")` directamente.
+**Fix:** `return redirectWithError("unknown", baseUrl)` en vez de `origin`.
 
-### 5.3. Tasa anual mostrada como `0.12%` en vez de `12%`
+### 5.3. Email de Magic Link no funcionaba
 
-**Causa:** El backend almacena la tasa como decimal (`0.12` = 12%). El frontend concatenaba `value + "%"`.
+**Síntoma:** Enviabas un link por email, la UI decía "Link enviado", pero nunca llegaba.
 
-**Fix:** Usar `Intl.NumberFormat` con `style: "percent"`, que multiplica por 100 automáticamente.
+**Causa raíz (triple problema):**
+1. `apps/api/src/env.ts` carga dotenv desde `../../.env` (root del monorepo), no desde `apps/api/.env`
+2. El `RESEND_API_KEY` estaba en `apps/api/.env` (creado por nosotros) pero el backend nunca lo leyó
+3. El root `.env` tenía una API key vieja de Resend (`re_6Kgm5Dav_...`) que no funcionaba
 
-### 5.4. Montos sin separador de miles
+**Fix:**
+1. Actualizar `RESEND_API_KEY` en el root `.env` con la key correcta proporcionada por el usuario
+2. Agregar logs de debug en `email.ts` y `control_magic_links.ts` para diagnóstico futuro
+3. El servicio ahora chequea `result.error` del objeto de retorno de Resend, no solo try/catch
 
-**Causa:** Concatenación directa de strings decimales.
+### 5.4. Countdown mostraba 8h en vez de la duración real del link
 
-**Fix:** `Intl.NumberFormat("es-EC", { style: "currency", currency: "USD" })` para todos los montos.
+**Síntoma:** Creabas un link de 1h pero el countdown mostraba 7:59:59.
+
+**Causa:** La cookie `magic-link-exp` se seteaba con `getJwtExpiresAt(data.token)`, que derivaba la expiración del JWT (8h hardcoded), no de la base de datos.
+
+**Fix:** El backend `POST /verify` ahora calcula `effectiveExpiresAt = min(JWT 8h, DB expirationDate)` y lo devuelve en la respuesta. El frontend usa `data.expiresAt` con fallback al JWT.
+
+### 5.5. Temporizador muy chico y mal ubicado
+
+**Síntoma:** El countdown era un Badge minúsculo (`h-5`, `text-xs`) escondido en el footer del sidebar, casi invisible.
+
+**Fix:**
+- Reposicionado al header superior derecho (`ml-auto`)
+- Agrandado a `h-8`, `text-sm`, con `ClockIcon`
+- Agregado `animate-pulse` en variante `danger` para mayor visibilidad
 
 ---
 
@@ -320,44 +353,58 @@ const id_leads = typeof payload.id_leads === "number" ? payload.id_leads : undef
 
 | Área | Archivos | Líneas (approx) |
 |---|---|---|
-| Componentes UI | 10 | ~1,400 |
-| Tipos + Facade | 3 | ~250 |
-| Página principal | 1 | ~164 |
-| Seed script | 1 | ~208 |
-| **Total** | **15** | **~1,780** |
+| Backend (API + JWT + Email logs) | 3 | ~90 |
+| Frontend — Auth, Cookies, Middleware | 4 | ~60 |
+| Frontend — Estado cliente (Provider + Hook) | 2 | ~170 |
+| Frontend — UI (Countdown + Layout + Sidebar) | 3 | ~80 |
+| Frontend — Proxy Route Handler | 1 | ~60 |
+| **Total** | **13** | **~460** |
 
-### 6.2. Cobertura de Endpoints
+### 6.2. Escenarios Validados
 
-7 de 7 endpoints del contrato están integrados en el frontend.
-
-### 6.3. Tiempo de Implementación
-
-SDD completo (exploración → propuesta → spec → diseño → tasks → apply → verify → fix de bugs → seed → push) en ~2 horas.
+| # | Escenario | Resultado |
+|---|---|---|
+| 1 | Usuario entra con link de 1h, ve countdown en header | ✅ |
+| 2 | Esperar a que pase el tiempo → toast "tiempo superado" → redirect | ✅ |
+| 3 | Admin revoca link → sesión cierra en ≤30s → toast "link revocado" | ✅ |
+| 4 | Dos pestañas abiertas, admin revoca → ambas se cierran instantáneamente | ✅ |
+| 5 | Refresh de página → countdown resume desde tiempo restante correcto | ✅ |
+| 6 | Usuario admin (no magic-link) → no ve countdown, no hay polling | ✅ |
+| 7 | Enviar magic link por email → llega al inbox | ✅ |
+| 8 | Link de un solo uso → se marca "used" pero sesión sigue activa | ✅ |
 
 ---
 
 ## 7. Próximos Pasos Recomendados
 
-1. **Merge a `master`** — La rama `Dev/Steven` tiene los commits `1470aeb` y `ebac0dd` listos.
-2. **Server-side pagination** — Si el volumen de leads supera ~500 registros, agregar `?page` y `?limit` al backend y migrar la paginación al servidor.
-3. **Export a Excel/CSV** — Botón en la tabla para descargar leads filtrados.
-4. **Notificaciones en tiempo real** — WebSocket o Server-Sent Events para alertar cuando llega un lead nuevo.
-5. **Gráficos de pipeline** — Dashboard con funnel de conversión (new → contacted → qualified → lost).
-6. **Tests E2E** — Playwright ya está instalado en el monorepo pero sin config. Agregar tests de smoke para el flujo completo de leads.
+1. **Merge a `master`** — Todo el trabajo está en `Dev/Steven`, listo para merge.
+2. **Tests manuales en staging** — Validar el flujo end-to-end con un link real de 1h y revocación.
+3. **Configurar dominio en Resend** — Para poder enviar emails a direcciones que no sean la propia (modo testing de Resend limita esto).
+4. **Configurable poll interval** — Actualmente fijo en 30s. Podría ser configurable por ambiente (10s en dev, 60s en prod).
+5. **Audit log de revocaciones** — Loguear quién revocó el link, desde qué IP, y en qué momento.
+6. **Notificaciones por email al revocar** — Opcional: avisar al usuario por email que su acceso fue revocado.
 
 ---
 
 ## 8. Archivos Relacionados
 
-- **Contrato de API:** `docs/contrato-leads-quotes.md`
-- **Frontend admin:** `apps/admin-panel-web/src/app/dashboard/leads/page.tsx`
-- **Componentes:** `apps/admin-panel-web/src/components/leads/*`
-- **Facade API:** `apps/admin-panel-web/src/lib/leads.ts`
-- **Tipos:** `apps/admin-panel-web/src/lib/types.ts`
-- **Backend controller:** `apps/api/src/controller/control_lead.ts`, `control_lead_notes.ts`
-- **Backend service:** `apps/api/src/services/leads_services.ts`
-- **Seed script:** `apps/api/src/scripts/seed-leads-and-quotes.ts`
+- **Frontend admin:** `apps/admin-panel-web/src/app/dashboard/layout.tsx`
+- **Auth:** `apps/admin-panel-web/src/lib/auth.ts`
+- **Cookie verify:** `apps/admin-panel-web/src/app/auth/magic-link/route.ts`
+- **Proxy session:** `apps/admin-panel-web/src/app/api/auth/magic-link/session/route.ts`
+- **Monitor provider:** `apps/admin-panel-web/src/components/session-monitor-provider.tsx`
+- **Countdown:** `apps/admin-panel-web/src/components/session-countdown.tsx`
+- **Hook:** `apps/admin-panel-web/src/hooks/useSessionMonitor.ts`
+- **Logout action:** `apps/admin-panel-web/src/app/actions/logout.ts`
+- **Middleware:** `apps/admin-panel-web/src/middleware.ts`
+- **Sidebar:** `apps/admin-panel-web/src/components/app-sidebar.tsx`
+- **Backend controller:** `apps/api/src/controller/control_magic_link_auth.ts`
+- **Backend JWT:** `apps/api/src/utils/jwt.ts`
+- **Backend email:** `apps/api/src/services/email.ts`
+- **Backend env:** `apps/api/src/env.ts`
+- **Root .env:** `.env`
+- **DB cleanup script:** `apps/api/src/scripts/clean-magic-links.ts`
 
 ---
 
-*Informe generado automáticamente tras la sesión de desarrollo del 2026-07-06.*
+*Informe generado tras la sesión de desarrollo del 2026-07-06. Magic Link Session Lifecycle implementado con SDD (Spec-Driven Development).*

@@ -220,11 +220,19 @@ magicLinksController.post("/", async (c) => {
       payload.recipientEmail &&
       process.env.RESEND_API_KEY
     ) {
-      await sendMagicLinkEmail(
+      console.log("[MagicLink Create] Attempting to send email to:", payload.recipientEmail);
+      const emailResult = await sendMagicLinkEmail(
         payload.recipientEmail,
         DEFAULT_EMAIL_TEMPLATE,
         url
       );
+      console.log("[MagicLink Create] Email send result:", emailResult);
+    } else {
+      console.log("[MagicLink Create] Skipping email. Conditions:", {
+        deliveryChannel: payload.deliveryChannel,
+        hasRecipientEmail: !!payload.recipientEmail,
+        hasResendKey: !!process.env.RESEND_API_KEY,
+      });
     }
 
     return c.json({ ...created, url }, 201);
