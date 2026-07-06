@@ -7,7 +7,7 @@ export const leads = pgTable("leads", {
     id_leads: integer("id_leads").primaryKey().generatedAlwaysAsIdentity(),
     name_leads: varchar("name_leads", {length:100}).notNull(),
     email_leads: varchar("email_leads", {length:100}).notNull(),
-    phone_leads: varchar("phone_leads", {length:100}).notNull(),
+    phone_leads: varchar("phone_leads", {length:100}).notNull().unique(),
     city_leads: varchar("city_leads", {length:100}).notNull(),
     status_leads: statusEnum("status_leads").default("new"),
     source_leads: sourceEnum("source_leads").default("web"),
