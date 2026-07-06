@@ -8,17 +8,30 @@ import {
   sanitizeLeadCreate, 
   sanitizeLeadUpdateStatus 
 } from "../dto/leadDTO"; // El archivo DTO que armamos antes
+import { getClientIp } from "../utils/request";
+import { leadsService } from "../services/leads_services";
+
+
+
 
 const leadsController = new Hono();
 
 // 1. LISTAR TODOS
-leadsController.get("/", async (c) => {
+leadsController.get("/",   async (c) => {
   const allLeads = await getAll<LeadResponseDto>(leads);
   return c.json(allLeads);
 });
-
+leadsController.get("/with-quotes", async (c) => {
+  try {
+    const leadsWithQuotes = await leadsService.getAllLeadsWithQuotes();
+    return c.json(leadsWithQuotes);
+  } catch (error) {
+    console.error("Error al obtener leads con quotes:", error);
+    return c.json({ error: "Error interno al consultar leads." }, 500);
+  }
+});
 // 2. LEER POR ID
-leadsController.get("/:id", async (c) => {
+leadsController.get("/:id",  async (c) => {
   const id = Number(c.req.param("id"));
   const lead = await getById<LeadResponseDto>(leads, leads.id_leads, id);
 
@@ -29,26 +42,48 @@ leadsController.get("/:id", async (c) => {
   return c.json(lead);
 });
 
-// 3. CREAR LEAD (monthly_family_income es opcional internamente en la sanitización)
+// 3. CREAR LEAD (monthly_family_income, optional_comentes_lead es opcional internamente en la sanitización)
+// 3. CREAR LEAD
 leadsController.post("/", async (c) => {
   const body = await c.req.json();
   const payload = sanitizeLeadCreate(body);
 
   if (!payload) {
-    return c.json({ 
-      error: "name_leads, email_leads, phone_leads and city_leads are required" 
-    }, 400);
+    return c.json({ error: "..." }, 400);
   }
 
-  // Guardamos usando el CRUD genérico
-  const created = await createOne<LeadCreateDto>(leads, payload);
+  const existingLead = await getByField<LeadResponseDto>(
+    leads, leads.phone_leads, payload.phone_leads
+  );
 
-  // Mapeamos a la respuesta basándonos en los datos generados
-  const response = created as LeadResponseDto;
+  if (existingLead) {
+    const updateData: Record<string, unknown> = {
+      city_leads: payload.city_leads,
+      monthly_family_income: payload.monthly_family_income,
+      coments_optionals_lead: payload.coments_optionals_lead,
+      updatedAt: new Date(),
+    };
 
-  return c.json(response, 201);
+
+    const updated = await updateById<LeadResponseDto>(
+      leads,
+      leads.id_leads,
+      existingLead.id_leads,
+      updateData
+    );
+
+    return c.json(updated as LeadResponseDto, 200);
+  }
+
+  const enrichedPayload: LeadCreateDto = {
+    ...payload,
+    accepted_terms_at: new Date(),
+    accepted_terms_ip: getClientIp(c),
+  };
+
+  const created = await createOne<LeadCreateDto>(leads, enrichedPayload);
+  return c.json(created as LeadResponseDto, 201);
 });
-
 // 4. ACTUALIZAR SOLO STATUS (Filtra todo lo demás)
 leadsController.put("/:id", async (c) => {
   const id = Number(c.req.param("id"));

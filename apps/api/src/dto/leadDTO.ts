@@ -12,6 +12,31 @@ export type LeadCreateDto = Pick<
 > & {
   monthly_family_income?: string | null;
   coments_optionals_lead?: string | null;
+  accepted_terms_lead?: boolean;
+  accepted_terms_at?: Date | null;
+  accepted_terms_ip?: string | null;
+};
+
+export type LeadCreateWhitQuoteDto = Pick<
+  LeadDTO, 
+  "name_leads" | "email_leads" | "phone_leads" | "city_leads" | "status_leads" | "source_leads" 
+> & {
+  monthly_family_income?: string | null;
+  coments_optionals_lead?: string | null;
+  accepted_terms_lead?: boolean;
+  accepted_terms_at?: Date | null;
+  accepted_terms_ip?: string | null;
+};
+
+export type LeadRecuestWhitQuoteDto = Pick<
+  LeadDTO, 
+  "name_leads" | "email_leads" | "phone_leads" | "city_leads" | "status_leads" | "source_leads"   
+> & {
+  id_leads? : number | null;
+  monthly_family_income?: string | null;
+  coments_optionals_lead?: string | null;
+    accepted_terms_lead?: boolean;
+
 };
 
 // 2. DTO para ACTUALIZAR: Solo el id (obligatorio) y el status (obligatorio según tu regla)
@@ -58,9 +83,9 @@ export function sanitizeLeadCreate(body: unknown): LeadCreateDto | null {
 if (typeof payload.coments_optionals_lead === "string") {
   coments_optionals_lead = payload.coments_optionals_lead.trim();
 }
-
+  const accepted_terms_lead = payload.acceptedTerms === true;
   // Validar campos requeridos obligatorios
-  if (!name_leads || !email_leads || !phone_leads || !city_leads) {
+  if (!name_leads || !email_leads || !phone_leads || !city_leads || !accepted_terms_lead) {
     return null;
   }
 
@@ -73,6 +98,7 @@ if (typeof payload.coments_optionals_lead === "string") {
     source_leads,
     monthly_family_income,
     coments_optionals_lead,
+    accepted_terms_lead,
   };
 }
 

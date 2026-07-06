@@ -102,25 +102,31 @@ const saveLeadInHono = async (leadPayload: {
   coments_optionals_lead: string;
   status_leads: string;
   source_leads: string;
-}) => {
+  acceptedTerms: boolean;
+}, clientIp: string ) => {
 
   
 
-  const honoApiKey = import.meta.env.VALID_API_KEY || process.env.VALID_API_KEY || "";
-const honoUrl = import.meta.env.HONO_API_URL || process.env.HONO_API_URL || "http://api:4000/api/leads";
+  const honoApiKey = import.meta.env.PUBLIC_VALID_API_KEY || process.env.PUBLIC_VALID_API_KEY || "";
+const honoUrl = import.meta.env.PUBLIC_HONO_API_URL || process.env.PUBLIC_HONO_API_URL || "http://api:4000/api/";
 
-console.log("Revisando credenciales inyectadas:", { honoApiKey, honoUrl });
 
   try {
-    const response = await fetch(honoUrl, {
+    const response = await fetch(`${honoUrl}/leads`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         "x-api-key": honoApiKey, // Protegida en el servidor
+        "x-forwarded-for": clientIp,
       },
       body: JSON.stringify(leadPayload),
     });
-    
+    if (!response.ok) {
+          const errorBody = await response.json().catch(() => null);
+  console.error("No se pudo registrar el lead en el sistema central:", response.status, errorBody);
+        }
+
+
     return response.ok;
   } catch (error) {
     console.error("Error conectando con la API Hono de Leads:", error);
@@ -131,7 +137,7 @@ console.log("Revisando credenciales inyectadas:", { honoApiKey, honoUrl });
 // ==========================================
 // METODO POST PRINCIPAL
 // ==========================================
-export const POST: APIRoute = async ({ request }) => {
+export const POST: APIRoute = async ({ request, clientAddress  }) => {
   if (request.headers.get("content-type")?.includes("application/json") !== true) {
     return Response.json({ error: "Content-Type no permitido." }, { status: 415 });
   }
@@ -188,12 +194,14 @@ export const POST: APIRoute = async ({ request }) => {
     phone_leads: phone,
     city_leads: "Ecuador/Online", // Ajusta si el formulario tiene un selector de ciudades
     status_leads: "new",
-    source_leads: `webinar_interest: ${interest}`, // Guardamos su objetivo de interés dinámicamente como fuente
+    source_leads: `manual`, // Guardamos su objetivo de interés dinámicamente como fuente
     coments_optionals_lead: message,
+    acceptedTerms: true, // ya validado arriba como obligatorio
+
   };
 
   // 3. Ejecutar el guardado persistente en la base de datos a través de Hono
-  const leadSaved = await saveLeadInHono(honoLeadPayload);
+  const leadSaved = await saveLeadInHono(honoLeadPayload, clientAddress);
 
   if(!leadSaved){
     return Response.json(

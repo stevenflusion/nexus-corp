@@ -18,7 +18,7 @@ export const quotes = pgTable("quotes", {
     annual_interest_rate_quotes: decimal("annual_interest_rate_quotes", { precision: 5, scale: 2 }).notNull(),
     monthly_payment_quotes: decimal("monthly_payment_quotes", { precision: 10, scale: 2 }).notNull(),
     contact_preference_quotes: contactPreferenceEnum("contact_preference_quotes").notNull(),
-    
+    result_status_quotes : varchar("result_status_quotes", { length: 50 }).default("pending"),
     
     createdAt: timestamp("created_at").defaultNow(),
     updatedAt: timestamp("updated_at").defaultNow(),
