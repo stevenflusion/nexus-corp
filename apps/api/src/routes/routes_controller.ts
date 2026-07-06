@@ -7,7 +7,7 @@ import { auditLogsController } from "../controller/control_audit_logs";
 import { authController } from "../controller/control_auth";
 import { magicLinksController } from "../controller/control_magic_links";
 import { magicLinkAuthController } from "../controller/control_magic_link_auth";
-import { authMiddleware } from "../middleware/auth";
+import { creditScoresController } from "../controller/control_credit_scores";
 
 const apiRouter = new Hono();
 
@@ -18,12 +18,11 @@ apiRouter.route("/leads", leadsController);
 
 apiRouter.route("/quotes", quotesController);
 
-apiRouter.use("/notes/*", authMiddleware);
+apiRouter.route("/credit-scores", creditScoresController);
+
 apiRouter.route("/notes", leadNotesController);
 
-apiRouter.use("/admin/*", authMiddleware);
 apiRouter.route("/admin", admin_usersController);
-
 
 apiRouter.route("/audit-logs", auditLogsController);
 
