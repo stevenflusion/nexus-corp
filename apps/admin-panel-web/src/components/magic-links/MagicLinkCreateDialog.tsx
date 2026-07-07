@@ -45,7 +45,9 @@ import { RoleScopeSelect } from "@/components/magic-links/RoleScopeSelect"
 import { ExpirationSelector } from "@/components/magic-links/ExpirationSelector"
 import { UsageLimitInput } from "@/components/magic-links/UsageLimitInput"
 import { CopyableLinkField } from "@/components/magic-links/CopyableLinkField"
+import { QrCodeDisplay } from "@/components/magic-links/QrCodeDisplay"
 import { createMagicLink } from "@/lib/magic-links"
+import { getDestinationsForRole } from "@/lib/nav"
 import type {
   MagicLink,
   MagicLinkRole,
@@ -110,17 +112,6 @@ const initialFormState: FormState = {
   deliveryChannel: "generate_only",
   emailMessage: `Hola,\n\nAccedé a Nexus Corp usando este link seguro:\n{{link}}\n\nEste link es personal e intransferible. Si no solicitaste este acceso, ignorá este mensaje.\n\nSaludos,\nEquipo Nexus`,
 }
-
-const destinationOptions = [
-  "/dashboard",
-  "/pos",
-  "/delivery/orders",
-  "/brand/dashboard",
-  "/brand/reports",
-  "/admin/dashboard",
-  "/admin/users",
-  "/admin/settings",
-]
 
 const channelOptions: { value: DeliveryChannel; label: string }[] = [
   { value: "generate_only", label: "Solo generar link (copiar)" },
@@ -424,9 +415,9 @@ function MagicLinkCreateDialog({
 
   const roleLabel: Record<MagicLinkRole, string> = {
     admin: "Admin",
-    brand_manager: "Brand Manager",
-    developer: "Desarrollador",
-    external: "Externo",
+    sistemas: "Sistemas",
+    gerente_general: "Gerente General",
+    gerencia_marketing: "Gerencia de Marketing",
   }
 
   const channelLabel: Record<DeliveryChannel, string> = {
@@ -460,7 +451,18 @@ function MagicLinkCreateDialog({
               </DialogDescription>
             </div>
 
-            <CopyableLinkField url={createdLink.url} label="Link de acceso" />
+            {createdLink.deliveryChannel === "generate_qr" ? (
+              <QrCodeDisplay url={createdLink.url} />
+            ) : createdLink.deliveryChannel === "send_email" ? (
+              <div className="flex flex-col items-center gap-2 text-sm text-muted-foreground">
+                <p className="font-medium text-foreground">
+                  Email enviado a {createdLink.recipientEmail}
+                </p>
+                <p>El link ya fue enviado por correo.</p>
+              </div>
+            ) : (
+              <CopyableLinkField url={createdLink.url} label="Link de acceso" />
+            )}
 
             <div className="w-full rounded-xl border border-border bg-muted/30 p-4 text-left text-sm">
               <div className="grid grid-cols-[6.5rem_1fr] items-start gap-2">
@@ -657,9 +659,9 @@ function MagicLinkCreateDialog({
                           <SelectValue placeholder="Seleccionar pantalla" />
                         </SelectTrigger>
                         <SelectContent>
-                          {destinationOptions.map((option) => (
-                            <SelectItem key={option} value={option}>
-                              {option}
+                          {getDestinationsForRole(formState.role).map((d) => (
+                            <SelectItem key={d.url} value={d.url}>
+                              {d.title}
                             </SelectItem>
                           ))}
                         </SelectContent>

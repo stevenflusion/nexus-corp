@@ -15,9 +15,9 @@ import type { MagicLink, MagicLinkRole } from "@/lib/types"
 
 const roleLabels: Record<MagicLinkRole, string> = {
   admin: "Admin",
-  brand_manager: "Brand Manager",
-  developer: "Desarrollador",
-  external: "Externo",
+  sistemas: "Sistemas",
+  gerente_general: "Gerente General",
+  gerencia_marketing: "Gerencia de Marketing",
 }
 
 function formatDate(iso: string): string {

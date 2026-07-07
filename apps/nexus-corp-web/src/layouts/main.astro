@@ -76,6 +76,40 @@ const imageUrl = new URL(ogImage, siteUrl).toString()
     <a class="skip-link" href="#contenido">Saltar al contenido</a>
     <slot />
     <N8nChat client:load />
+    <script is:inline>
+      ;(() => {
+        try {
+          const storageKey = "nexus-analytics-session"
+          let sessionId = sessionStorage.getItem(storageKey)
+          if (!sessionId) {
+            sessionId = Math.random().toString(36).slice(2) + Date.now().toString(36)
+            sessionStorage.setItem(storageKey, sessionId)
+          }
+
+          const ua = navigator.userAgent
+          const isMobile = /mobile|android|iphone|ipod/i.test(ua)
+          const isTablet = /tablet|ipad/i.test(ua)
+          const deviceType = isTablet ? "tablet" : isMobile ? "mobile" : "desktop"
+
+          const payload = {
+            page_path: window.location.pathname + window.location.search,
+            referrer: document.referrer || undefined,
+            user_agent: ua,
+            session_id: sessionId,
+            device_type: deviceType,
+          }
+
+          fetch("/api/track-pageview", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+            keepalive: true,
+          }).catch(() => {})
+        } catch {
+          // Silencioso — analytics nunca debe romper la UX
+        }
+      })()
+    </script>
     <script>
       window.addEventListener("keydown", (event) => {
         if (event.key === "Tab") {

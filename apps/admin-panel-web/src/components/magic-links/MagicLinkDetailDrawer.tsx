@@ -22,6 +22,7 @@ import {
 import { StatusBadge } from "@/components/magic-links/StatusBadge"
 import { ActivityTimeline } from "@/components/magic-links/ActivityTimeline"
 import { CopyableLinkField } from "@/components/magic-links/CopyableLinkField"
+import { QrCodeDisplay } from "@/components/magic-links/QrCodeDisplay"
 import { ExpirationSelector } from "@/components/magic-links/ExpirationSelector"
 import type {
   MagicLink,
@@ -40,9 +41,9 @@ interface MagicLinkDetailDrawerProps {
 
 const roleLabels: Record<MagicLink["role"], string> = {
   admin: "Admin",
-  brand_manager: "Brand Manager",
-  developer: "Desarrollador",
-  external: "Externo",
+  sistemas: "Sistemas",
+  gerente_general: "Gerente General",
+  gerencia_marketing: "Gerencia de Marketing",
 }
 
 const channelLabels: Record<MagicLink["deliveryChannel"], string> = {
@@ -201,7 +202,11 @@ function MagicLinkDetailDrawer({
         <div className="flex flex-1 flex-col gap-4 overflow-y-auto p-4 pt-0">
           <div className="flex flex-col gap-3">
             <StatusBadge status={link.status} size="lg" />
-            <CopyableLinkField url={link.url} />
+            {link.deliveryChannel === "generate_qr" ? (
+              <QrCodeDisplay url={link.url} size={160} />
+            ) : (
+              <CopyableLinkField url={link.url} />
+            )}
           </div>
 
           <Separator />

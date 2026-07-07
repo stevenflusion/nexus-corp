@@ -1,32 +1,32 @@
 # Informe de Desarrollo: Magic Link Session Lifecycle — Temporizador, Revocación Instantánea y Notificaciones Contextuales
 
 **Fecha:** 2026-07-06  
-**Autor:** Steven (con asistencia de Gentle AI)  
-**Rama:** Dev/Steven  
-**Estado:** En Dev/Steven, listo para merge
+**Autor:** Steven y Mateo
+**Rama:** Dev/Steven - Dev/Mateo
+**Estado:** Subido
 
 ---
 
 ## 1. Resumen Ejecutivo
 
-Implementación completa del ciclo de vida de sesiones **Magic Link** en el panel de administración y la API. Esto arregla dos problemas críticos de seguridad y UX: (1) las sesiones Magic Link expiraban invisibles para el usuario, sin ningún temporizador ni aviso, y (2) cuando el administrador revocaba un Magic Link, la sesión del usuario seguía activa indefinidamente.
+- Implementación completa del ciclo de vida de sesiones **Magic Link** en el panel de administración y la API. Esto arregla dos problemas críticos de seguridad y UX: (1) las sesiones Magic Link expiraban invisibles para el usuario, sin ningún temporizador ni aviso, y (2) cuando el administrador revocaba un Magic Link, la sesión del usuario seguía activa indefinidamente.
 
-**~300 líneas de delta** en 12 archivos, divididos en backend (API), frontend (Next.js 15), auth (middleware + cookies) y estado cliente (React Context + polling).
+- Mateo Velasco construyó el **100% del backend API** y la **infraestructura base** del proyecto NEXUS Corp. Su trabajo abarca desde la configuración Docker inicial hasta el servicio de Azure Blob Storage, pasando por la base de datos PostgreSQL con Drizzle ORM, todos los controladores CRUD, el sistema de autenticación, y la integración de la API con el frontend público.
 
-### Qué se entregó
+### Qué se entregó Steven
 
-| Funcionalidad | Estado | Detalle |
-|---|---|---|
-| Temporizador visible en sesión Magic Link | ✅ | Countdown `H:MM:SS` en header derecho, con icono de reloj |
-| Cierre de sesión por expiración | ✅ | Sonner toast "tiempo superado", redirect automático |
-| Revocación instantánea | ✅ | Admin revoca → sesión cierra en ≤30s con toast "link revocado" |
-| Sync entre pestañas | ✅ | BroadcastChannel + storage fallback para logout instantáneo en todas las tabs |
-| Cookie `magic-link-exp` | ✅ | non-httpOnly, SameSite=Strict, alineada con la expiración real del link |
-| Endpoint `GET /auth/magic-link/session` | ✅ | Valida token JWT contra PostgreSQL, devuelve `{valid, reason?, expiresAt?}` |
-| Fix bug "tiempo superado" inmediato | ✅ | El POST /verify marcaba el link como "used" y GET /session lo invalidaba al instante |
-| Email de Magic Link funcional | ✅ | Resend API key corregida en root .env + logs de debug |
-| Limpieza de datos de prueba | ✅ | Truncate de `magic_links` y `magic_link_activity` |
-| UI — temporizador agrandado y reposicionado | ✅ | De sidebar footer a header superior derecho, con icono `ClockIcon` |
+| Funcionalidad                               | Estado | Detalle                                                                              |
+| ------------------------------------------- | ------ | ------------------------------------------------------------------------------------ |
+| Temporizador visible en sesión Magic Link   | ✅     | Countdown `H:MM:SS` en header derecho, con icono de reloj                            |
+| Cierre de sesión por expiración             | ✅     | Sonner toast "tiempo superado", redirect automático                                  |
+| Revocación instantánea                      | ✅     | Admin revoca → sesión cierra en ≤30s con toast "link revocado"                       |
+| Sync entre pestañas                         | ✅     | BroadcastChannel + storage fallback para logout instantáneo en todas las tabs        |
+| Cookie `magic-link-exp`                     | ✅     | non-httpOnly, SameSite=Strict, alineada con la expiración real del link              |
+| Endpoint `GET /auth/magic-link/session`     | ✅     | Valida token JWT contra PostgreSQL, devuelve `{valid, reason?, expiresAt?}`          |
+| Fix bug "tiempo superado" inmediato         | ✅     | El POST /verify marcaba el link como "used" y GET /session lo invalidaba al instante |
+| Email de Magic Link funcional               | ✅     | Resend API key corregida en root .env + logs de debug                                |
+| Limpieza de datos de prueba                 | ✅     | Truncate de `magic_links` y `magic_link_activity`                                    |
+| UI — temporizador agrandado y reposicionado | ✅     | De sidebar footer a header superior derecho, con icono `ClockIcon`                   |
 
 ---
 
@@ -121,13 +121,13 @@ El sistema de Magic Links ya permitía generar, enviar y verificar enlaces de ac
 
 ### 3.2. Decisiones de Diseño Clave
 
-| Decisión | Alternativa Rechazada | Fundamento |
-|---|---|---|
-| **Polling HTTP cada 30s** | WebSocket / SSE | No hay infra de real-time en el proyecto. WebSocket requiere conexiones persistentes y manejo de estado en el backend. Polling es stateless, simple y suficiente para una latencia de 30s en un admin panel. |
-| **Cookie `magic-link-exp` (non-httpOnly)** | Parsear JWT en cliente | El JWT está en cookie httpOnly, inaccesible desde JS. Una cookie separada con solo la fecha de expiración evita exponer secretos y permite el countdown sin server round-trip. |
-| **BroadcastChannel + storage fallback** | Solo polling | Sin BroadcastChannel, una pestaña abierta esperaría hasta 30s para enterarse de una revocación. BC permite logout instantáneo. Storage event es fallback para Safari. |
+| Decisión                                           | Alternativa Rechazada               | Fundamento                                                                                                                                                                                                    |
+| -------------------------------------------------- | ----------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **Polling HTTP cada 30s**                          | WebSocket / SSE                     | No hay infra de real-time en el proyecto. WebSocket requiere conexiones persistentes y manejo de estado en el backend. Polling es stateless, simple y suficiente para una latencia de 30s en un admin panel.  |
+| **Cookie `magic-link-exp` (non-httpOnly)**         | Parsear JWT en cliente              | El JWT está en cookie httpOnly, inaccesible desde JS. Una cookie separada con solo la fecha de expiración evita exponer secretos y permite el countdown sin server round-trip.                                |
+| **BroadcastChannel + storage fallback**            | Solo polling                        | Sin BroadcastChannel, una pestaña abierta esperaría hasta 30s para enterarse de una revocación. BC permite logout instantáneo. Storage event es fallback para Safari.                                         |
 | **Unión discriminada `AuthUser \| MagicLinkUser`** | Sintetizar magic-link como AuthUser | `AuthUser` tiene campos que no existen en magic-link (`id_admin_users`, `email_admin_users`). Una unión con `kind` discriminant previene bugs donde el código asume que todo usuario tiene email_admin_users. |
-| **GET /session no invalida por "used"** | Mantener `used` como inválido | Un link "used" significa "ya fue usado para loguearse", no "la sesión es inválida". El JWT sigue siendo válido hasta su expiración. Invalidar por "used" causaba el bug de "tiempo superado" inmediato. |
+| **GET /session no invalida por "used"**            | Mantener `used` como inválido       | Un link "used" significa "ya fue usado para loguearse", no "la sesión es inválida". El JWT sigue siendo válido hasta su expiración. Invalidar por "used" causaba el bug de "tiempo superado" inmediato.       |
 
 ---
 
@@ -142,14 +142,17 @@ Nuevo helper para verificar JWTs de Magic Link con `jwt.verify`, retornando `Mag
 #### `apps/api/src/controller/control_magic_link_auth.ts` — `POST /verify` y `GET /session`
 
 **POST /verify** (antes):
+
 - Devolvía solo `{token, role, scopeId, destinationScreen}`
 - Marcaba link como `status = "used"` inmediatamente (para `single` usage)
 
 **POST /verify** (después):
+
 - Devuelve `expiresAt`: `min(JWT exp 8h, DB expirationDate)`
 - Sigue marcando como "used" para prevenir re-uso, pero el `GET /session` ya no considera "used" como inválido
 
 **GET /session** (nuevo):
+
 ```typescript
 GET /auth/magic-link/session
 Authorization: Bearer <magic-link-jwt>
@@ -160,6 +163,7 @@ Authorization: Bearer <magic-link-jwt>
 ```
 
 Validación:
+
 1. Extrae `token_id` del JWT
 2. Busca en `magic_links` por `id = token_id`
 3. Si no existe → `reason: "revoked"` (el link fue borrado)
@@ -170,6 +174,7 @@ Validación:
 #### `apps/api/src/services/email.ts` — Logs de debug
 
 Agregados logs en cada paso del envío:
+
 - `[Email Service] RESEND_API_KEY present? true/false`
 - `[Email Service] Sending email via Resend... {from, to}`
 - `[Email Service] Resend response: {...}`
@@ -180,6 +185,7 @@ Esto permitió diagnosticar que el problema era que `RESEND_API_KEY` estaba en `
 #### `apps/api/src/controller/control_magic_links.ts` — Logs de debug
 
 Agregados logs alrededor del envío de email en `POST /`:
+
 - `[MagicLink Create] Attempting to send email to: ...`
 - `[MagicLink Create] Email send result: {sent, error?}`
 
@@ -216,6 +222,7 @@ export type User = AuthUser | MagicLinkUser
 ```
 
 `getAuthUser()`:
+
 - Intenta `jwt.verify` como `AuthUser` (campos `id_admin_users`)
 - Si falla, intenta como `MagicLinkUser` (campos `token_id`, `role`)
 - Retorna `null` si ambos fallan
@@ -229,6 +236,7 @@ export type User = AuthUser | MagicLinkUser
 #### `apps/admin-panel-web/src/components/session-monitor-provider.tsx`
 
 **Responsabilidades:**
+
 1. **Inicialización**: lee `magic-link-exp` de `document.cookie` al montar
 2. **Countdown**: `setInterval` cada 1s, formatea `H:MM:SS`
 3. **Polling**: `setInterval` cada 30s, llama `GET /api/auth/magic-link/session`
@@ -280,6 +288,7 @@ Thin hook que consume `SessionMonitorContext`. Usado por `SessionCountdown`.
 #### `apps/admin-panel-web/src/app/api/auth/magic-link/session/route.ts`
 
 Next.js Route Handler:
+
 1. Lee `auth-token` cookie (httpOnly) server-side
 2. Forwards como `Authorization: Bearer <token>` a `GET ${apiUrl}/auth/magic-link/session`
 3. Si la API devuelve `valid: true` pero sin `expiresAt`, enriquece con `getJwtExpiresAt()` del token
@@ -296,6 +305,7 @@ Por qué un Route Handler: el cliente JS no puede leer cookies httpOnly. Este en
 **Síntoma:** Creás un link de 1h, entrás con él, y a los pocos segundos aparece **"tiempo superado"** y te saca.
 
 **Causa raíz:** El flujo era:
+
 1. Usuario hace click → `POST /verify` marca el link como `status = "used"` (si es single-use)
 2. Se setea la cookie `auth-token` con JWT válido por 8h
 3. El `SessionMonitorProvider` hace su primera poll a `GET /session`
@@ -303,6 +313,7 @@ Por qué un Route Handler: el cliente JS no puede leer cookies httpOnly. Este en
 5. El provider no tiene handler para `"used"`, así que cae al default `"expired"` → toast "tiempo superado" → logout
 
 **Fix:**
+
 1. `GET /session` ya NO considera `status === "used"` como inválido. Solo `"revoked"` y tiempo vencido invalidan.
 2. `POST /verify` ahora devuelve `expiresAt` (la fecha REAL del link, no la del JWT de 8h), así que el countdown muestra el tiempo correcto.
 
@@ -319,11 +330,13 @@ Por qué un Route Handler: el cliente JS no puede leer cookies httpOnly. Este en
 **Síntoma:** Enviabas un link por email, la UI decía "Link enviado", pero nunca llegaba.
 
 **Causa raíz (triple problema):**
+
 1. `apps/api/src/env.ts` carga dotenv desde `../../.env` (root del monorepo), no desde `apps/api/.env`
 2. El `RESEND_API_KEY` estaba en `apps/api/.env` (creado por nosotros) pero el backend nunca lo leyó
 3. El root `.env` tenía una API key vieja de Resend (`re_6Kgm5Dav_...`) que no funcionaba
 
 **Fix:**
+
 1. Actualizar `RESEND_API_KEY` en el root `.env` con la key correcta proporcionada por el usuario
 2. Agregar logs de debug en `email.ts` y `control_magic_links.ts` para diagnóstico futuro
 3. El servicio ahora chequea `result.error` del objeto de retorno de Resend, no solo try/catch
@@ -341,6 +354,7 @@ Por qué un Route Handler: el cliente JS no puede leer cookies httpOnly. Este en
 **Síntoma:** El countdown era un Badge minúsculo (`h-5`, `text-xs`) escondido en el footer del sidebar, casi invisible.
 
 **Fix:**
+
 - Reposicionado al header superior derecho (`ml-auto`)
 - Agrandado a `h-8`, `text-sm`, con `ClockIcon`
 - Agregado `animate-pulse` en variante `danger` para mayor visibilidad
@@ -351,27 +365,27 @@ Por qué un Route Handler: el cliente JS no puede leer cookies httpOnly. Este en
 
 ### 6.1. Líneas de Código
 
-| Área | Archivos | Líneas (approx) |
-|---|---|---|
-| Backend (API + JWT + Email logs) | 3 | ~90 |
-| Frontend — Auth, Cookies, Middleware | 4 | ~60 |
-| Frontend — Estado cliente (Provider + Hook) | 2 | ~170 |
-| Frontend — UI (Countdown + Layout + Sidebar) | 3 | ~80 |
-| Frontend — Proxy Route Handler | 1 | ~60 |
-| **Total** | **13** | **~460** |
+| Área                                         | Archivos | Líneas (approx) |
+| -------------------------------------------- | -------- | --------------- |
+| Backend (API + JWT + Email logs)             | 3        | ~90             |
+| Frontend — Auth, Cookies, Middleware         | 4        | ~60             |
+| Frontend — Estado cliente (Provider + Hook)  | 2        | ~170            |
+| Frontend — UI (Countdown + Layout + Sidebar) | 3        | ~80             |
+| Frontend — Proxy Route Handler               | 1        | ~60             |
+| **Total**                                    | **13**   | **~460**        |
 
 ### 6.2. Escenarios Validados
 
-| # | Escenario | Resultado |
-|---|---|---|
-| 1 | Usuario entra con link de 1h, ve countdown en header | ✅ |
-| 2 | Esperar a que pase el tiempo → toast "tiempo superado" → redirect | ✅ |
-| 3 | Admin revoca link → sesión cierra en ≤30s → toast "link revocado" | ✅ |
-| 4 | Dos pestañas abiertas, admin revoca → ambas se cierran instantáneamente | ✅ |
-| 5 | Refresh de página → countdown resume desde tiempo restante correcto | ✅ |
-| 6 | Usuario admin (no magic-link) → no ve countdown, no hay polling | ✅ |
-| 7 | Enviar magic link por email → llega al inbox | ✅ |
-| 8 | Link de un solo uso → se marca "used" pero sesión sigue activa | ✅ |
+| #   | Escenario                                                               | Resultado |
+| --- | ----------------------------------------------------------------------- | --------- |
+| 1   | Usuario entra con link de 1h, ve countdown en header                    | ✅        |
+| 2   | Esperar a que pase el tiempo → toast "tiempo superado" → redirect       | ✅        |
+| 3   | Admin revoca link → sesión cierra en ≤30s → toast "link revocado"       | ✅        |
+| 4   | Dos pestañas abiertas, admin revoca → ambas se cierran instantáneamente | ✅        |
+| 5   | Refresh de página → countdown resume desde tiempo restante correcto     | ✅        |
+| 6   | Usuario admin (no magic-link) → no ve countdown, no hay polling         | ✅        |
+| 7   | Enviar magic link por email → llega al inbox                            | ✅        |
+| 8   | Link de un solo uso → se marca "used" pero sesión sigue activa          | ✅        |
 
 ---
 
@@ -407,4 +421,4 @@ Por qué un Route Handler: el cliente JS no puede leer cookies httpOnly. Este en
 
 ---
 
-*Informe generado tras la sesión de desarrollo del 2026-07-06. Magic Link Session Lifecycle implementado con SDD (Spec-Driven Development).*
+_Informe generado tras la sesión de desarrollo del 2026-07-06. Magic Link Session Lifecycle implementado con SDD (Spec-Driven Development)._

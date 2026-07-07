@@ -1,6 +1,7 @@
 import { AppSidebar } from "@/components/app-sidebar"
 import { SessionMonitorProvider } from "@/components/session-monitor-provider"
 import { SessionCountdown } from "@/components/session-countdown"
+import { MagicLinkRouteGuard } from "@/components/magic-link-route-guard"
 import {
   SidebarInset,
   SidebarProvider,
@@ -15,6 +16,13 @@ export default async function DashboardLayout({
   children: React.ReactNode
 }) {
   const user = await getAuthUser()
+
+  const guardedChildren =
+    user?.kind === "magic-link" ? (
+      <MagicLinkRouteGuard user={user}>{children}</MagicLinkRouteGuard>
+    ) : (
+      children
+    )
 
   return (
     <SessionMonitorProvider>
@@ -33,7 +41,7 @@ export default async function DashboardLayout({
               <SessionCountdown />
             </div>
           </header>
-          {children}
+          {guardedChildren}
         </SidebarInset>
       </SidebarProvider>
     </SessionMonitorProvider>
