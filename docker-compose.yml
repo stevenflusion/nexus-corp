@@ -94,6 +94,14 @@ services:
     depends_on:
       - api
 
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite
+    container_name: nexus-azurite
+    restart: unless-stopped
+    ports:
+      - "10000:10000"
+    command: "azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --skipApiVersionCheck"
+
   web:
 
     build:

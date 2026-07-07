@@ -1,0 +1,74 @@
+---
+import { FileCheck2, Lock, ShieldCheck } from "lucide-react"
+import Footer from "../../components/Footer.astro"
+import Header from "../../components/Header.astro"
+import MotionViewport from "../../components/MotionViewport"
+import CreditScoreForm from "../../components/CreditScoreForm"
+import MainLayout from "../../layouts/main.astro"
+
+const trustPoints = [
+  {
+    label: "Datos protegidos",
+    description: "Tu información viaja cifrada y solo la revisa tu asesor asignado.",
+    icon: Lock,
+  },
+  {
+    label: "Documentos verificados",
+    description: "Contrato firmado y selfie con cédula para validar tu identidad.",
+    icon: FileCheck2,
+  },
+  {
+    label: "Revisión con asesor",
+    description: "Un asesor de NEXUS revisa cada solicitud antes de resolverla.",
+    icon: ShieldCheck,
+  },
+]
+---
+
+<MainLayout
+  title="Solicitud de Score Crediticio | NEXUS"
+  description="Envía tus datos, tu contrato firmado y una selfie con tu cédula para iniciar tu solicitud de score crediticio con NEXUS."
+>
+  <Header />
+  <main id="contenido">
+    <section class="bg-white py-14 sm:py-18">
+      <div class="mx-auto grid max-w-7xl gap-8 px-5 lg:grid-cols-[0.86fr_1.14fr] lg:items-start lg:px-8">
+        <div data-motion="reveal">
+          <p class="section-eyebrow">Score crediticio</p>
+          <h1 class="mt-3 text-2xl font-black text-[var(--nexus-blue-dark)] sm:text-3xl">
+            Inicia tu solicitud en dos pasos.
+          </h1>
+          <p class="mt-5 max-w-2xl text-base leading-7 text-[var(--nexus-gray)]">
+            Completa tus datos y adjunta tu contrato firmado junto a una selfie sosteniendo tu
+            cédula. Con esto tu asesor podrá validar tu identidad y dar seguimiento a tu solicitud
+            de score crediticio.
+          </p>
+
+          <div class="mt-8 grid gap-3">
+            {
+              trustPoints.map(({ label, description, icon: Icon }) => (
+                <div class="flex items-start gap-4 rounded-lg border border-[var(--nexus-line)] bg-white p-4">
+                  <span class="grid size-11 shrink-0 place-items-center rounded-lg bg-[var(--nexus-green)] text-white">
+                    <Icon className="size-5" aria-hidden="true" />
+                  </span>
+                  <span>
+                    <span class="block text-sm font-black text-[var(--nexus-blue-dark)]">
+                      {label}
+                    </span>
+                    <span class="mt-1 block text-sm font-semibold text-[var(--nexus-gray)]">
+                      {description}
+                    </span>
+                  </span>
+                </div>
+              ))
+            }
+          </div>
+        </div>
+
+        <CreditScoreForm client:load />
+      </div>
+    </section>
+  </main>
+  <Footer />
+  <MotionViewport client:load />
+</MainLayout>
