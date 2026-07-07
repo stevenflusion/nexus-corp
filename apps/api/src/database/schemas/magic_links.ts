@@ -10,9 +10,9 @@ export const magicLinkStatusEnum = pgEnum("magic_link_status", [
 
 export const magicLinkRoleEnum = pgEnum("magic_link_role", [
     "admin",
-    "brand_manager",
-    "developer",
-    "external",
+    "sistemas",
+    "gerente_general",
+    "gerencia_marketing",
 ]);
 
 export const deliveryChannelEnum = pgEnum("delivery_channel", [

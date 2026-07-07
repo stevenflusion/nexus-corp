@@ -1,0 +1,898 @@
+{
+  "id": "8adeadc7-524e-4c8b-8dc0-181bed43b4d3",
+  "prevId": "aa843daf-0431-4a6d-a0c4-33c1e4562008",
+  "version": "7",
+  "dialect": "postgresql",
+  "tables": {
+    "public.admin_users": {
+      "name": "admin_users",
+      "schema": "",
+      "columns": {
+        "id_admin_users": {
+          "name": "id_admin_users",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "admin_users_id_admin_users_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name_admin_users": {
+          "name": "name_admin_users",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_admin_users": {
+          "name": "email_admin_users",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "password_admin_users": {
+          "name": "password_admin_users",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "active": {
+          "name": "active",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "admin_users_email_admin_users_unique": {
+          "name": "admin_users_email_admin_users_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "email_admin_users"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.audit_logs": {
+      "name": "audit_logs",
+      "schema": "",
+      "columns": {
+        "id_audit_logs": {
+          "name": "id_audit_logs",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "audit_logs_id_audit_logs_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "action_audit_logs": {
+          "name": "action_audit_logs",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "id_admin_users": {
+          "name": "id_admin_users",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "audit_logs_id_admin_users_admin_users_id_admin_users_fk": {
+          "name": "audit_logs_id_admin_users_admin_users_id_admin_users_fk",
+          "tableFrom": "audit_logs",
+          "tableTo": "admin_users",
+          "columnsFrom": [
+            "id_admin_users"
+          ],
+          "columnsTo": [
+            "id_admin_users"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.credit_scores": {
+      "name": "credit_scores",
+      "schema": "",
+      "columns": {
+        "id_credit_scores": {
+          "name": "id_credit_scores",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "credit_scores_id_credit_scores_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "storage_path_contract": {
+          "name": "storage_path_contract",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "storage_path_selfie": {
+          "name": "storage_path_selfie",
+          "type": "varchar(255)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "result_credit_scores": {
+          "name": "result_credit_scores",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "id_leads": {
+          "name": "id_leads",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_credit_scores": {
+          "name": "status_credit_scores",
+          "type": "status_credit_scores",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'PENDING'"
+        },
+        "observations_credit_scores": {
+          "name": "observations_credit_scores",
+          "type": "varchar(500)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "reviewed_by_magic_link": {
+          "name": "reviewed_by_magic_link",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "create_at": {
+          "name": "create_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "update_at": {
+          "name": "update_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "credit_scores_id_leads_leads_id_leads_fk": {
+          "name": "credit_scores_id_leads_leads_id_leads_fk",
+          "tableFrom": "credit_scores",
+          "tableTo": "leads",
+          "columnsFrom": [
+            "id_leads"
+          ],
+          "columnsTo": [
+            "id_leads"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "credit_scores_reviewed_by_magic_link_magic_links_id_fk": {
+          "name": "credit_scores_reviewed_by_magic_link_magic_links_id_fk",
+          "tableFrom": "credit_scores",
+          "tableTo": "magic_links",
+          "columnsFrom": [
+            "reviewed_by_magic_link"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.lead_notes": {
+      "name": "lead_notes",
+      "schema": "",
+      "columns": {
+        "id_lead_notes": {
+          "name": "id_lead_notes",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "lead_notes_id_lead_notes_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "manager_lead_notes": {
+          "name": "manager_lead_notes",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "note_lead_notes": {
+          "name": "note_lead_notes",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "id_leads": {
+          "name": "id_leads",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "lead_notes_id_leads_leads_id_leads_fk": {
+          "name": "lead_notes_id_leads_leads_id_leads_fk",
+          "tableFrom": "lead_notes",
+          "tableTo": "leads",
+          "columnsFrom": [
+            "id_leads"
+          ],
+          "columnsTo": [
+            "id_leads"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.leads": {
+      "name": "leads",
+      "schema": "",
+      "columns": {
+        "id_leads": {
+          "name": "id_leads",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "leads_id_leads_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "name_leads": {
+          "name": "name_leads",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "email_leads": {
+          "name": "email_leads",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "phone_leads": {
+          "name": "phone_leads",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "city_leads": {
+          "name": "city_leads",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status_leads": {
+          "name": "status_leads",
+          "type": "status_leads",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'new'"
+        },
+        "source_leads": {
+          "name": "source_leads",
+          "type": "source_leads",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'web'"
+        },
+        "monthly_family_income": {
+          "name": "monthly_family_income",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "coments_optionals_lead": {
+          "name": "coments_optionals_lead",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accepted_terms_lead": {
+          "name": "accepted_terms_lead",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
+        },
+        "accepted_terms_at": {
+          "name": "accepted_terms_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "accepted_terms_ip": {
+          "name": "accepted_terms_ip",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {
+        "leads_phone_leads_unique": {
+          "name": "leads_phone_leads_unique",
+          "nullsNotDistinct": false,
+          "columns": [
+            "phone_leads"
+          ]
+        }
+      },
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.quotes": {
+      "name": "quotes",
+      "schema": "",
+      "columns": {
+        "id_quotes": {
+          "name": "id_quotes",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true,
+          "identity": {
+            "type": "always",
+            "name": "quotes_id_quotes_seq",
+            "schema": "public",
+            "increment": "1",
+            "startWith": "1",
+            "minValue": "1",
+            "maxValue": "2147483647",
+            "cache": "1",
+            "cycle": false
+          }
+        },
+        "lead_id": {
+          "name": "lead_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "product_quotes": {
+          "name": "product_quotes",
+          "type": "product_quotes",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "requested_amount_quotes": {
+          "name": "requested_amount_quotes",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "down_payment_quotes": {
+          "name": "down_payment_quotes",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "term_months_quotes": {
+          "name": "term_months_quotes",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "annual_interest_rate_quotes": {
+          "name": "annual_interest_rate_quotes",
+          "type": "numeric(5, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "monthly_payment_quotes": {
+          "name": "monthly_payment_quotes",
+          "type": "numeric(10, 2)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "contact_preference_quotes": {
+          "name": "contact_preference_quotes",
+          "type": "contact_preference_quotes",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "result_status_quotes": {
+          "name": "result_status_quotes",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "'pending'"
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "quotes_lead_id_leads_id_leads_fk": {
+          "name": "quotes_lead_id_leads_id_leads_fk",
+          "tableFrom": "quotes",
+          "tableTo": "leads",
+          "columnsFrom": [
+            "lead_id"
+          ],
+          "columnsTo": [
+            "id_leads"
+          ],
+          "onDelete": "cascade",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.magic_links": {
+      "name": "magic_links",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "token_hash": {
+          "name": "token_hash",
+          "type": "varchar(64)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "status": {
+          "name": "status",
+          "type": "magic_link_status",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'active'"
+        },
+        "recipient_name": {
+          "name": "recipient_name",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "recipient_email": {
+          "name": "recipient_email",
+          "type": "varchar(150)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "recipient_phone": {
+          "name": "recipient_phone",
+          "type": "varchar(50)",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "internal_note": {
+          "name": "internal_note",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "role": {
+          "name": "role",
+          "type": "magic_link_role",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scope": {
+          "name": "scope",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "scope_id": {
+          "name": "scope_id",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "destination_screen": {
+          "name": "destination_screen",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "expiration_type": {
+          "name": "expiration_type",
+          "type": "expiration_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'relative'"
+        },
+        "expiration_date": {
+          "name": "expiration_date",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "deferred_activation": {
+          "name": "deferred_activation",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "usage_limit_type": {
+          "name": "usage_limit_type",
+          "type": "usage_limit_type",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'unlimited'"
+        },
+        "usage_limit": {
+          "name": "usage_limit",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "usage_count": {
+          "name": "usage_count",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "default": 0
+        },
+        "delivery_channel": {
+          "name": "delivery_channel",
+          "type": "delivery_channel",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "'generate_only'"
+        },
+        "created_by": {
+          "name": "created_by",
+          "type": "varchar(100)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "created_at": {
+          "name": "created_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "updated_at": {
+          "name": "updated_at",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {},
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    },
+    "public.magic_link_activity": {
+      "name": "magic_link_activity",
+      "schema": "",
+      "columns": {
+        "id": {
+          "name": "id",
+          "type": "varchar(36)",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "magic_link_id": {
+          "name": "magic_link_id",
+          "type": "varchar(36)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "timestamp": {
+          "name": "timestamp",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": true,
+          "default": "now()"
+        },
+        "result": {
+          "name": "result",
+          "type": "activity_result",
+          "typeSchema": "public",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "ip": {
+          "name": "ip",
+          "type": "varchar(45)",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "device": {
+          "name": "device",
+          "type": "varchar(200)",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "magic_link_activity_magic_link_id_magic_links_id_fk": {
+          "name": "magic_link_activity_magic_link_id_magic_links_id_fk",
+          "tableFrom": "magic_link_activity",
+          "tableTo": "magic_links",
+          "columnsFrom": [
+            "magic_link_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "compositePrimaryKeys": {},
+      "uniqueConstraints": {},
+      "policies": {},
+      "checkConstraints": {},
+      "isRLSEnabled": false
+    }
+  },
+  "enums": {
+    "public.status_credit_scores": {
+      "name": "status_credit_scores",
+      "schema": "public",
+      "values": [
+        "PENDING",
+        "UNDER_REVIEW",
+        "APPROVED",
+        "REJECTED",
+        "CANCELLED"
+      ]
+    },
+    "public.contact_preference_quotes": {
+      "name": "contact_preference_quotes",
+      "schema": "public",
+      "values": [
+        "phone",
+        "email",
+        "whatsapp",
+        "other"
+      ]
+    },
+    "public.product_quotes": {
+      "name": "product_quotes",
+      "schema": "public",
+      "values": [
+        "vehicle",
+        "housing",
+        "consumer"
+      ]
+    },
+    "public.source_leads": {
+      "name": "source_leads",
+      "schema": "public",
+      "values": [
+        "web",
+        "manual",
+        "quote",
+        "chatbot",
+        "otro"
+      ]
+    },
+    "public.status_leads": {
+      "name": "status_leads",
+      "schema": "public",
+      "values": [
+        "new",
+        "contacted",
+        "qualified",
+        "lost"
+      ]
+    },
+    "public.delivery_channel": {
+      "name": "delivery_channel",
+      "schema": "public",
+      "values": [
+        "generate_only",
+        "send_email",
+        "generate_qr"
+      ]
+    },
+    "public.expiration_type": {
+      "name": "expiration_type",
+      "schema": "public",
+      "values": [
+        "relative",
+        "absolute"
+      ]
+    },
+    "public.magic_link_role": {
+      "name": "magic_link_role",
+      "schema": "public",
+      "values": [
+        "admin",
+        "sistemas",
+        "gerente_general",
+        "gerencia_marketing"
+      ]
+    },
+    "public.magic_link_status": {
+      "name": "magic_link_status",
+      "schema": "public",
+      "values": [
+        "active",
+        "expired",
+        "used",
+        "revoked"
+      ]
+    },
+    "public.usage_limit_type": {
+      "name": "usage_limit_type",
+      "schema": "public",
+      "values": [
+        "single",
+        "unlimited",
+        "specific"
+      ]
+    },
+    "public.activity_result": {
+      "name": "activity_result",
+      "schema": "public",
+      "values": [
+        "success",
+        "failed_expired",
+        "failed_used",
+        "failed_revoked"
+      ]
+    }
+  },
+  "schemas": {},
+  "sequences": {},
+  "roles": {},
+  "policies": {},
+  "views": {},
+  "_meta": {
+    "columns": {},
+    "schemas": {},
+    "tables": {}
+  }
+}

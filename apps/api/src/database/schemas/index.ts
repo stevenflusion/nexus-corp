@@ -5,6 +5,7 @@ export * from "./leads";
 export * from "./quotes";
 export * from "./magic_links";
 export * from "./magic_link_activity";
+export * from "./analytics";
 export { statusEnum, sourceEnum } from "./leads";
 export { productEnum, contactPreferenceEnum } from "./quotes";
 export * from "./credit_scores";

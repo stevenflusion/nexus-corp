@@ -41,9 +41,15 @@ run_migrate() {
   npm run db:migrate 2>&1
 }
 
+run_seed_admin() {
+  npx tsx apps/api/src/scripts/seed-admin-direct.ts 2>&1
+}
+
 echo "[predev] Running migrations..."
 if run_migrate; then
   echo "[predev] Migrations applied successfully."
+  echo "[predev] Seeding admin user..."
+  run_seed_admin
   exit 0
 fi
 
@@ -71,6 +77,8 @@ if echo "$migrate_output" | grep -q "password authentication failed"; then
   echo "[predev] Re-running migrations..."
   if run_migrate; then
     echo "[predev] Migrations applied successfully after recreate."
+    echo "[predev] Seeding admin user..."
+    run_seed_admin
     exit 0
   else
     echo "[predev] ERROR: Migrations still failing after recreating postgres volume."

@@ -8,6 +8,7 @@ import { authController } from "../controller/control_auth";
 import { magicLinksController } from "../controller/control_magic_links";
 import { magicLinkAuthController } from "../controller/control_magic_link_auth";
 import { creditScoresController } from "../controller/control_credit_scores";
+import { analyticsController } from "../controller/control_analytics";
 
 const apiRouter = new Hono();
 
@@ -25,6 +26,8 @@ apiRouter.route("/notes", leadNotesController);
 apiRouter.route("/admin", admin_usersController);
 
 apiRouter.route("/audit-logs", auditLogsController);
+
+apiRouter.route("/analytics", analyticsController);
 
 //Sin authMiddleware porque ya esta integrado en su controller
 apiRouter.route("/auth", authController);

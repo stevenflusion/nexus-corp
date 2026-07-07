@@ -19,31 +19,28 @@ interface ScopeOption {
 
 const scopeOptions: Record<MagicLinkRole, ScopeOption[]> = {
   admin: [
-    { id: "global", label: "Global" },
-    { id: "system", label: "Sistema" },
+    { id: "rumiñahui-840", label: "840 Av. General Rumiñahui" },
+    { id: "el-porvenir-n60b", label: "El porvenir y n60b" },
   ],
-  brand_manager: [
-    { id: "brand-001", label: "Savanhi" },
-    { id: "brand-002", label: "Nexus" },
-    { id: "brand-003", label: "Corp Brand A" },
+  sistemas: [
+    { id: "rumiñahui-840", label: "840 Av. General Rumiñahui" },
+    { id: "el-porvenir-n60b", label: "El porvenir y n60b" },
   ],
-  developer: [
-    { id: "dev-001", label: "Dev Shop Centro" },
-    { id: "dev-002", label: "Dev Shop Norte" },
-    { id: "dev-003", label: "Dev Shop Sur" },
+  gerente_general: [
+    { id: "rumiñahui-840", label: "840 Av. General Rumiñahui" },
+    { id: "el-porvenir-n60b", label: "El porvenir y n60b" },
   ],
-  external: [
-    { id: "partner-001", label: "Zona Urbana" },
-    { id: "partner-002", label: "Zona Rural" },
-    { id: "partner-003", label: "Zona Mixta" },
+  gerencia_marketing: [
+    { id: "rumiñahui-840", label: "840 Av. General Rumiñahui" },
+    { id: "el-porvenir-n60b", label: "El porvenir y n60b" },
   ],
 }
 
 const roleLabels: Record<MagicLinkRole, string> = {
   admin: "Admin",
-  brand_manager: "Brand Manager",
-  developer: "Desarrollador",
-  external: "Externo",
+  sistemas: "Sistemas",
+  gerente_general: "Gerente General",
+  gerencia_marketing: "Gerencia de Marketing",
 }
 
 interface RoleScopeSelectProps {
